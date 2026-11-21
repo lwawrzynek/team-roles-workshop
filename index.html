@@ -838,7 +838,7 @@ var S = loadS();
   if(m && !S.instructor){ try{ var cf=JSON.parse(b64urlDec(m[1]));
     if(cf && typeof cf.i==="string"){ var cls={i:cf.i.slice(0,40),n:String(cf.n||"").slice(0,80),g:(Array.isArray(cf.g)?cf.g:[]).map(function(x){return String(x).slice(0,40);}).slice(0,30)};
       if(S.cls && S.cls.i!==cls.i){ S.assign={p1:{},p2:{}}; S.reflection={name:S.reflection.name,team:"",q1:"",q2:"",q3:""}; S.myRole=null; S.myCode=""; }
-      S.cls=cls; if(cls.g.length && cls.g.indexOf(S.reflection.team)<0) S.reflection.team=""; } }catch(e){} }
+      S.cls=cls; if(cls.g.length && cls.g.indexOf(S.reflection.team)<0) S.reflection.team=""; if(cls.g.length===1) S.reflection.team=cls.g[0]; } }catch(e){} }
 })();
 var saveTimer;
 function save(){ clearTimeout(saveTimer); saveTimer=setTimeout(function(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} },150); }
@@ -1745,7 +1745,7 @@ function openClassModal(edit){
   var gs=se?(se.groups||[]):DEFAULT_GROUPS;
   openModal('<h3>📚 '+esc(edit?t("editClass"):t("newClass"))+'</h3>'+
     '<div style="margin:10px 0"><label class="saved" for="cName">'+esc(t("classNameLbl"))+'</label><input class="urlin" id="cName" maxlength="80" value="'+esc(nm)+'"></div>'+
-    '<label class="saved" for="cGroups">'+esc(t("groupsLbl"))+'</label><div class="hints" style="margin:4px 0 6px">'+[3,4,5,6,8].map(function(n){return '<button class="hint" data-gq="'+n+'">'+n+'</button>';}).join("")+'</div>'+
+    '<label class="saved" for="cGroups">'+esc(t("groupsLbl"))+'</label><div class="hints" style="margin:4px 0 6px">'+[1,2,3,4,5,6,8].map(function(n){return '<button class="hint" data-gq="'+n+'">'+n+'</button>';}).join("")+'</div>'+
     '<textarea id="cGroups" class="grpta" rows="6">'+esc(gs.join("\n"))+'</textarea><div class="note" style="margin-top:4px">'+esc(t("groupsHint"))+'</div>'+
     (edit?'<div class="warn">'+esc(t("editWarn"))+'</div>':'')+
     '<div class="row"><button class="btn" data-close>'+esc(t("cancel"))+'</button><button class="btn accent" id="cSave" data-edit="'+(edit?1:0)+'">'+esc(edit?t("saveBtn"):t("createBtn"))+'</button></div>');
