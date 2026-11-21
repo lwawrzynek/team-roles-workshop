@@ -1885,6 +1885,11 @@ document.addEventListener("keydown",function(e){
   }
 });
 
+window.addEventListener("hashchange",function(){
+  var h=(location.hash||"").replace("#","").toLowerCase();
+  if(h==="instructor"||h==="prowadzacy"||h==="vyucujici"){ if(!S.instructor){ S.instructor=true; S.forceStudent=false; save(); closeModal(); render(); toast("🎓 "+t("instructorLbl")); } }
+  else if(h==="student"){ if(S.instructor){ S.instructor=false; S.forceStudent=true; S.presenter=false; if(S.view==="class") S.view="p1"; save(); render(); } }
+});
 render();
 if(!S.instructor && (!S.reflection.name.trim() || (S.cls && S.cls.g.length && !S.reflection.team))) setTimeout(openJoin,50);
 })();
