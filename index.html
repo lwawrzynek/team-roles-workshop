@@ -1571,15 +1571,17 @@ en:{
   subsLbl:"Subtitles", voiceLbl:"Voice",
   liveGoogleAlt:"No server yet? Use a Google Sheet instead (step-by-step)",
   liveSaved:"Saved", liveSending:"Saving…", livePending:"Changes will be saved", liveErr:"Not saved — check the internet", liveReady:"Live", liveSent:"Sent to your instructor",
-  liveOnTitle:"Live results", liveRefresh:"Refresh", liveCopyCfg:"Copy settings", liveDisconnect:"Disconnect",
+  liveOnTitle:"Live results", liveRefresh:"Refresh", liveCopyCfg:"Copy settings for another computer", liveDisconnect:"Disconnect",
   liveInfo:function(at,n){return "Updated "+at+" · "+n+" response(s) in this class · refreshes every 8 s";}, liveWaiting:"Connecting…", liveErrInfo:"Can’t read the sheet right now",
   liveQrNote:"The class QR code now includes automatic saving — show students the current code.",
   liveSetupTitle:"Live results (one-time setup)", liveSetupIntro:"Paste the address of your results server (Cloudflare Worker …workers.dev or Google /exec) and click Connect. Students’ answers then save automatically and this view refreshes by itself.",
   liveS1:"Create a new Google Sheet:", liveS2:"In the sheet: <b>Extensions → Apps Script</b>. Delete the sample code.", liveS3:"Paste the script and save (💾):", liveS4:"<b>Deploy → New deployment</b> → type <b>Web app</b> · Execute as: <b>Me</b> · Who has access: <b>Anyone</b> → <b>Deploy</b> → allow access (Advanced → Go to…).", liveS5:"Copy the <b>Web app URL</b> (ends with /exec), paste it below and click Connect.",
-  liveCopyScript:"Copy script", liveKeyPh:"Key (only when connecting a second computer)", liveConnect:"Connect", liveBadUrl:"Paste the server address: https://….workers.dev or the Google address ending with /exec.", liveConnecting:"Connecting…", liveConnected:"Connected — results will update live",
-  liveNeedKey:"This script is already connected elsewhere. On the first computer use “Copy settings” and paste the key here.", liveFail:"Connection failed.", liveFailHint:"Check the address and that the server is deployed.",
+  liveCopyScript:"Copy script", liveKeyPh:"Settings from another computer (optional)", liveConnect:"Connect", liveBadUrl:"Paste the server address: https://….workers.dev or the Google address ending with /exec.", liveConnecting:"Connecting…", liveConnected:"Connected — results will update live",
+  liveNeedKey:"This server is already connected to another computer. There, click “Copy settings” and paste the text here.", liveFail:"Connection failed.", liveFailHint:"Check the address and that the server is deployed.",
   liveOffText:"This computer stops reading live results. Data stays in your Google Sheet; codes still work.",
   liveShareSteps:["Students scan the QR code of this class.","They enter their name and pick their group.","Their answers save automatically to your Google Sheet.","This view updates live — then “End collection & show conclusions”."],
+  liveCfgCopied:"Settings copied — paste them on the other computer and click Connect",
+  liveCfgClasses:function(n){return n+" class(es) added";},
   topAgree:"Clearest agreement", noData:"Not enough data yet."
 },
 pl:{
@@ -1620,15 +1622,17 @@ pl:{
   subsLbl:"Subtitles", voiceLbl:"Voice",
   liveGoogleAlt:"Nie masz serwera? Użyj arkusza Google (krok po kroku)",
   liveSaved:"Zapisano", liveSending:"Zapisywanie…", livePending:"Zmiany zostaną zapisane", liveErr:"Nie zapisano — sprawdź internet", liveReady:"Na żywo", liveSent:"Wysłano do prowadzącego",
-  liveOnTitle:"Wyniki na żywo", liveRefresh:"Odśwież", liveCopyCfg:"Kopiuj ustawienia", liveDisconnect:"Odłącz",
+  liveOnTitle:"Wyniki na żywo", liveRefresh:"Odśwież", liveCopyCfg:"Kopiuj ustawienia na inny komputer", liveDisconnect:"Odłącz",
   liveInfo:function(at,n){return "Aktualizacja "+at+" · odpowiedzi w tych zajęciach: "+n+" · odświeżanie co 8 s";}, liveWaiting:"Łączenie…", liveErrInfo:"Nie można teraz odczytać arkusza",
   liveQrNote:"Kod QR zajęć zawiera teraz automatyczne zapisywanie — pokaż studentom aktualny kod.",
   liveSetupTitle:"Wyniki na żywo (jednorazowa konfiguracja)", liveSetupIntro:"Wklej adres swojego serwera wyników (Cloudflare Worker …workers.dev albo Google /exec) i kliknij Połącz. Odpowiedzi studentów będą się zapisywać same, a ten widok odświeżać automatycznie.",
   liveS1:"Utwórz nowy arkusz Google:", liveS2:"W arkuszu: <b>Rozszerzenia → Apps Script</b>. Usuń przykładowy kod.", liveS3:"Wklej skrypt i zapisz (💾):", liveS4:"<b>Wdróż → Nowe wdrożenie</b> → typ <b>Aplikacja internetowa</b> · Wykonaj jako: <b>Ja</b> · Kto ma dostęp: <b>Każdy</b> → <b>Wdróż</b> → zezwól na dostęp (Zaawansowane → Przejdź do…).", liveS5:"Skopiuj <b>adres URL aplikacji internetowej</b> (kończy się na /exec), wklej poniżej i kliknij Połącz.",
-  liveCopyScript:"Kopiuj skrypt", liveKeyPh:"Klucz (tylko przy podłączaniu drugiego komputera)", liveConnect:"Połącz", liveBadUrl:"Wklej adres serwera: https://….workers.dev albo adres Google kończący się na /exec.", liveConnecting:"Łączenie…", liveConnected:"Połączono — wyniki będą się aktualizować na żywo",
-  liveNeedKey:"Ten skrypt jest już połączony gdzie indziej. Na pierwszym komputerze użyj „Kopiuj ustawienia” i wklej tu klucz.", liveFail:"Nie udało się połączyć.", liveFailHint:"Sprawdź adres i czy serwer jest wdrożony.",
+  liveCopyScript:"Kopiuj skrypt", liveKeyPh:"Ustawienia z innego komputera (opcjonalnie)", liveConnect:"Połącz", liveBadUrl:"Wklej adres serwera: https://….workers.dev albo adres Google kończący się na /exec.", liveConnecting:"Łączenie…", liveConnected:"Połączono — wyniki będą się aktualizować na żywo",
+  liveNeedKey:"Ten serwer jest już połączony z innym komputerem. Tam kliknij „Kopiuj ustawienia” i wklej tu skopiowany tekst.", liveFail:"Nie udało się połączyć.", liveFailHint:"Sprawdź adres i czy serwer jest wdrożony.",
   liveOffText:"Ten komputer przestanie odczytywać wyniki na żywo. Dane zostają w Twoim arkuszu Google, a kody nadal działają.",
   liveShareSteps:["Studenci skanują kod QR tych zajęć.","Wpisują imię i wybierają grupę z listy.","Odpowiedzi zapisują się same w Twoim arkuszu Google.","Ten widok aktualizuje się na żywo — na koniec „Zakończ zbieranie i pokaż wnioski”."],
+  liveCfgCopied:"Skopiowano ustawienia — wklej je na drugim komputerze i kliknij Połącz",
+  liveCfgClasses:function(n){return "dodano zajęć: "+n;},
   topAgree:"Największa zgodność", noData:"Za mało danych."
 },
 cs:{
@@ -1669,15 +1673,17 @@ cs:{
   subsLbl:"Subtitles", voiceLbl:"Voice",
   liveGoogleAlt:"Nemáte server? Použijte tabulku Google (krok za krokem)",
   liveSaved:"Uloženo", liveSending:"Ukládání…", livePending:"Změny se uloží", liveErr:"Neuloženo — zkontrolujte internet", liveReady:"Živě", liveSent:"Odesláno vyučujícímu",
-  liveOnTitle:"Výsledky živě", liveRefresh:"Obnovit", liveCopyCfg:"Kopírovat nastavení", liveDisconnect:"Odpojit",
+  liveOnTitle:"Výsledky živě", liveRefresh:"Obnovit", liveCopyCfg:"Kopírovat nastavení pro jiný počítač", liveDisconnect:"Odpojit",
   liveInfo:function(at,n){return "Aktualizace "+at+" · odpovědí v této výuce: "+n+" · obnovení každých 8 s";}, liveWaiting:"Připojování…", liveErrInfo:"Tabulku teď nelze načíst",
   liveQrNote:"QR kód výuky teď obsahuje automatické ukládání — ukažte studentům aktuální kód.",
   liveSetupTitle:"Výsledky živě (jednorázové nastavení)", liveSetupIntro:"Vložte adresu svého serveru výsledků (Cloudflare Worker …workers.dev nebo Google /exec) a klikněte na Připojit. Odpovědi studentů se pak ukládají samy a tento pohled se obnovuje automaticky.",
   liveS1:"Vytvořte novou tabulku Google:", liveS2:"V tabulce: <b>Rozšíření → Apps Script</b>. Smažte ukázkový kód.", liveS3:"Vložte skript a uložte (💾):", liveS4:"<b>Nasadit → Nové nasazení</b> → typ <b>Webová aplikace</b> · Spustit jako: <b>Já</b> · Kdo má přístup: <b>Kdokoli</b> → <b>Nasadit</b> → povolte přístup (Rozšířené → Přejít na…).", liveS5:"Zkopírujte <b>URL webové aplikace</b> (končí na /exec), vložte ji níže a klikněte na Připojit.",
-  liveCopyScript:"Kopírovat skript", liveKeyPh:"Klíč (jen při připojení druhého počítače)", liveConnect:"Připojit", liveBadUrl:"Vložte adresu serveru: https://….workers.dev nebo adresu Google končící na /exec.", liveConnecting:"Připojování…", liveConnected:"Připojeno — výsledky se budou aktualizovat živě",
-  liveNeedKey:"Tento skript je už připojen jinde. Na prvním počítači použijte „Kopírovat nastavení“ a vložte sem klíč.", liveFail:"Připojení se nezdařilo.", liveFailHint:"Zkontrolujte adresu a že je server nasazený.",
+  liveCopyScript:"Kopírovat skript", liveKeyPh:"Nastavení z jiného počítače (volitelné)", liveConnect:"Připojit", liveBadUrl:"Vložte adresu serveru: https://….workers.dev nebo adresu Google končící na /exec.", liveConnecting:"Připojování…", liveConnected:"Připojeno — výsledky se budou aktualizovat živě",
+  liveNeedKey:"Tento server je už připojen k jinému počítači. Tam klikněte na „Kopírovat nastavení“ a vložte sem zkopírovaný text.", liveFail:"Připojení se nezdařilo.", liveFailHint:"Zkontrolujte adresu a že je server nasazený.",
   liveOffText:"Tento počítač přestane načítat výsledky živě. Data zůstanou ve vaší tabulce Google a kódy dál fungují.",
   liveShareSteps:["Studenti naskenují QR kód této výuky.","Zadají jméno a vyberou skupinu.","Odpovědi se samy ukládají do vaší tabulky Google.","Tento pohled se aktualizuje živě — nakonec „Ukončit sběr a ukázat závěry“."],
+  liveCfgCopied:"Nastavení zkopírováno — vložte ho na druhém počítači a klikněte na Připojit",
+  liveCfgClasses:function(n){return "přidáno výuk: "+n;},
   topAgree:"Největší shoda", noData:"Zatím málo dat."
 }};
 LANGS.forEach(function(l){ Object.keys(T2[l]).forEach(function(k){ T[l][k]=T2[l][k]; }); });
@@ -1928,13 +1934,25 @@ function liveCardHTML(){
   return h+'</div>';
 }
 function liveInfoText(){ return esc(livePoll.err?t("liveErrInfo")+" ("+livePoll.err+")":(livePoll.at?t("liveInfo")(livePoll.at,livePoll.n):t("liveWaiting"))); }
+function liveCfgString(){ return "HKCFG:"+b64url(JSON.stringify({u:C.live.url,k:C.live.key,c:C.classes.map(function(x){return {i:x.id,n:x.name,g:x.groups||[],s:x.startedAt};})})); }
+function liveApplyCfg(txt){
+  var m=/HKCFG:([A-Za-z0-9_\-]+)/.exec(txt||""); if(!m) return null;
+  try{ var o=JSON.parse(b64urlDec(m[1])); if(!o || !o.u || !o.k) return null;
+    (o.c||[]).forEach(function(c){ if(!c || !c.i) return; var ex=C.classes.filter(function(x){return x.id===c.i;})[0];
+      if(ex){ ex.name=String(c.n||ex.name); ex.groups=Array.isArray(c.g)?c.g.map(String):ex.groups; }
+      else C.classes.push({id:String(c.i).slice(0,40),name:String(c.n||"Class").slice(0,80),groups:Array.isArray(c.g)?c.g.map(String):[],startedAt:String(c.s||new Date().toISOString()),students:{}}); });
+    C.classes=C.classes.filter(function(x){ return Object.keys(x.students).length || !/^Workshop \d{4}-/.test(x.name) || (o.c||[]).some(function(c){return c.i===x.id;}); });
+    if(!C.classes.some(function(x){return x.id===C.activeId;})) C.activeId=C.classes[C.classes.length-1].id;
+    return {url:String(o.u),key:String(o.k),n:(o.c||[]).length}; }catch(e){ return null; }
+}
 function liveConnect(){
   var url=($("#liveUrl").value||"").trim(), key=($("#liveKey").value||"").trim(), msg=$("#liveMsg");
+  var cfg=liveApplyCfg(url+" "+key); if(cfg){ url=cfg.url; key=cfg.key; }
   url=url.replace(/\/+$/,""); if(!liveUrlOk(url)){ msg.textContent="⚠️ "+t("liveBadUrl"); return; }
   var newKey=key||("k"+Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)+Date.now().toString(36));
   msg.textContent="⏳ "+t("liveConnecting");
   fetch(url+"?action=init&key="+encodeURIComponent(newKey)).then(function(r){return r.json();}).then(function(j){
-    if(j && j.ok){ C.live={url:url,key:newKey}; saveC(); livePoll.err=""; render(); toast("🟢 "+t("liveConnected")); liveStartPoll(true); }
+    if(j && j.ok){ C.live={url:url,key:newKey}; saveC(); livePoll.err=""; render(); toast("🟢 "+t("liveConnected")+(cfg?" · "+t("liveCfgClasses")(cfg.n):"")); liveStartPoll(true); }
     else if(j && j.error==="already-initialized"){ msg.textContent="⚠️ "+t("liveNeedKey"); }
     else msg.textContent="⚠️ "+t("liveFail")+" "+((j&&j.error)||"");
   }).catch(function(){ msg.textContent="⚠️ "+t("liveFail")+" "+t("liveFailHint"); });
@@ -1970,7 +1988,7 @@ document.addEventListener("click",function(e){
   if(tg.closest("#liveCopyScript")){ copyText(GAS_SCRIPT, t("copied")); return; }
   if(tg.closest("#liveConnect")){ liveConnect(); return; }
   if(tg.closest("#liveNow")){ livePollOnce(); return; }
-  if(tg.closest("#liveCopyCfg")){ copyText(C.live.url+"\n"+C.live.key, t("copied")); return; }
+  if(tg.closest("#liveCopyCfg")){ copyText(liveCfgString(), t("liveCfgCopied")); return; }
   if(tg.closest("#liveOff")){ openModal('<h3>'+esc(t("liveDisconnect"))+'</h3><p class="brief">'+esc(t("liveOffText"))+'</p><div class="row"><button class="btn" data-close>'+esc(t("cancel"))+'</button><button class="btn primary" id="liveOffOk" style="background:#b42318;border-color:#b42318">'+esc(t("liveDisconnect"))+'</button></div>'); return; }
   if(tg.closest("#liveOffOk")){ C.live=null; saveC(); clearInterval(livePoll.timer); closeModal(); render(); return; }
   if(tg.closest(".tab") || tg.closest("#endCollect") || tg.closest("#showConcl")){ setTimeout(function(){ if(C.live) livePollOnce(); },50); }
