@@ -2,6 +2,7 @@
 name = "team-roles-live"
 main = "cloudflare/src/index.js"
 compatibility_date = "2025-01-01"
+# auto-deploy check 2026-11-21
 workers_dev = true
 
 [[d1_databases]]
