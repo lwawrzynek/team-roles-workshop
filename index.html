@@ -387,6 +387,15 @@ body.instructor #joinRow{display:none}
 .langpair{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
 .lp{display:inline-flex;align-items:center;gap:6px}
 .lpl{font-size:.78rem;font-weight:700;color:var(--muted)}
+.livechip{font-size:.8rem;font-weight:700;border-radius:999px;padding:6px 12px;background:#efede7;color:var(--muted);align-self:center}
+.livechip.ok{background:#e7f6ee;color:#0b5c3e}
+.livechip.err{background:#fde7e4;color:#9b1c12}
+.livechip.sending,.livechip.pending{background:#fff6e0;color:#6b4a00}
+.livecard{border:2px solid #e7f6ee}
+.livesteps li{margin-bottom:8px}
+.liveform{display:grid;grid-template-columns:2fr 1fr auto;gap:8px;align-items:center;margin-top:8px}
+.liveform .urlin{margin:0}
+@media (max-width:860px){ .liveform{grid-template-columns:1fr} }
 
 </style>
 </head>
@@ -423,6 +432,7 @@ body.instructor #joinRow{display:none}
     <div class="navbar">
       <div class="tabs" role="tablist" id="tabs"></div>
       <div class="actions">
+        <span class="livechip" id="liveChip" style="display:none"></span>
         <button class="btn accent" id="bSubmit" data-personal></button>
         <button class="btn" id="bCopy"></button>
         <button class="btn" id="bExport" data-personal></button>
@@ -827,8 +837,8 @@ function blank(){return {lang:"en",instructor:false,forceStudent:false,presenter
   assign:{p1:{},p2:{}},reflection:{name:"",team:"",q1:"",q2:"",q3:""}};}
 function merge(base, src){
   if(!src || typeof src!=="object") return base;
-  ["lang","myCode","view","filter","voiceLang"].forEach(function(k){ if(typeof src[k]==="string") base[k]=src[k]; });
-  if(src.cls && typeof src.cls.i==="string") base.cls={i:src.cls.i,n:String(src.cls.n||""),g:Array.isArray(src.cls.g)?src.cls.g.map(String):[]};
+  ["lang","myCode","view","filter","voiceLang","did"].forEach(function(k){ if(typeof src[k]==="string") base[k]=src[k]; });
+  if(src.cls && typeof src.cls.i==="string") base.cls={u:typeof src.cls.u==="string"?src.cls.u:"",i:src.cls.i,n:String(src.cls.n||""),g:Array.isArray(src.cls.g)?src.cls.g.map(String):[]};
   ["instructor","forceStudent","wasInstructor","presenter","showFit","introSeen","autoRead"].forEach(function(k){ if(typeof src[k]==="boolean") base[k]=src[k]; });
   if(ROLES.indexOf(src.myRole)>-1) base.myRole=src.myRole;
   if(src.assign){ ["p1","p2"].forEach(function(p){ var a=src.assign[p]||{}; for(var n=1;n<=20;n++){ var x=a[n]; if(x){ base.assign[p][n]={role:ROLES.indexOf(x.role)>-1?x.role:null,member:typeof x.member==="string"?x.member.slice(0,60):""}; } } }); }
@@ -839,18 +849,19 @@ function merge(base, src){
 }
 function loadS(){ var s=blank(); try{ var raw=localStorage.getItem(KEY); if(raw) s=merge(s,JSON.parse(raw)); else { var nl=(navigator.language||"en").slice(0,2).toLowerCase(); if(LANGS.indexOf(nl)>-1) s.lang=nl; } }catch(e){} return s; }
 var S = loadS();
+if(!S.did){ S.did="d"+Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
 (function(){ var h=(location.hash||"").replace("#","").toLowerCase();
   if(h==="instructor"||h==="prowadzacy"||h==="vyucujici"){ S.instructor=true; S.forceStudent=false; }
   if(h==="student"){ S.instructor=false; S.forceStudent=true; S.presenter=false; }
   if(!S.instructor) S.presenter=false;
   var m=/[?&]z=([A-Za-z0-9_\-]+)/.exec(location.search||"");
   if(m && !S.instructor){ try{ var cf=JSON.parse(b64urlDec(m[1]));
-    if(cf && typeof cf.i==="string"){ var cls={i:cf.i.slice(0,40),n:String(cf.n||"").slice(0,80),g:(Array.isArray(cf.g)?cf.g:[]).map(function(x){return String(x).slice(0,40);}).slice(0,30)};
+    if(cf && typeof cf.i==="string"){ var cls={u:(typeof cf.u==="string" && /^https:\/\/script\.google(usercontent)?\.com\//.test(cf.u))?cf.u:"",i:cf.i.slice(0,40),n:String(cf.n||"").slice(0,80),g:(Array.isArray(cf.g)?cf.g:[]).map(function(x){return String(x).slice(0,40);}).slice(0,30)};
       if(S.cls && S.cls.i!==cls.i){ S.assign={p1:{},p2:{}}; S.reflection={name:S.reflection.name,team:"",q1:"",q2:"",q3:""}; S.myRole=null; S.myCode=""; }
       S.cls=cls; if(cls.g.length && cls.g.indexOf(S.reflection.team)<0) S.reflection.team=""; if(cls.g.length===1) S.reflection.team=cls.g[0]; } }catch(e){} }
 })();
 var saveTimer;
-function save(){ clearTimeout(saveTimer); saveTimer=setTimeout(function(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} },150); }
+function save(){ clearTimeout(saveTimer); saveTimer=setTimeout(function(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} if(typeof liveSchedule==="function") liveSchedule(); },150); }
 
 /* ================= Class (instructor) state ================= */
 var CKEY = "hk-team-roles-class-v1";
@@ -862,7 +873,8 @@ function loadC(){ var c={qrUrl:DEFAULT_URL, classes:[], activeId:null, archives:
       if(Array.isArray(o.classes)) c.classes=o.classes.filter(function(x){return x && x.students;});
       else if(o.session && o.session.students) c.classes=[o.session];
       if(typeof o.activeId==="string") c.activeId=o.activeId;
-      if(Array.isArray(o.archives)) c.archives=o.archives; if(o.classProj==="p2") c.classProj="p2"; } } }catch(e){}
+      if(Array.isArray(o.archives)) c.archives=o.archives; if(o.classProj==="p2") c.classProj="p2";
+      if(o.live && typeof o.live.url==="string" && typeof o.live.key==="string") c.live={url:o.live.url,key:o.live.key}; } } }catch(e){}
   c.classes.forEach(function(x){ if(!Array.isArray(x.groups)) x.groups=[]; });
   if(!c.classes.length) c.classes.push(newSession());
   if(!c.classes.some(function(x){return x.id===c.activeId;})) c.activeId=c.classes[c.classes.length-1].id;
@@ -871,7 +883,7 @@ function loadC(){ var c={qrUrl:DEFAULT_URL, classes:[], activeId:null, archives:
 function b64url(s){ return b64e(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""); }
 function b64urlDec(s){ s=String(s).replace(/-/g,"+").replace(/_/g,"/"); while(s.length%4) s+="="; return b64d(s); }
 function baseUrl(){ return String(C.qrUrl||DEFAULT_URL).split("#")[0].split("?")[0]; }
-function classLink(cls){ cls=cls||C.session; return baseUrl()+"?z="+b64url(JSON.stringify({i:cls.id,n:cls.name,g:cls.groups||[]})); }
+function classLink(cls){ cls=cls||C.session; var o={i:cls.id,n:cls.name,g:cls.groups||[]}; if(C.live && C.live.url) o.u=C.live.url; return baseUrl()+"?z="+b64url(JSON.stringify(o)); }
 var C = loadC();
 var viewingArchive = null; // archive id or null
 function saveC(){ try{ localStorage.setItem(CKEY, JSON.stringify(C)); }catch(e){ toast("Storage full — download and delete old archives."); } }
@@ -1080,6 +1092,8 @@ function renderChrome(){
   document.body.classList.toggle("presenter", S.presenter);
   document.body.classList.toggle("instructor", !!S.instructor);
   if(S.instructor) S.wasInstructor=true;
+  if(typeof liveStatus==="function") liveStatus(liveState.status||"idle", liveState.okAt||"");
+  if(S.instructor && C.live && !livePoll.timer) liveStartPoll(true);
   var bb=$("#bBackInstr"); if(bb){ bb.style.display=(!S.instructor && S.wasInstructor)?"":"none"; bb.innerHTML="🎓 "+esc(t("backInstr")); }
   $("#bStudentView").innerHTML="👤 "+esc(t("studentView")); $("#instrBadge").textContent="🎓 "+t("instructorLbl");
   renderStart(); renderTabs();
@@ -1275,7 +1289,7 @@ function encodeSub(){
   var R=S.reflection;
   function line(p){ var s=""; for(var n=1;n<=20;n++){ var r=a(p,n).role; s+=r?LETTER[r]:"-"; } return s; }
   function mems(p){ var arr=[]; for(var n=1;n<=20;n++) arr.push(a(p,n).member||""); while(arr.length && !arr[arr.length-1]) arr.pop(); return arr; }
-  var o={v:1,k:S.cls?S.cls.i:"",n:R.name.trim(),t:R.team.trim(),r:S.myRole?LETTER[S.myRole]:"",c:codeToRole(S.myCode)?S.myCode:"",l:S.lang,a1:line("p1"),a2:line("p2"),m1:mems("p1"),m2:mems("p2"),q:[R.q1,R.q2,R.q3],at:new Date().toISOString()};
+  var o={v:1,k:S.cls?S.cls.i:"",d:S.did||"",n:R.name.trim(),t:R.team.trim(),r:S.myRole?LETTER[S.myRole]:"",c:codeToRole(S.myCode)?S.myCode:"",l:S.lang,a1:line("p1"),a2:line("p2"),m1:mems("p1"),m2:mems("p2"),q:[R.q1,R.q2,R.q3],at:new Date().toISOString()};
   return "HK1:"+b64e(JSON.stringify(o));
 }
 function cleanSub(o){
@@ -1284,7 +1298,7 @@ function cleanSub(o){
   function line(x){ x=str(x,20).toUpperCase(); var s=""; for(var i=0;i<20;i++){ var ch=x.charAt(i); s+=FROMLETTER[ch]?ch:"-"; } return s; }
   function mems(x){ var arr=[]; for(var i=0;i<20;i++) arr.push(Array.isArray(x)?str(x[i],60):""); return arr; }
   var q=Array.isArray(o.q)?o.q:[];
-  return {k:str(o.k,40),n:str(o.n,60).trim(),t:str(o.t,60).trim(),r:FROMLETTER[o.r]?o.r:"",c:str(o.c,6).toUpperCase(),l:str(o.l,2),a1:line(o.a1),a2:line(o.a2),m1:mems(o.m1),m2:mems(o.m2),q:[str(q[0],4000),str(q[1],4000),str(q[2],4000)],at:str(o.at,40)||new Date().toISOString()};
+  return {k:str(o.k,40),d:str(o.d,40),n:str(o.n,60).trim(),t:str(o.t,60).trim(),r:FROMLETTER[o.r]?o.r:"",c:str(o.c,6).toUpperCase(),l:str(o.l,2),a1:line(o.a1),a2:line(o.a2),m1:mems(o.m1),m2:mems(o.m2),q:[str(q[0],4000),str(q[1],4000),str(q[2],4000)],at:str(o.at,40)||new Date().toISOString()};
 }
 function decodeToken(tok){ try{ return cleanSub(JSON.parse(b64d(tok.replace(/^HK1:/,"")))); }catch(e){ return null; } }
 function subFromFullExport(o){
@@ -1347,7 +1361,7 @@ function classHTML(){
     h+='<div class="clsgrid"><div class="card"><h3>📱 '+esc(t("shareTitle"))+'</h3><div class="kicker" style="margin-bottom:6px">'+esc(t("qrFor"))+' '+esc(se.name)+'</div><div class="qrbox" id="qrBox">'+qrSVG(classLink(se))+'</div>';
     h+='<label class="saved" for="qrUrl" style="display:block;margin-top:10px">'+esc(t("baseUrlLbl"))+'</label><input class="urlin" id="qrUrl" value="'+esc(C.qrUrl)+'" spellcheck="false">';
     h+='<div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm" id="bigQr">⛶ '+esc(t("bigQr"))+'</button><button class="btn sm" id="copyLink">⧉ '+esc(t("copyLink"))+'</button></div>';
-    h+='<ol class="steps">'+t("shareSteps").map(function(s){return '<li>'+esc(s)+'</li>';}).join("")+'</ol><div class="note">ⓘ '+esc(t("qrNote"))+'</div></div>';
+    h+='<ol class="steps">'+t(C.live&&C.live.url?"liveShareSteps":"shareSteps").map(function(s){return '<li>'+esc(s)+'</li>';}).join("")+'</ol><div class="note">ⓘ '+esc(t("qrNote"))+'</div></div>';
     h+='<div class="card collect"><h3>📥 '+esc(t("collectTitle"))+'</h3><p class="brief" style="margin-top:0">'+esc(t("clsIntro"))+'</p><textarea id="clsPaste" placeholder="'+esc(t("clsPaste"))+'" '+(se.closedAt?"disabled":"")+'></textarea>';
     h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="btn primary" id="clsAdd">＋ '+esc(t("clsAdd"))+'</button><label class="btn">📂 '+esc(t("clsFiles"))+'<input type="file" id="clsFiles" accept=".json,.txt,application/json,text/plain" multiple hidden></label></div>';
     h+='<h3 style="margin-top:18px">🗄️ '+esc(t("archives"))+'</h3>';
@@ -1355,6 +1369,7 @@ function classHTML(){
     else{ h+='<div class="archlist">'; C.archives.slice().reverse().forEach(function(x){ h+='<div class="archrow"><div><div class="an">'+esc(x.name)+'</div><div class="ad">'+esc(fmtDate(x.startedAt||x.archivedAt))+' · '+esc(t("sessCount")(Object.keys(x.students).length))+'</div></div><div style="display:flex;gap:6px"><button class="btn sm" data-arch-open="'+esc(x.id)+'">'+esc(t("archView"))+'</button><button class="btn sm" data-arch-dl="'+esc(x.id)+'">⬇ '+esc(t("dlSession"))+'</button><button class="btn sm danger" data-arch-del="'+esc(x.id)+'">'+esc(t("archDelete"))+'</button></div></div>'; }); h+='</div>'; }
     h+='<label class="btn sm" style="margin-top:8px">📂 '+esc(t("archImport"))+'<input type="file" id="archFiles" accept=".json,application/json" multiple hidden></label>';
     h+='</div></div>';
+    h+=liveCardHTML();
     h+='<div class="sessbar"><span class="kicker">'+esc(t("sessLbl"))+'</span><input id="sessName" value="'+esc(se.name)+'" maxlength="80"><span class="meta2">'+esc(t("sessStarted"))+' '+esc(fmtDate(se.startedAt))+' · <b>'+esc(t("sessCount")(list.length))+'</b></span><span class="spacer"></span>';
     h+='<button class="btn sm" id="sessCsv" '+(list.length?"":"disabled")+'>⧉ '+esc(t("copyCsv"))+'</button><button class="btn sm" id="sessDl" '+(list.length?"":"disabled")+'>⬇ '+esc(t("dlSession"))+'</button><button class="btn sm" id="sessArchive" '+(list.length?"":"disabled")+'>🗄️ '+esc(t("archive"))+'</button>'+
       (se.closedAt?'<span class="tag" style="--cbg:#fde7e4;--cink:#9b1c12">⏹ '+esc(t("collectClosed"))+'</span><button class="btn sm" id="reopenCollect">↺ '+esc(t("reopen"))+'</button><button class="btn sm accent" id="showConcl">📊 '+esc(t("showConcl"))+'</button>'
@@ -1443,6 +1458,10 @@ function doArchive(){
 
 /* ================= Student submit ================= */
 function openSubmit(){
+  if(liveOn() && S.reflection.name.trim() && (!S.cls.g.length || S.reflection.team)){ liveSync(true); return; }
+  openSubmitCode();
+}
+function openSubmitCode(){
   if(!S.reflection.name.trim()){
     openModal('<h3>📨 '+esc(t("subTitle"))+'</h3><p class="brief">'+esc(t("subNeedName"))+'</p><div class="fields"><div><label for="subName">'+esc(t("yourName"))+'</label><input id="subName" maxlength="60" autocomplete="name"></div><div><label for="subTeam">'+esc(t("team"))+'</label><input id="subTeam" maxlength="60" value="'+esc(S.reflection.team)+'"></div></div><div class="row"><button class="btn" data-close>'+esc(t("cancel"))+'</button><button class="btn accent" id="subNameOk">'+esc(t("introNext"))+' →</button></div>');
     return;
@@ -1547,6 +1566,16 @@ en:{
   compareBtn:"Compare", grpNoData:"no submissions yet", grpAgree:function(pc){return "members fully agree on "+pc+"% of tasks";}, colTeam:"Team",
   backInstr:"Back to instructor view",
   subsLbl:"Subtitles", voiceLbl:"Voice",
+  liveSaved:"Saved", liveSending:"Saving…", livePending:"Changes will be saved", liveErr:"Not saved — check the internet", liveReady:"Live", liveSent:"Sent to your instructor",
+  liveOnTitle:"Live results (Google Sheets)", liveRefresh:"Refresh", liveCopyCfg:"Copy settings", liveDisconnect:"Disconnect",
+  liveInfo:function(at,n){return "Updated "+at+" · "+n+" response(s) in this class · refreshes every 8 s";}, liveWaiting:"Connecting…", liveErrInfo:"Can’t read the sheet right now",
+  liveQrNote:"The class QR code now includes automatic saving — show students the current code.",
+  liveSetupTitle:"Live results (one-time setup, ~5 min)", liveSetupIntro:"Students’ answers are saved automatically to a Google Sheet on your account; this view refreshes by itself.",
+  liveS1:"Create a new Google Sheet:", liveS2:"In the sheet: <b>Extensions → Apps Script</b>. Delete the sample code.", liveS3:"Paste the script and save (💾):", liveS4:"<b>Deploy → New deployment</b> → type <b>Web app</b> · Execute as: <b>Me</b> · Who has access: <b>Anyone</b> → <b>Deploy</b> → allow access (Advanced → Go to…).", liveS5:"Copy the <b>Web app URL</b> (ends with /exec), paste it below and click Connect.",
+  liveCopyScript:"Copy script", liveKeyPh:"Key (only when connecting a second computer)", liveConnect:"Connect", liveBadUrl:"Paste the Web app URL ending with /exec.", liveConnecting:"Connecting…", liveConnected:"Connected — results will update live",
+  liveNeedKey:"This script is already connected elsewhere. On the first computer use “Copy settings” and paste the key here.", liveFail:"Connection failed.", liveFailHint:"Check “Who has access: Anyone” and that you copied the /exec address.",
+  liveOffText:"This computer stops reading live results. Data stays in your Google Sheet; codes still work.",
+  liveShareSteps:["Students scan the QR code of this class.","They enter their name and pick their group.","Their answers save automatically to your Google Sheet.","This view updates live — then “End collection & show conclusions”."],
   topAgree:"Clearest agreement", noData:"Not enough data yet."
 },
 pl:{
@@ -1585,6 +1614,16 @@ pl:{
   compareBtn:"Porównaj", grpNoData:"brak zgłoszeń", grpAgree:function(pc){return "pełna zgodność członków w "+pc+"% zadań";}, colTeam:"Zespół",
   backInstr:"Wróć do widoku prowadzącego",
   subsLbl:"Subtitles", voiceLbl:"Voice",
+  liveSaved:"Zapisano", liveSending:"Zapisywanie…", livePending:"Zmiany zostaną zapisane", liveErr:"Nie zapisano — sprawdź internet", liveReady:"Na żywo", liveSent:"Wysłano do prowadzącego",
+  liveOnTitle:"Wyniki na żywo (arkusz Google)", liveRefresh:"Odśwież", liveCopyCfg:"Kopiuj ustawienia", liveDisconnect:"Odłącz",
+  liveInfo:function(at,n){return "Aktualizacja "+at+" · odpowiedzi w tych zajęciach: "+n+" · odświeżanie co 8 s";}, liveWaiting:"Łączenie…", liveErrInfo:"Nie można teraz odczytać arkusza",
+  liveQrNote:"Kod QR zajęć zawiera teraz automatyczne zapisywanie — pokaż studentom aktualny kod.",
+  liveSetupTitle:"Wyniki na żywo (jednorazowo, ok. 5 min)", liveSetupIntro:"Odpowiedzi studentów zapisują się same w arkuszu Google na Twoim koncie, a ten widok odświeża się automatycznie.",
+  liveS1:"Utwórz nowy arkusz Google:", liveS2:"W arkuszu: <b>Rozszerzenia → Apps Script</b>. Usuń przykładowy kod.", liveS3:"Wklej skrypt i zapisz (💾):", liveS4:"<b>Wdróż → Nowe wdrożenie</b> → typ <b>Aplikacja internetowa</b> · Wykonaj jako: <b>Ja</b> · Kto ma dostęp: <b>Każdy</b> → <b>Wdróż</b> → zezwól na dostęp (Zaawansowane → Przejdź do…).", liveS5:"Skopiuj <b>adres URL aplikacji internetowej</b> (kończy się na /exec), wklej poniżej i kliknij Połącz.",
+  liveCopyScript:"Kopiuj skrypt", liveKeyPh:"Klucz (tylko przy podłączaniu drugiego komputera)", liveConnect:"Połącz", liveBadUrl:"Wklej adres aplikacji internetowej kończący się na /exec.", liveConnecting:"Łączenie…", liveConnected:"Połączono — wyniki będą się aktualizować na żywo",
+  liveNeedKey:"Ten skrypt jest już połączony gdzie indziej. Na pierwszym komputerze użyj „Kopiuj ustawienia” i wklej tu klucz.", liveFail:"Nie udało się połączyć.", liveFailHint:"Sprawdź „Kto ma dostęp: Każdy” i czy skopiowałeś adres /exec.",
+  liveOffText:"Ten komputer przestanie odczytywać wyniki na żywo. Dane zostają w Twoim arkuszu Google, a kody nadal działają.",
+  liveShareSteps:["Studenci skanują kod QR tych zajęć.","Wpisują imię i wybierają grupę z listy.","Odpowiedzi zapisują się same w Twoim arkuszu Google.","Ten widok aktualizuje się na żywo — na koniec „Zakończ zbieranie i pokaż wnioski”."],
   topAgree:"Największa zgodność", noData:"Za mało danych."
 },
 cs:{
@@ -1623,6 +1662,16 @@ cs:{
   compareBtn:"Porovnat", grpNoData:"zatím nic", grpAgree:function(pc){return "plná shoda členů u "+pc+" % úkolů";}, colTeam:"Tým",
   backInstr:"Zpět do pohledu vyučujícího",
   subsLbl:"Subtitles", voiceLbl:"Voice",
+  liveSaved:"Uloženo", liveSending:"Ukládání…", livePending:"Změny se uloží", liveErr:"Neuloženo — zkontrolujte internet", liveReady:"Živě", liveSent:"Odesláno vyučujícímu",
+  liveOnTitle:"Výsledky živě (tabulka Google)", liveRefresh:"Obnovit", liveCopyCfg:"Kopírovat nastavení", liveDisconnect:"Odpojit",
+  liveInfo:function(at,n){return "Aktualizace "+at+" · odpovědí v této výuce: "+n+" · obnovení každých 8 s";}, liveWaiting:"Připojování…", liveErrInfo:"Tabulku teď nelze načíst",
+  liveQrNote:"QR kód výuky teď obsahuje automatické ukládání — ukažte studentům aktuální kód.",
+  liveSetupTitle:"Výsledky živě (jednorázově, cca 5 min)", liveSetupIntro:"Odpovědi studentů se ukládají samy do tabulky Google na vašem účtu a tento pohled se obnovuje automaticky.",
+  liveS1:"Vytvořte novou tabulku Google:", liveS2:"V tabulce: <b>Rozšíření → Apps Script</b>. Smažte ukázkový kód.", liveS3:"Vložte skript a uložte (💾):", liveS4:"<b>Nasadit → Nové nasazení</b> → typ <b>Webová aplikace</b> · Spustit jako: <b>Já</b> · Kdo má přístup: <b>Kdokoli</b> → <b>Nasadit</b> → povolte přístup (Rozšířené → Přejít na…).", liveS5:"Zkopírujte <b>URL webové aplikace</b> (končí na /exec), vložte ji níže a klikněte na Připojit.",
+  liveCopyScript:"Kopírovat skript", liveKeyPh:"Klíč (jen při připojení druhého počítače)", liveConnect:"Připojit", liveBadUrl:"Vložte adresu webové aplikace končící na /exec.", liveConnecting:"Připojování…", liveConnected:"Připojeno — výsledky se budou aktualizovat živě",
+  liveNeedKey:"Tento skript je už připojen jinde. Na prvním počítači použijte „Kopírovat nastavení“ a vložte sem klíč.", liveFail:"Připojení se nezdařilo.", liveFailHint:"Zkontrolujte „Kdo má přístup: Kdokoli“ a že jste zkopírovali adresu /exec.",
+  liveOffText:"Tento počítač přestane načítat výsledky živě. Data zůstanou ve vaší tabulce Google a kódy dál fungují.",
+  liveShareSteps:["Studenti naskenují QR kód této výuky.","Zadají jméno a vyberou skupinu.","Odpovědi se samy ukládají do vaší tabulky Google.","Tento pohled se aktualizuje živě — nakonec „Ukončit sběr a ukázat závěry“."],
   topAgree:"Největší shoda", noData:"Zatím málo dat."
 }};
 LANGS.forEach(function(l){ Object.keys(T2[l]).forEach(function(k){ T[l][k]=T2[l][k]; }); });
@@ -1828,6 +1877,98 @@ document.addEventListener("change",function(e){
   if(e.target.id==="clsSel"){ C.activeId=e.target.value; viewingArchive=null; saveC(); render(); }
 });
 
+
+/* ================= Live results via Google Sheets ================= */
+var GAS_SCRIPT = "// Team Roles Workshop \u2013 live results (Google Apps Script)\n// Paste into: Google Sheet \u2192 Extensions \u2192 Apps Script. Then Deploy \u2192 New deployment \u2192 Web app\n// (Execute as: Me \u00b7 Who has access: Anyone) and paste the /exec address into the app.\nconst SHEET = 'Responses';\nfunction sheet_() {\n  const ss = SpreadsheetApp.getActive();\n  let s = ss.getSheetByName(SHEET);\n  if (!s) { s = ss.insertSheet(SHEET); s.appendRow(['updated', 'class', 'device', 'name', 'team', 'code']); s.setFrozenRows(1); }\n  return s;\n}\nfunction out_(o) { return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON); }\nfunction safe_(v, n) { v = String(v || '').slice(0, n); return /^[=+\\-@]/.test(v) ? \"'\" + v : v; }\nfunction doGet(e) {\n  const p = (e && e.parameter) || {};\n  const props = PropertiesService.getScriptProperties();\n  if (p.action === 'init') {\n    const cur = props.getProperty('KEY');\n    if (cur && cur !== p.key) return out_({ ok: false, error: 'already-initialized' });\n    if (!p.key || String(p.key).length < 12) return out_({ ok: false, error: 'bad-key' });\n    props.setProperty('KEY', String(p.key)); sheet_();\n    return out_({ ok: true });\n  }\n  if (p.action === 'list') {\n    if (!p.key || p.key !== props.getProperty('KEY')) return out_({ ok: false, error: 'bad-key' });\n    const v = sheet_().getDataRange().getValues(), rows = [];\n    for (let i = 1; i < v.length; i++) {\n      if (!p.k || String(v[i][1]) === p.k) rows.push({ at: String(v[i][0]), k: String(v[i][1]), d: String(v[i][2]), code: String(v[i][5]) });\n    }\n    return out_({ ok: true, rows: rows });\n  }\n  return out_({ ok: true, app: 'team-roles-workshop', initialized: !!props.getProperty('KEY') });\n}\nfunction doPost(e) {\n  let b = {};\n  try { b = JSON.parse(e.postData.contents); } catch (x) { return out_({ ok: false, error: 'bad-json' }); }\n  if (!b.k || !b.d || !b.code || String(b.code).indexOf('HK1:') !== 0 || String(b.code).length > 45000) return out_({ ok: false, error: 'bad-request' });\n  const lock = LockService.getScriptLock();\n  lock.waitLock(25000);\n  try {\n    const s = sheet_(), n = s.getLastRow();\n    let row = 0;\n    if (n > 1) {\n      const ids = s.getRange(2, 2, n - 1, 2).getValues();\n      for (let i = 0; i < ids.length; i++) if (String(ids[i][0]) === String(b.k) && String(ids[i][1]) === String(b.d)) { row = i + 2; break; }\n    }\n    const vals = [[new Date().toISOString(), safe_(b.k, 40), safe_(b.d, 40), safe_(b.n, 60), safe_(b.t, 60), String(b.code)]];\n    s.getRange(row || n + 1, 1, 1, 6).setValues(vals);\n  } finally { lock.releaseLock(); }\n  return out_({ ok: true });\n}\n";
+var liveState={t:0,busy:false,last:"",status:"",err:""};
+function liveOn(){ return !S.instructor && S.cls && S.cls.u && S.cls.i; }
+function subSig(){ var R=S.reflection; return JSON.stringify([S.myRole,S.myCode,R.name,R.team,R.q1,R.q2,R.q3,S.assign]); }
+function liveSchedule(){ if(!liveOn() || !S.reflection.name.trim() || (S.cls.g.length && !S.reflection.team)) return; clearTimeout(liveState.t); liveState.t=setTimeout(function(){ liveSync(false); },5000); liveStatus("pending"); }
+function liveStatus(st, extra){ liveState.status=st; var el=$("#liveChip"); if(!el) return;
+  el.style.display=liveOn()?"":"none";
+  el.className="livechip "+st;
+  el.textContent= st==="ok"?"☁️ "+t("liveSaved")+" "+(extra||""):st==="sending"?"⏳ "+t("liveSending"):st==="pending"?"✎ "+t("livePending"):st==="err"?"⚠️ "+t("liveErr"):"☁️ "+t("liveReady"); }
+function liveSync(manual){
+  if(!liveOn()) return;
+  var sig=subSig(); if(!manual && sig===liveState.last){ liveStatus("ok", liveState.okAt||""); return; }
+  if(liveState.busy){ liveSchedule(); return; }
+  liveState.busy=true; liveStatus("sending"); clearTimeout(liveState.t);
+  var body=JSON.stringify({k:S.cls.i,d:S.did,n:S.reflection.name.trim(),t:S.reflection.team.trim(),code:encodeSub()});
+  fetch(S.cls.u,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:body}).then(function(r){ return r.json(); }).then(function(j){
+    liveState.busy=false;
+    if(j && j.ok){ liveState.last=sig; liveState.okAt=new Date().toLocaleTimeString(LOCALE[S.lang],{hour:"2-digit",minute:"2-digit"}); liveStatus("ok",liveState.okAt); if(manual) toast("✓ "+t("liveSent")); }
+    else { liveStatus("err"); if(manual) openSubmitCode(); }
+  }).catch(function(){ liveState.busy=false; liveStatus("err"); if(manual) openSubmitCode(); });
+}
+setInterval(function(){ if(liveOn() && liveState.status==="err") liveSync(false); },30000);
+
+/* ----- instructor side ----- */
+var livePoll={timer:0,busy:false,at:"",n:0,err:""};
+function liveCardHTML(){
+  var L=C.live, h='<div class="card livecard" style="margin-bottom:18px">';
+  if(L && L.url){
+    h+='<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h3 style="margin:0">'+(livePoll.err?'🟠':'🟢')+' '+esc(t("liveOnTitle"))+'</h3><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm" id="liveNow">↻ '+esc(t("liveRefresh"))+'</button><button class="btn sm" id="liveCopyCfg">⧉ '+esc(t("liveCopyCfg"))+'</button><button class="btn sm danger" id="liveOff">'+esc(t("liveDisconnect"))+'</button></div></div>';
+    h+='<div class="note" id="liveInfo">'+liveInfoText()+'</div><div class="note">ⓘ '+esc(t("liveQrNote"))+'</div>';
+  } else {
+    h+='<h3 style="margin:0 0 6px">🔴 '+esc(t("liveSetupTitle"))+'</h3><p class="brief" style="margin-top:0">'+esc(t("liveSetupIntro"))+'</p><ol class="steps livesteps">';
+    h+='<li>'+t("liveS1")+' <a href="https://sheets.new" target="_blank" rel="noopener">sheets.new ↗</a></li>';
+    h+='<li>'+t("liveS2")+'</li>';
+    h+='<li>'+t("liveS3")+' <button class="btn sm" id="liveCopyScript">⧉ '+esc(t("liveCopyScript"))+'</button></li>';
+    h+='<li>'+t("liveS4")+'</li>';
+    h+='<li>'+t("liveS5")+'</li></ol>';
+    h+='<div class="liveform"><input class="urlin" id="liveUrl" placeholder="https://script.google.com/macros/s/…/exec" spellcheck="false"><input class="urlin" id="liveKey" placeholder="'+esc(t("liveKeyPh"))+'" spellcheck="false"><button class="btn accent" id="liveConnect">🔌 '+esc(t("liveConnect"))+'</button></div><div class="note" id="liveMsg"></div>';
+  }
+  return h+'</div>';
+}
+function liveInfoText(){ return esc(livePoll.err?t("liveErrInfo")+" ("+livePoll.err+")":(livePoll.at?t("liveInfo")(livePoll.at,livePoll.n):t("liveWaiting"))); }
+function liveConnect(){
+  var url=($("#liveUrl").value||"").trim(), key=($("#liveKey").value||"").trim(), msg=$("#liveMsg");
+  if(!/^https:\/\/script\.google\.com\/macros\/s\/[^\/]+\/exec/.test(url)){ msg.textContent="⚠️ "+t("liveBadUrl"); return; }
+  var newKey=key||("k"+Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)+Date.now().toString(36));
+  msg.textContent="⏳ "+t("liveConnecting");
+  fetch(url+"?action=init&key="+encodeURIComponent(newKey)).then(function(r){return r.json();}).then(function(j){
+    if(j && j.ok){ C.live={url:url,key:newKey}; saveC(); livePoll.err=""; render(); toast("🟢 "+t("liveConnected")); liveStartPoll(true); }
+    else if(j && j.error==="already-initialized"){ msg.textContent="⚠️ "+t("liveNeedKey"); }
+    else msg.textContent="⚠️ "+t("liveFail")+" "+((j&&j.error)||"");
+  }).catch(function(){ msg.textContent="⚠️ "+t("liveFail")+" "+t("liveFailHint"); });
+}
+function livePollOnce(){
+  if(!C.live || !C.live.url || livePoll.busy || viewingArchive) return;
+  livePoll.busy=true; var cls=C.session;
+  fetch(C.live.url+"?action=list&key="+encodeURIComponent(C.live.key)+"&k="+encodeURIComponent(cls.id)).then(function(r){return r.json();}).then(function(j){
+    livePoll.busy=false;
+    if(!j || !j.ok){ livePoll.err=(j&&j.error)||"?"; liveRefreshInfo(); return; }
+    livePoll.err=""; livePoll.at=new Date().toLocaleTimeString(LOCALE[S.lang]); var changed=false, cnt=0;
+    if(!cls.closedAt) (j.rows||[]).forEach(function(row){ var sub=decodeToken(row.code||""); if(!sub) return; cnt++;
+      sub.d=sub.d||row.d; sub.k=cls.id;
+      Object.keys(cls.students).forEach(function(k){ var o=cls.students[k]; if(o.d && o.d===sub.d && k!==subKey(sub)){ delete cls.students[k]; changed=true; } });
+      var key=subKey(sub), old=cls.students[key];
+      if(!old || JSON.stringify(old)!==JSON.stringify(sub)){ if(!old || (sub.at||"")>=(old.at||"")){ cls.students[key]=sub; changed=true; } } });
+    else cnt=(j.rows||[]).length;
+    livePoll.n=cnt;
+    if(changed){ saveC(); liveRerender(); } else liveRefreshInfo();
+  }).catch(function(){ livePoll.busy=false; livePoll.err="offline"; liveRefreshInfo(); });
+}
+function liveRefreshInfo(){ var el=$("#liveInfo"); if(el) el.innerHTML=liveInfoText(); }
+function liveRerender(){
+  if(S.view!=="class" || !S.instructor){ renderTabs(); return; }
+  var ae=document.activeElement; if(ae && /INPUT|TEXTAREA|SELECT/.test(ae.tagName) && $("#view").contains(ae)){ liveRefreshInfo(); return; }
+  if($("#modal").classList.contains("open")){ liveRefreshInfo(); return; }
+  var y=window.scrollY; render(); window.scrollTo(0,y);
+  if($("#deck").classList.contains("open")) renderDeck();
+}
+function liveStartPoll(now){ clearInterval(livePoll.timer); if(!C.live || !C.live.url || !S.instructor) return; if(now) livePollOnce(); livePoll.timer=setInterval(function(){ if(document.hidden) return; if(S.view==="class" || $("#deck").classList.contains("open")) livePollOnce(); },8000); }
+document.addEventListener("click",function(e){
+  var tg=e.target;
+  if(tg.closest("#liveCopyScript")){ copyText(GAS_SCRIPT, t("copied")); return; }
+  if(tg.closest("#liveConnect")){ liveConnect(); return; }
+  if(tg.closest("#liveNow")){ livePollOnce(); return; }
+  if(tg.closest("#liveCopyCfg")){ copyText(C.live.url+"\n"+C.live.key, t("copied")); return; }
+  if(tg.closest("#liveOff")){ openModal('<h3>'+esc(t("liveDisconnect"))+'</h3><p class="brief">'+esc(t("liveOffText"))+'</p><div class="row"><button class="btn" data-close>'+esc(t("cancel"))+'</button><button class="btn primary" id="liveOffOk" style="background:#b42318;border-color:#b42318">'+esc(t("liveDisconnect"))+'</button></div>'); return; }
+  if(tg.closest("#liveOffOk")){ C.live=null; saveC(); clearInterval(livePoll.timer); closeModal(); render(); return; }
+  if(tg.closest(".tab") || tg.closest("#endCollect") || tg.closest("#showConcl")){ setTimeout(function(){ if(C.live) livePollOnce(); },50); }
+});
+
 /* ================= Events ================= */
 function readFiles(files, cb){ var arr=[], left=files.length; if(!left) return; Array.prototype.forEach.call(files,function(f){ var fr=new FileReader(); fr.onload=function(){ arr.push(String(fr.result)); if(--left===0) cb(arr); }; fr.onerror=function(){ if(--left===0) cb(arr); }; fr.readAsText(f); }); }
 
@@ -1940,6 +2081,7 @@ window.addEventListener("hashchange",function(){
   else if(h==="student"){ if(S.instructor){ S.instructor=false; S.forceStudent=true; S.presenter=false; if(S.view==="class") S.view="p1"; save(); render(); } }
 });
 render();
+liveStartPoll(true); liveStatus(liveState.status||"idle");
 if(!S.instructor && (!S.reflection.name.trim() || (S.cls && S.cls.g.length && !S.reflection.team))) setTimeout(openJoin,50);
 })();
 
