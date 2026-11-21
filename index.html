@@ -384,6 +384,9 @@ body.instructor #joinRow{display:none}
 .itext [data-si]{transition:background .25s,color .25s;border-radius:4px}
 .itext [data-si].now{background:#fff3c4;box-shadow:0 0 0 3px #fff3c4}
 .itext p [data-si].past{color:#7a8094}
+.langpair{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.lp{display:inline-flex;align-items:center;gap:6px}
+.lpl{font-size:.78rem;font-weight:700;color:var(--muted)}
 
 </style>
 </head>
@@ -824,7 +827,7 @@ function blank(){return {lang:"en",instructor:false,forceStudent:false,presenter
   assign:{p1:{},p2:{}},reflection:{name:"",team:"",q1:"",q2:"",q3:""}};}
 function merge(base, src){
   if(!src || typeof src!=="object") return base;
-  ["lang","myCode","view","filter"].forEach(function(k){ if(typeof src[k]==="string") base[k]=src[k]; });
+  ["lang","myCode","view","filter","voiceLang"].forEach(function(k){ if(typeof src[k]==="string") base[k]=src[k]; });
   if(src.cls && typeof src.cls.i==="string") base.cls={i:src.cls.i,n:String(src.cls.n||""),g:Array.isArray(src.cls.g)?src.cls.g.map(String):[]};
   ["instructor","forceStudent","wasInstructor","presenter","showFit","introSeen","autoRead"].forEach(function(k){ if(typeof src[k]==="boolean") base[k]=src[k]; });
   if(ROLES.indexOf(src.myRole)>-1) base.myRole=src.myRole;
@@ -923,21 +926,22 @@ function setSpeaking(on){ speaking=on; if(on && typeof narr!=="undefined" && !na
 function narrationText(txt){ return txt.replace(/\b([EI])([NS])([TF])([JP])\b/g,"$1 $2 $3 $4"); }
 function pickVoice(){
   if(!("speechSynthesis" in window)) return null;
-  var vs=speechSynthesis.getVoices()||[], want=LOCALE[S.lang].toLowerCase(), pre=S.lang;
+  var vs=speechSynthesis.getVoices()||[], want=LOCALE[vLang()].toLowerCase(), pre=vLang();
   var exact=vs.filter(function(v){return (v.lang||"").replace("_","-").toLowerCase()===want;});
   var loose=vs.filter(function(v){return (v.lang||"").toLowerCase().indexOf(pre)===0;});
   var list=exact.length?exact:loose; if(!list.length) return null;
   var good=list.filter(function(v){return /natural|neural|google|premium|enhanced/i.test(v.name);});
   return (good[0]||list[0]);
 }
+function vLang(){ return (S.voiceLang && LANGS.indexOf(S.voiceLang)>-1)?S.voiceLang:S.lang; }
 function splitSent(x){ return (String(x).match(/[^.!?…]+[.!?…]*/g)||[String(x)]).map(function(y){return y.trim();}).filter(Boolean); }
 var narr={parts:[],cum:[],lens:[],total:1,cur:-1,curChar:0,t0:0,raf:0,done:false};
 function narrInit(text){ var ps=splitSent(text), c=0; narr.parts=ps; narr.cum=[]; narr.lens=[]; ps.forEach(function(x){ narr.cum.push(c); narr.lens.push(x.length); c+=x.length; }); narr.total=Math.max(1,c); narr.cur=-1; narr.curChar=0; narr.done=false; narrPaint(); }
-function narrPart(i){ narr.cur=i; narr.curChar=0; narr.t0=Date.now(); document.querySelectorAll(".itext [data-si]").forEach(function(el){ el.classList.toggle("now", +el.dataset.si===i); el.classList.toggle("past", +el.dataset.si<i); }); if(!narr.raf) narrLoop(); }
+function narrPart(i){ narr.cur=i; narr.curChar=0; narr.t0=Date.now(); if(vLang()===S.lang) document.querySelectorAll(".itext [data-si]").forEach(function(el){ el.classList.toggle("now", +el.dataset.si===i); el.classList.toggle("past", +el.dataset.si<i); }); if(!narr.raf) narrLoop(); }
 function narrPct(){ if(narr.done) return 100; if(narr.cur<0) return 0; var len=narr.lens[narr.cur]||0, est=Math.min(len, Math.max(narr.curChar,(Date.now()-narr.t0)/1000*14)); return Math.min(99,(narr.cum[narr.cur]+est)/narr.total*100); }
 function narrPaint(){ var b=$("#iProg"); if(b) b.style.width=narrPct()+"%"; }
 function narrLoop(){ narrPaint(); if(speaking && !narr.done){ narr.raf=requestAnimationFrame(narrLoop); } else narr.raf=0; }
-function narrEnd(){ narr.done=true; narrPaint(); document.querySelectorAll(".itext [data-si]").forEach(function(el){ el.classList.remove("now"); el.classList.add("past"); }); }
+function narrEnd(){ narr.done=true; narrPaint(); if(vLang()===S.lang) document.querySelectorAll(".itext [data-si]").forEach(function(el){ el.classList.remove("now"); el.classList.add("past"); }); }
 function narrReset(){ narr.cur=-1; narr.done=false; narrPaint(); document.querySelectorAll(".itext [data-si]").forEach(function(el){ el.classList.remove("now","past"); }); }
 var hostLineHooked=false;
 function speak(text){
@@ -946,7 +950,7 @@ function speak(text){
   var say=narrationText(text);
   if(hostTTS && !ttsBlocked){
     if(!hostLineHooked){ hostLineHooked=true; try{ hostTTS.onLine(function(e){ narrPart(e.line); }); hostTTS.onPosition(function(e){ narr.curChar=e.ms/1000*14; }); hostTTS.onState(function(e){ if(e.state==="idle"){ if(e.reason==="completed") narrEnd(); } else if(!narr.raf) narrLoop(); }); }catch(e){} }
-    hostTTS.speak(narr.parts.map(function(x,i){ return {text:narrationText(x), id:"s"+i}; }),{language:S.lang}).catch(function(e){
+    hostTTS.speak(narr.parts.map(function(x,i){ return {text:narrationText(x), id:"s"+i}; }),{language:vLang()}).catch(function(e){
       if(e && e.code==="not_granted"){ ttsBlocked=true; setSpeaking(false); return; }
       if(e && e.code==="stopped") return;
       hostTTS=null; browserSpeak(say);
@@ -963,7 +967,7 @@ function browserSpeak(say){
   if(!("speechSynthesis" in window)){ voiceNote(true); diag("speechSynthesis: brak w tej przeglądarce / not supported"); return; }
   var synth=window.speechSynthesis, gen=speakGen, started=false;
   function mk(txt, v, last, pi){
-    var u=new SpeechSynthesisUtterance(txt); u.lang=LOCALE[S.lang]; if(v) u.voice=v; u.rate=1; u.volume=1;
+    var u=new SpeechSynthesisUtterance(txt); u.lang=LOCALE[vLang()]; if(v) u.voice=v; u.rate=1; u.volume=1;
     u.onstart=function(){ started=true; if(gen===speakGen){ setSpeaking(true); diag(base+" · ▶"); narrPart(pi); } };
     u.onboundary=function(ev){ if(gen===speakGen && typeof ev.charIndex==="number") narr.curChar=ev.charIndex; };
     u.onend=function(){ if(gen===speakGen && last){ narrEnd(); setSpeaking(false); diag(base+" · ✓"); } };
@@ -975,7 +979,7 @@ function browserSpeak(say){
     if(gen!==speakGen) return;
     uttRefs=[];
     var vs=synth.getVoices()||[], v=pickVoice(); voiceNote(!v);
-    base="🔧 "+vs.length+" voices · "+(v?(v.name+" ("+v.lang+")"):"default / "+LOCALE[S.lang]); diag(base+" · …");
+    base="🔧 "+vs.length+" voices · "+(v?(v.name+" ("+v.lang+")"):"default / "+LOCALE[vLang()]); diag(base+" · …");
     var parts=narr.parts.map(narrationText);
     parts.forEach(function(txt,i){ synth.speak(mk(txt, v, i===parts.length-1, i)); });
     setSpeaking(true); try{ if(synth.paused) synth.resume(); }catch(e){}
@@ -1004,7 +1008,7 @@ try{ if("speechSynthesis" in window) speechSynthesis.getVoices(); }catch(e){}
 var slide=0;
 function goFull(){ try{ var el=document.documentElement; if(!document.fullscreenElement && el.requestFullscreen){ var pr2=el.requestFullscreen(); if(pr2&&pr2.catch) pr2.catch(function(){}); } }catch(e){} }
 function exitFull(){ try{ if(document.fullscreenElement && document.exitFullscreen){ var x=document.exitFullscreen(); if(x&&x.catch) x.catch(function(){}); } }catch(e){} }
-function openIntro(){ goFull(); slide=0; $("#intro").classList.add("open"); renderIntro(); if(S.autoRead){ var s0=INTRO[S.lang][0]; speak(s0.h+". "+s0.p); } }
+function openIntro(){ goFull(); slide=0; $("#intro").classList.add("open"); renderIntro(); if(S.autoRead){ var s0=INTRO[vLang()][0]; speak(s0.h+". "+s0.p); } }
 function closeIntro(){ stopSpeak(); exitFull(); $("#intro").classList.remove("open"); if(!S.introSeen){ S.introSeen=true; save(); } }
 function visHTML(v){
   var ptr='<span class="ptr" style="right:18%;bottom:14%">👆</span>';
@@ -1045,7 +1049,8 @@ function visHTML(v){
 function renderIntro(){
   var list=INTRO[S.lang], s=list[slide], last=slide===list.length-1;
   var h='<div class="icard" role="dialog" aria-modal="true" aria-labelledby="iH">';
-  h+='<div class="itop"><div class="seg" role="group" aria-label="Language">'+LANGS.map(function(l){return '<button data-ilang="'+l+'" aria-pressed="'+(S.lang===l)+'">'+l.toUpperCase()+'</button>';}).join("")+'</div>';
+  h+='<div class="itop"><div class="langpair"><span class="lp"><span class="lpl">💬 '+esc(t("subsLbl"))+'</span><span class="seg" role="group" aria-label="'+esc(t("subsLbl"))+'">'+LANGS.map(function(l){return '<button data-ilang="'+l+'" aria-pressed="'+(S.lang===l)+'">'+l.toUpperCase()+'</button>';}).join("")+'</span></span>'+
+    '<span class="lp"><span class="lpl">🔊 '+esc(t("voiceLbl"))+'</span><span class="seg" role="group" aria-label="'+esc(t("voiceLbl"))+'">'+LANGS.map(function(l){return '<button data-vlang="'+l+'" aria-pressed="'+(vLang()===l)+'">'+l.toUpperCase()+'</button>';}).join("")+'</span></span></div>';
   h+='<label class="check"><input type="checkbox" id="iAuto" '+(S.autoRead?"checked":"")+'> 🔊 '+esc(t("autoRead"))+'</label>';
   h+='<button class="btn" id="iSkip">'+esc(t("introSkip"))+' ✕</button></div>';
   h+='<div class="ibody"><div class="ivis">'+visHTML(s.v)+'</div><div class="itext"><div class="kicker">'+(slide+1)+' / '+list.length+'</div><h2 id="iH"><span data-si="0">'+esc(s.h)+'</span></h2><p>'+splitSent(s.p).map(function(x,i){return '<span data-si="'+(i+1)+'">'+esc(x)+'</span>';}).join(" ")+'</p>';
@@ -1057,7 +1062,7 @@ function renderIntro(){
 }
 function goSlide(i, fromUser){
   var list=INTRO[S.lang]; slide=Math.max(0,Math.min(list.length-1,i)); renderIntro();
-  if(fromUser && S.autoRead) speak(list[slide].h+". "+list[slide].p); else stopSpeak();
+  if(fromUser && S.autoRead){ var vs=INTRO[vLang()][slide]; speak(vs.h+". "+vs.p); } else stopSpeak();
 }
 
 /* ================= Chrome ================= */
@@ -1541,6 +1546,7 @@ en:{
   joinTextCls:"Enter your name and choose your group from the list.", movedTo:function(n){return n+" went to their own class.";},
   compareBtn:"Compare", grpNoData:"no submissions yet", grpAgree:function(pc){return "members fully agree on "+pc+"% of tasks";}, colTeam:"Team",
   backInstr:"Back to instructor view",
+  subsLbl:"Subtitles", voiceLbl:"Voice",
   topAgree:"Clearest agreement", noData:"Not enough data yet."
 },
 pl:{
@@ -1578,6 +1584,7 @@ pl:{
   joinTextCls:"Wpisz swoje imię i wybierz grupę z listy.", movedTo:function(n){return "Do swoich zajęć trafiło: "+n+".";},
   compareBtn:"Porównaj", grpNoData:"brak zgłoszeń", grpAgree:function(pc){return "pełna zgodność członków w "+pc+"% zadań";}, colTeam:"Zespół",
   backInstr:"Wróć do widoku prowadzącego",
+  subsLbl:"Napisy", voiceLbl:"Głos",
   topAgree:"Największa zgodność", noData:"Za mało danych."
 },
 cs:{
@@ -1615,6 +1622,7 @@ cs:{
   joinTextCls:"Zadejte své jméno a vyberte skupinu ze seznamu.", movedTo:function(n){return "Do své výuky přesunuto: "+n+".";},
   compareBtn:"Porovnat", grpNoData:"zatím nic", grpAgree:function(pc){return "plná shoda členů u "+pc+" % úkolů";}, colTeam:"Tým",
   backInstr:"Zpět do pohledu vyučujícího",
+  subsLbl:"Titulky", voiceLbl:"Hlas",
   topAgree:"Největší shoda", noData:"Zatím málo dat."
 }};
 LANGS.forEach(function(l){ Object.keys(T2[l]).forEach(function(k){ T[l][k]=T2[l][k]; }); });
@@ -1826,12 +1834,13 @@ function readFiles(files, cb){ var arr=[], left=files.length; if(!left) return; 
 document.addEventListener("click",function(e){
   var el, tg=e.target;
   // intro
-  if((el=tg.closest("[data-ilang]"))){ stopSpeak(); S.lang=el.dataset.ilang; save(); render(); renderIntro(); return; }
+  if((el=tg.closest("[data-ilang]"))){ var wasSame=vLang()===S.lang; stopSpeak(); S.lang=el.dataset.ilang; if(!S.voiceLang || wasSame) S.voiceLang=""; save(); render(); renderIntro(); return; }
+  if((el=tg.closest("[data-vlang]"))){ stopSpeak(); S.voiceLang=(el.dataset.vlang===S.lang)?"":el.dataset.vlang; save(); renderIntro(); if(S.autoRead){ var sv=INTRO[vLang()][slide]; speak(sv.h+". "+sv.p); } return; }
   if(tg.closest("#iSkip")){ closeIntro(); return; }
   if(tg.closest("#iNext")){ if(slide===INTRO[S.lang].length-1) closeIntro(); else goSlide(slide+1,true); return; }
   if(tg.closest("#iPrev")){ goSlide(slide-1,true); return; }
   if((el=tg.closest("[data-dot]"))){ goSlide(+el.dataset.dot,true); return; }
-  if(tg.closest("#iListen")){ if(speaking) stopSpeak(); else { var s=INTRO[S.lang][slide]; speak(s.h+". "+s.p); } return; }
+  if(tg.closest("#iListen")){ if(speaking) stopSpeak(); else { var s=INTRO[vLang()][slide]; speak(s.h+". "+s.p); } return; }
   if(tg.closest("#bIntro")){ openIntro(); return; }
   // chrome
   if((el=tg.closest("[data-lang]"))){ S.lang=el.dataset.lang; save(); render(); return; }
