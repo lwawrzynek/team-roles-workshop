@@ -1,0 +1,9 @@
+name = "team-roles-live"
+main = "src/index.js"
+compatibility_date = "2025-01-01"
+workers_dev = true
+
+[[d1_databases]]
+binding = "DB"
+database_name = "team-roles-workshop-db"
+database_id = "168ae722-3e50-4fdf-adab-aa4f0ba1f7df"
