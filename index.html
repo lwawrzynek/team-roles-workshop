@@ -363,6 +363,22 @@ body:not(.instructor) [data-instructor]{display:none!important}
 .itext p{font-size:clamp(1.05rem,1.7vw,1.6rem);line-height:1.5}
 .itext .kicker{font-size:.9rem}
 .ivis .qrbox{max-width:min(46vh,380px)!important}
+.classbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--navy);color:#fff;border-radius:var(--radius);padding:12px 16px;margin-bottom:18px}
+.classbar .kicker{color:#f2b705}
+.classbar select{font-weight:700;border-radius:8px;border:0;padding:7px 10px;min-width:240px;color:var(--ink)}
+.classbar .meta2{font-size:.82rem;opacity:.85}
+.clspill{display:inline-block;background:#eeecfd;color:var(--analyst-ink);border-radius:999px;padding:4px 12px;font-size:.85rem;margin-bottom:8px}
+select.teamsel{width:100%;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:#fbfaf7;font-weight:600}
+.joinrow select.teamsel{margin-top:0}
+.fields select.teamsel{padding:8px 10px}
+.grpta{width:100%;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-family:inherit;background:#fbfaf7}
+.gsum{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}
+.gtable td,.gtable th{padding:5px 6px}
+.gtable .gc{text-align:center;white-space:nowrap}
+.gtable .gteam{background:#f6f4ee}
+.gl{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:6px;background:var(--c);color:#fff;font-weight:800;font-size:.78rem}
+.classbar .btn:not(.accent){color:var(--ink)}
+body.instructor #joinRow{display:none}
 
 </style>
 </head>
@@ -528,7 +544,7 @@ en:{
   codeOk:function(c,r){return c+" belongs to the "+r+" group.";}, codeBad:"Use 4 letters like INTJ or ESFP (optionally -A/-T).",
   remNone:"<b>Pick your role group</b> as your starting point. Remember: preferences describe tendencies, not limits — every project needs all four role groups.",
   rem:function(r,s,st){return "<b>"+r+":</b> you may enjoy "+s+". That’s a tendency, not a limit. <b>Stretch idea:</b> try "+st+". Every project needs all four role groups.";},
-  tabCompare:"Compare projects", tabMe:"My role in the team", tabClass:"Class overview",
+  tabCompare:"Compare projects", tabMe:"My role in the team", tabClass:"Classes & groups",
   copy:"Copy summary", exp:"Export / Import", print:"Printable view", reset:"Reset", submit:"Send to instructor",
   projectLabel:"Project", balance:"Role balance", unassigned:"Unassigned",
   assigned:function(n){return n+" of 20 tasks assigned";},
@@ -576,19 +592,19 @@ en:{
   qrNote:"The QR code opens the student version. Never share the #instructor address with students.",
   collectTitle:"Collect answers",
   clsIntro:"Paste one or many student codes (or exported JSON), or load several files at once. Everything stays in this browser.",
-  clsPaste:"Paste student codes here…", clsAdd:"Add to session", clsFiles:"Load files…",
+  clsPaste:"Paste student codes here…", clsAdd:"Add to class", clsFiles:"Load files…",
   clsAdded:function(n,b){return n+" submission(s) added"+(b?" · "+b+" not recognised":"")+".";},
-  clsNone:"No valid codes found.", clsEmpty:"No submissions in this session yet.",
-  sessLbl:"Session", sessStarted:"started", sessCount:function(n){return n+" student(s)";},
-  archive:"Archive & start new session",
+  clsNone:"No valid codes found.", clsEmpty:"No submissions in this class yet.",
+  sessLbl:"Class name", sessStarted:"started", sessCount:function(n){return n+" student(s)";},
+  archive:"Archive class",
   archTitle:"Archive this session?",
-  archText:function(nm,n){return "“"+nm+"” with "+n+" submission(s) will be stored in the archive in this browser, and the current session will be emptied for your next class.";},
+  archText:function(nm,n){return "“"+nm+"” with "+n+" submission(s) will be moved to the archive in this browser. For your next class use “＋ New class”.";},
   archDl:"Also download the archive file (recommended backup)", newSessName:"Name of the next session",
-  archDone:"Session archived — new session started",
-  archives:"Archived sessions", archNone:"No archived sessions yet.", archImport:"Import archive…",
+  archDone:"Class archived",
+  archives:"Archived classes", archNone:"No archived sessions yet.", archImport:"Import archive…",
   archView:"Open", archDelete:"Delete", archDelConfirm:"Delete this archived session permanently from this browser?", archDeleted:"Archived session deleted",
   archBanner:function(nm,d){return "Viewing archived session “"+nm+"” ("+d+") — read only.";},
-  backCurrent:"Back to current session", dlSession:"Download", archImported:"Archive imported",
+  backCurrent:"Back to current class", dlSession:"Download", archImported:"Archive imported",
   clsMix:"Class role mix", clsTeams:"Teams", clsTeamMissing:"missing: ", clsTeamAll:"all four groups ✓", noTeam:"(no team)",
   clsConsensus:"Class consensus per task",
   clsConsNote:"How the class assigned each task. A clear majority shows a shared expectation; a split is a great debrief question.",
@@ -609,7 +625,7 @@ pl:{
   codeOk:function(c,r){return c+" należy do grupy: "+r+".";}, codeBad:"Wpisz 4 litery, np. INTJ lub ESFP (opcjonalnie -A/-T).",
   remNone:"<b>Wybierz swoją grupę ról</b> jako punkt wyjścia. Pamiętaj: preferencje opisują skłonności, nie ograniczenia — każdy projekt potrzebuje wszystkich czterech grup.",
   rem:function(r,s,st){return "<b>"+r+":</b> możesz lubić "+s+". To skłonność, nie ograniczenie. <b>Wyzwanie:</b> spróbuj "+st+". Każdy projekt potrzebuje wszystkich czterech grup ról.";},
-  tabCompare:"Porównaj projekty", tabMe:"Moja rola w zespole", tabClass:"Przegląd grupy",
+  tabCompare:"Porównaj projekty", tabMe:"Moja rola w zespole", tabClass:"Zajęcia i grupy",
   copy:"Kopiuj podsumowanie", exp:"Eksport / import", print:"Widok do druku", reset:"Resetuj", submit:"Wyślij prowadzącemu",
   projectLabel:"Projekt", balance:"Bilans ról", unassigned:"Nieprzypisane",
   assigned:function(n){return "Przypisano "+n+" z 20 zadań";},
@@ -657,19 +673,19 @@ pl:{
   qrNote:"Kod QR otwiera wersję dla studentów. Nigdy nie udostępniaj studentom adresu z #instructor.",
   collectTitle:"Zbierz odpowiedzi",
   clsIntro:"Wklej jeden lub wiele kodów studentów (albo wyeksportowany JSON) lub wczytaj kilka plików naraz. Wszystko zostaje w tej przeglądarce.",
-  clsPaste:"Wklej tu kody studentów…", clsAdd:"Dodaj do sesji", clsFiles:"Wczytaj pliki…",
+  clsPaste:"Wklej tu kody studentów…", clsAdd:"Dodaj do zajęć", clsFiles:"Wczytaj pliki…",
   clsAdded:function(n,b){return "Dodano zgłoszeń: "+n+(b?" · nierozpoznane: "+b:"")+".";},
-  clsNone:"Nie znaleziono poprawnych kodów.", clsEmpty:"Brak zgłoszeń w tej sesji.",
-  sessLbl:"Sesja", sessStarted:"rozpoczęta", sessCount:function(n){return "studentów: "+n;},
-  archive:"Archiwizuj i zacznij nową sesję",
+  clsNone:"Nie znaleziono poprawnych kodów.", clsEmpty:"Brak zgłoszeń w tych zajęciach.",
+  sessLbl:"Nazwa zajęć", sessStarted:"rozpoczęta", sessCount:function(n){return "studentów: "+n;},
+  archive:"Archiwizuj zajęcia",
   archTitle:"Zarchiwizować tę sesję?",
-  archText:function(nm,n){return "Sesja „"+nm+"” ("+n+" zgłoszeń) zostanie zapisana w archiwum w tej przeglądarce, a bieżąca sesja zostanie wyczyszczona na kolejne zajęcia.";},
+  archText:function(nm,n){return "Zajęcia „"+nm+"” ("+n+" zgłoszeń) trafią do archiwum w tej przeglądarce. Na kolejne zajęcia użyj „＋ Nowe zajęcia”.";},
   archDl:"Pobierz też plik archiwum (zalecana kopia zapasowa)", newSessName:"Nazwa kolejnej sesji",
-  archDone:"Sesja zarchiwizowana — rozpoczęto nową",
-  archives:"Zarchiwizowane sesje", archNone:"Brak zarchiwizowanych sesji.", archImport:"Importuj archiwum…",
+  archDone:"Zajęcia zarchiwizowane",
+  archives:"Zarchiwizowane zajęcia", archNone:"Brak zarchiwizowanych sesji.", archImport:"Importuj archiwum…",
   archView:"Otwórz", archDelete:"Usuń", archDelConfirm:"Trwale usunąć tę zarchiwizowaną sesję z tej przeglądarki?", archDeleted:"Usunięto zarchiwizowaną sesję",
   archBanner:function(nm,d){return "Podgląd archiwum „"+nm+"” ("+d+") — tylko do odczytu.";},
-  backCurrent:"Wróć do bieżącej sesji", dlSession:"Pobierz", archImported:"Zaimportowano archiwum",
+  backCurrent:"Wróć do bieżących zajęć", dlSession:"Pobierz", archImported:"Zaimportowano archiwum",
   clsMix:"Role w grupie", clsTeams:"Zespoły", clsTeamMissing:"brakuje: ", clsTeamAll:"wszystkie cztery grupy ✓", noTeam:"(bez zespołu)",
   clsConsensus:"Konsensus grupy dla zadań",
   clsConsNote:"Jak grupa przypisała każde zadanie. Wyraźna większość to wspólne oczekiwania; podział to świetne pytanie do omówienia.",
@@ -690,7 +706,7 @@ cs:{
   codeOk:function(c,r){return c+" patří do skupiny: "+r+".";}, codeBad:"Použijte 4 písmena, např. INTJ nebo ESFP (volitelně -A/-T).",
   remNone:"<b>Vyberte svou skupinu rolí</b> jako výchozí bod. Pamatujte: preference popisují sklony, ne hranice — každý projekt potřebuje všechny čtyři skupiny rolí.",
   rem:function(r,s,st){return "<b>"+r+":</b> možná vás baví "+s+". Je to sklon, ne hranice. <b>Tip na výzvu:</b> zkuste "+st+". Každý projekt potřebuje všechny čtyři skupiny rolí.";},
-  tabCompare:"Porovnat projekty", tabMe:"Moje role v týmu", tabClass:"Přehled třídy",
+  tabCompare:"Porovnat projekty", tabMe:"Moje role v týmu", tabClass:"Výuka a skupiny",
   copy:"Kopírovat shrnutí", exp:"Export / import", print:"Tisková verze", reset:"Obnovit", submit:"Odeslat vyučujícímu",
   projectLabel:"Projekt", balance:"Rovnováha rolí", unassigned:"Nepřiřazeno",
   assigned:function(n){return "Přiřazeno "+n+" z 20 úkolů";},
@@ -738,19 +754,19 @@ cs:{
   qrNote:"QR kód otevírá verzi pro studenty. Adresu s #instructor studentům nikdy nesdílejte.",
   collectTitle:"Sběr odpovědí",
   clsIntro:"Vložte jeden nebo více kódů studentů (nebo exportovaný JSON), případně načtěte několik souborů najednou. Vše zůstává v tomto prohlížeči.",
-  clsPaste:"Sem vložte kódy studentů…", clsAdd:"Přidat do sezení", clsFiles:"Načíst soubory…",
+  clsPaste:"Sem vložte kódy studentů…", clsAdd:"Přidat do výuky", clsFiles:"Načíst soubory…",
   clsAdded:function(n,b){return "Přidáno odevzdání: "+n+(b?" · nerozpoznáno: "+b:"")+".";},
-  clsNone:"Nenalezeny žádné platné kódy.", clsEmpty:"V tomto sezení zatím nic nebylo odevzdáno.",
-  sessLbl:"Sezení", sessStarted:"zahájeno", sessCount:function(n){return "studentů: "+n;},
-  archive:"Archivovat a začít nové sezení",
+  clsNone:"Nenalezeny žádné platné kódy.", clsEmpty:"V této výuce zatím nic nebylo odevzdáno.",
+  sessLbl:"Název výuky", sessStarted:"zahájeno", sessCount:function(n){return "studentů: "+n;},
+  archive:"Archivovat výuku",
   archTitle:"Archivovat toto sezení?",
-  archText:function(nm,n){return "Sezení „"+nm+"“ ("+n+" odevzdání) se uloží do archivu v tomto prohlížeči a aktuální sezení se vyprázdní pro další výuku.";},
+  archText:function(nm,n){return "Výuka „"+nm+"“ ("+n+" odevzdání) se přesune do archivu v tomto prohlížeči. Pro další výuku použijte „＋ Nová výuka“.";},
   archDl:"Stáhnout i soubor archivu (doporučená záloha)", newSessName:"Název dalšího sezení",
-  archDone:"Sezení archivováno — začalo nové",
-  archives:"Archivovaná sezení", archNone:"Zatím žádná archivovaná sezení.", archImport:"Importovat archiv…",
+  archDone:"Výuka archivována",
+  archives:"Archivovaná výuka", archNone:"Zatím žádná archivovaná sezení.", archImport:"Importovat archiv…",
   archView:"Otevřít", archDelete:"Smazat", archDelConfirm:"Trvale smazat toto archivované sezení z tohoto prohlížeče?", archDeleted:"Archivované sezení smazáno",
   archBanner:function(nm,d){return "Prohlížíte archivované sezení „"+nm+"“ ("+d+") — pouze ke čtení.";},
-  backCurrent:"Zpět na aktuální sezení", dlSession:"Stáhnout", archImported:"Archiv importován",
+  backCurrent:"Zpět na aktuální výuku", dlSession:"Stáhnout", archImported:"Archiv importován",
   clsMix:"Role ve třídě", clsTeams:"Týmy", clsTeamMissing:"chybí: ", clsTeamAll:"všechny čtyři skupiny ✓", noTeam:"(bez týmu)",
   clsConsensus:"Shoda třídy u jednotlivých úkolů",
   clsConsNote:"Jak třída přiřadila jednotlivé úkoly. Jasná většina ukazuje společné očekávání; rozdělené názory jsou skvělou otázkou k diskusi.",
@@ -803,6 +819,7 @@ function blank(){return {lang:"en",instructor:false,forceStudent:false,presenter
 function merge(base, src){
   if(!src || typeof src!=="object") return base;
   ["lang","myCode","view","filter"].forEach(function(k){ if(typeof src[k]==="string") base[k]=src[k]; });
+  if(src.cls && typeof src.cls.i==="string") base.cls={i:src.cls.i,n:String(src.cls.n||""),g:Array.isArray(src.cls.g)?src.cls.g.map(String):[]};
   ["instructor","forceStudent","presenter","showFit","introSeen","autoRead"].forEach(function(k){ if(typeof src[k]==="boolean") base[k]=src[k]; });
   if(ROLES.indexOf(src.myRole)>-1) base.myRole=src.myRole;
   if(src.assign){ ["p1","p2"].forEach(function(p){ var a=src.assign[p]||{}; for(var n=1;n<=20;n++){ var x=a[n]; if(x){ base.assign[p][n]={role:ROLES.indexOf(x.role)>-1?x.role:null,member:typeof x.member==="string"?x.member.slice(0,60):""}; } } }); }
@@ -817,17 +834,35 @@ var S = loadS();
   if(h==="instructor"||h==="prowadzacy"||h==="vyucujici"){ S.instructor=true; S.forceStudent=false; }
   if(h==="student"){ S.instructor=false; S.forceStudent=true; S.presenter=false; }
   if(!S.instructor) S.presenter=false;
+  var m=/[?&]z=([A-Za-z0-9_\-]+)/.exec(location.search||"");
+  if(m && !S.instructor){ try{ var cf=JSON.parse(b64urlDec(m[1]));
+    if(cf && typeof cf.i==="string"){ var cls={i:cf.i.slice(0,40),n:String(cf.n||"").slice(0,80),g:(Array.isArray(cf.g)?cf.g:[]).map(function(x){return String(x).slice(0,40);}).slice(0,30)};
+      if(S.cls && S.cls.i!==cls.i){ S.assign={p1:{},p2:{}}; S.reflection={name:S.reflection.name,team:"",q1:"",q2:"",q3:""}; S.myRole=null; S.myCode=""; }
+      S.cls=cls; if(cls.g.length && cls.g.indexOf(S.reflection.team)<0) S.reflection.team=""; } }catch(e){} }
 })();
 var saveTimer;
 function save(){ clearTimeout(saveTimer); saveTimer=setTimeout(function(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} },150); }
 
 /* ================= Class (instructor) state ================= */
 var CKEY = "hk-team-roles-class-v1";
-function newSession(name){ var d=new Date(); return {id:"s"+d.getTime(), name:name||("Workshop "+d.toISOString().slice(0,10)), startedAt:d.toISOString(), students:{}}; }
-function loadC(){ var c={qrUrl:DEFAULT_URL, session:newSession(), archives:[], classProj:"p1"};
+var DEFAULT_GROUPS=["1","2","3","4","5","6"];
+function newSession(name, groups){ var d=new Date(); return {id:"s"+d.getTime().toString(36)+Math.floor(Math.random()*1296).toString(36), name:name||("Workshop "+d.toISOString().slice(0,10)), groups:(groups||DEFAULT_GROUPS).slice(), startedAt:d.toISOString(), students:{}}; }
+function loadC(){ var c={qrUrl:DEFAULT_URL, classes:[], activeId:null, archives:[], classProj:"p1"};
   try{ var raw=localStorage.getItem(CKEY); if(raw){ var o=JSON.parse(raw);
-    if(o && typeof o==="object"){ if(typeof o.qrUrl==="string" && OLD_URLS.indexOf(o.qrUrl)<0) c.qrUrl=o.qrUrl; if(o.session && o.session.students) c.session=o.session; if(Array.isArray(o.archives)) c.archives=o.archives; if(o.classProj==="p2") c.classProj="p2"; } } }catch(e){}
+    if(o && typeof o==="object"){ if(typeof o.qrUrl==="string" && OLD_URLS.indexOf(o.qrUrl)<0) c.qrUrl=o.qrUrl;
+      if(Array.isArray(o.classes)) c.classes=o.classes.filter(function(x){return x && x.students;});
+      else if(o.session && o.session.students) c.classes=[o.session];
+      if(typeof o.activeId==="string") c.activeId=o.activeId;
+      if(Array.isArray(o.archives)) c.archives=o.archives; if(o.classProj==="p2") c.classProj="p2"; } } }catch(e){}
+  c.classes.forEach(function(x){ if(!Array.isArray(x.groups)) x.groups=[]; });
+  if(!c.classes.length) c.classes.push(newSession());
+  if(!c.classes.some(function(x){return x.id===c.activeId;})) c.activeId=c.classes[c.classes.length-1].id;
+  Object.defineProperty(c,"session",{enumerable:false,get:function(){ var self=this; return self.classes.filter(function(x){return x.id===self.activeId;})[0]||self.classes[0]; }});
   return c; }
+function b64url(s){ return b64e(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""); }
+function b64urlDec(s){ s=String(s).replace(/-/g,"+").replace(/_/g,"/"); while(s.length%4) s+="="; return b64d(s); }
+function baseUrl(){ return String(C.qrUrl||DEFAULT_URL).split("#")[0].split("?")[0]; }
+function classLink(cls){ cls=cls||C.session; return baseUrl()+"?z="+b64url(JSON.stringify({i:cls.id,n:cls.name,g:cls.groups||[]})); }
 var C = loadC();
 var viewingArchive = null; // archive id or null
 function saveC(){ try{ localStorage.setItem(CKEY, JSON.stringify(C)); }catch(e){ toast("Storage full — download and delete old archives."); } }
@@ -896,22 +931,35 @@ function speak(text){
     hostTTS.speak(say,{language:S.lang}).catch(function(e){
       if(e && e.code==="not_granted"){ ttsBlocked=true; setSpeaking(false); return; }
       if(e && e.code==="stopped") return;
-      browserSpeak(say);
+      hostTTS=null; browserSpeak(say);
     });
     return;
   }
   if(ttsBlocked) return;
   browserSpeak(say);
 }
+var speakGen=0;
 function browserSpeak(say){
   if(!("speechSynthesis" in window)){ voiceNote(true); return; }
-  var v=pickVoice(); if(!v && speechSynthesis.getVoices().length){ voiceNote(true); return; }
-  voiceNote(false);
-  var u=new SpeechSynthesisUtterance(say); u.lang=LOCALE[S.lang]; if(v) u.voice=v; u.rate=1;
-  u.onstart=function(){setSpeaking(true);}; u.onend=u.onerror=function(){setSpeaking(false);};
-  speechSynthesis.speak(u); setSpeaking(true);
+  var synth=window.speechSynthesis, gen=speakGen;
+  var go=function(){
+    if(gen!==speakGen) return;
+    var v=pickVoice(); voiceNote(!v);
+    var parts=(say.match(/[^.!?…]+[.!?…]*/g)||[say]).map(function(x){return x.trim();}).filter(Boolean);
+    parts.forEach(function(txt,i){
+      var u=new SpeechSynthesisUtterance(txt); u.lang=LOCALE[S.lang]; if(v) u.voice=v; u.rate=1; u.volume=1;
+      u.onstart=function(){ if(gen===speakGen) setSpeaking(true); };
+      u.onend=u.onerror=function(){ if(gen===speakGen && i===parts.length-1) setSpeaking(false); };
+      synth.speak(u);
+    });
+    setSpeaking(true); try{ synth.resume(); }catch(e){}
+  };
+  if(!synth.getVoices().length){ var done=false, h=function(){ if(done) return; done=true; go(); };
+    try{ synth.addEventListener("voiceschanged",h,{once:true}); }catch(e){ synth.onvoiceschanged=h; } setTimeout(h,800); }
+  else setTimeout(go,120);
 }
 function stopSpeak(){
+  speakGen++;
   if(hostTTS){ try{ hostTTS.stop().catch(function(){}); }catch(e){} }
   try{ if("speechSynthesis" in window) speechSynthesis.cancel(); }catch(e){}
   setSpeaking(false);
@@ -923,7 +971,7 @@ try{ if("speechSynthesis" in window) speechSynthesis.getVoices(); }catch(e){}
 var slide=0;
 function goFull(){ try{ var el=document.documentElement; if(!document.fullscreenElement && el.requestFullscreen){ var pr2=el.requestFullscreen(); if(pr2&&pr2.catch) pr2.catch(function(){}); } }catch(e){} }
 function exitFull(){ try{ if(document.fullscreenElement && document.exitFullscreen){ var x=document.exitFullscreen(); if(x&&x.catch) x.catch(function(){}); } }catch(e){} }
-function openIntro(){ goFull(); slide=0; $("#intro").classList.add("open"); renderIntro(); }
+function openIntro(){ goFull(); slide=0; $("#intro").classList.add("open"); renderIntro(); if(S.autoRead){ var s0=INTRO[S.lang][0]; speak(s0.h+". "+s0.p); } }
 function closeIntro(){ stopSpeak(); exitFull(); $("#intro").classList.remove("open"); if(!S.introSeen){ S.introSeen=true; save(); } }
 function visHTML(v){
   var ptr='<span class="ptr" style="right:18%;bottom:14%">👆</span>';
@@ -935,7 +983,7 @@ function visHTML(v){
     return '<div class="mk"><div class="mkrow" style="border-left-color:var(--ink)"><div class="ttl"><b>'+esc(t("teamWord"))+' 3</b></div><div class="tm" style="display:flex;gap:6px;flex-wrap:wrap">'+mem.map(function(m){return '<span class="tag" style="'+cvars(m[1])+';font-size:.85rem;padding:4px 10px">'+m[0]+' · '+esc(rn(m[1]))+'</span>';}).join("")+'</div></div><div class="mkproj" style="'+cvars("sentinel")+';border:2px dashed var(--c);background:var(--cbg)"><span class="em">🔎</span><div><b style="color:var(--cink)">'+esc(K("wanted"))+': '+esc(rn("sentinel"))+'</b><span>'+esc(ROLE.sentinel[S.lang].tag)+' · '+esc(K("tasksN")(6))+'</span></div></div></div>';
   }
   if(v==="qr"){
-    return '<div class="mk" style="align-items:center"><div class="qrbox" style="max-width:300px;width:100%">'+qrSVG(C.qrUrl)+'</div><div class="saved" style="word-break:break-all;text-align:center">'+esc(C.qrUrl)+'</div></div>';
+    return '<div class="mk" style="align-items:center"><div class="qrbox" style="max-width:300px;width:100%">'+qrSVG(classLink())+'</div><div class="saved" style="text-align:center"><b>'+esc(C.session.name)+'</b> · '+esc(baseUrl().replace(/^https?:\/\//,""))+'</div></div>';
   }
   if(v==="welcome"){
     return '<div class="mk"><div class="bigemoji">🧩</div><div class="mkgrid">'+ROLES.map(function(r){var d=ROLE[r][S.lang];return '<div class="mkrole on" style="'+cvars(r)+'"><b><span class="dot"></span>'+esc(d.name)+'</b><span>'+esc(d.tag)+'</span></div>';}).join("")+'</div></div>';
@@ -1004,7 +1052,7 @@ function renderStart(){
   var msg=!S.myCode?"":(cr?t("codeOk")(S.myCode,rn(cr)):(S.myCode.length>=4?t("codeBad"):""));
   h+='<div class="codebox"><label for="codeIn">'+esc(t("codeLabel"))+'</label><input id="codeIn" maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="'+esc(t("codePh"))+'" value="'+esc(S.myCode)+'"><div class="codemsg" id="codeMsg" '+(cr?'style="color:var(--'+cr+'-ink);font-weight:600"':'')+'>'+esc(msg)+'</div></div>';
   $("#roleCards").innerHTML=h;
-  $("#joinRow").innerHTML='<div><label for="jName">'+esc(t("yourName"))+'</label><input id="jName" data-ref="name" maxlength="60" autocomplete="name" value="'+esc(S.reflection.name)+'"></div><div><label for="jTeam">'+esc(t("teamNo"))+'</label><input id="jTeam" data-ref="team" maxlength="60" inputmode="text" value="'+esc(S.reflection.team)+'"></div>';
+  $("#joinRow").innerHTML='<div><label for="jName">'+esc(t("yourName"))+'</label><input id="jName" data-ref="name" maxlength="60" autocomplete="name" value="'+esc(S.reflection.name)+'"></div><div><label for="jTeam">'+esc(S.cls&&S.cls.g.length?t("pickGroup"):t("teamNo"))+'</label>'+teamField("jTeam",true)+'</div>'+(S.cls?'<div class="clspill" style="grid-column:1/-1;margin:0">📚 '+esc(t("classLbl"))+': <b>'+esc(S.cls.n)+'</b></div>':'');
   var rem=$("#reminder");
   if(S.myRole){ var d=ROLE[S.myRole][S.lang]; rem.setAttribute("style",cvars(S.myRole)); rem.innerHTML='<span class="ico">🧭</span><div>'+t("rem")(esc(d.name),esc(d.strength),esc(d.stretch))+'</div>'; }
   else { rem.removeAttribute("style"); rem.innerHTML='<span class="ico">🧭</span><div>'+t("remNone")+'</div>'; }
@@ -1187,7 +1235,7 @@ function encodeSub(){
   var R=S.reflection;
   function line(p){ var s=""; for(var n=1;n<=20;n++){ var r=a(p,n).role; s+=r?LETTER[r]:"-"; } return s; }
   function mems(p){ var arr=[]; for(var n=1;n<=20;n++) arr.push(a(p,n).member||""); while(arr.length && !arr[arr.length-1]) arr.pop(); return arr; }
-  var o={v:1,n:R.name.trim(),t:R.team.trim(),r:S.myRole?LETTER[S.myRole]:"",c:codeToRole(S.myCode)?S.myCode:"",l:S.lang,a1:line("p1"),a2:line("p2"),m1:mems("p1"),m2:mems("p2"),q:[R.q1,R.q2,R.q3],at:new Date().toISOString()};
+  var o={v:1,k:S.cls?S.cls.i:"",n:R.name.trim(),t:R.team.trim(),r:S.myRole?LETTER[S.myRole]:"",c:codeToRole(S.myCode)?S.myCode:"",l:S.lang,a1:line("p1"),a2:line("p2"),m1:mems("p1"),m2:mems("p2"),q:[R.q1,R.q2,R.q3],at:new Date().toISOString()};
   return "HK1:"+b64e(JSON.stringify(o));
 }
 function cleanSub(o){
@@ -1196,7 +1244,7 @@ function cleanSub(o){
   function line(x){ x=str(x,20).toUpperCase(); var s=""; for(var i=0;i<20;i++){ var ch=x.charAt(i); s+=FROMLETTER[ch]?ch:"-"; } return s; }
   function mems(x){ var arr=[]; for(var i=0;i<20;i++) arr.push(Array.isArray(x)?str(x[i],60):""); return arr; }
   var q=Array.isArray(o.q)?o.q:[];
-  return {n:str(o.n,60).trim(),t:str(o.t,60).trim(),r:FROMLETTER[o.r]?o.r:"",c:str(o.c,6).toUpperCase(),l:str(o.l,2),a1:line(o.a1),a2:line(o.a2),m1:mems(o.m1),m2:mems(o.m2),q:[str(q[0],4000),str(q[1],4000),str(q[2],4000)],at:str(o.at,40)||new Date().toISOString()};
+  return {k:str(o.k,40),n:str(o.n,60).trim(),t:str(o.t,60).trim(),r:FROMLETTER[o.r]?o.r:"",c:str(o.c,6).toUpperCase(),l:str(o.l,2),a1:line(o.a1),a2:line(o.a2),m1:mems(o.m1),m2:mems(o.m2),q:[str(q[0],4000),str(q[1],4000),str(q[2],4000)],at:str(o.at,40)||new Date().toISOString()};
 }
 function decodeToken(tok){ try{ return cleanSub(JSON.parse(b64d(tok.replace(/^HK1:/,"")))); }catch(e){ return null; } }
 function subFromFullExport(o){
@@ -1223,21 +1271,23 @@ function parseIncoming(text){
   return out;
 }
 function addIncoming(texts){
-  var added=0, bad=0, arch=0;
+  var added=0, bad=0, arch=0, moved=0;
   texts.forEach(function(tx){
     var r=parseIncoming(tx); bad+=r.bad;
-    r.subs.forEach(function(s){ var k=subKey(s), old=C.session.students[k]; if(!old || (s.at||"")>=(old.at||"")){ C.session.students[k]=s; } added++; });
+    r.subs.forEach(function(s){ var tgt=C.session;
+      if(s.k){ var other=C.classes.filter(function(x){return x.id===s.k;})[0]; if(other){ tgt=other; if(other!==C.session) moved++; } }
+      var k=subKey(s), old=tgt.students[k]; if(!old || (s.at||"")>=(old.at||"")){ tgt.students[k]=s; } added++; });
     r.archives.forEach(function(se){ if(!C.archives.some(function(x){return x.id===se.id;})){ C.archives.push(sanitizeSession(se)); arch++; } });
   });
   saveC();
   if(arch) toast(t("archImported"));
-  else if(added) toast(t("clsAdded")(added,bad));
+  else if(added) toast(t("clsAdded")(added,bad)+(moved?" "+t("movedTo")(moved):""));
   else toast(t("clsNone"));
   render();
 }
 function sanitizeSession(se){
   var st={}; Object.keys(se.students||{}).forEach(function(k){ var s=cleanSub(se.students[k]); if(s) st[subKey(s)]=s; });
-  return {id:String(se.id||("s"+Date.now())).slice(0,40), name:String(se.name||"Session").slice(0,80), startedAt:String(se.startedAt||""), archivedAt:String(se.archivedAt||new Date().toISOString()), students:st};
+  return {id:String(se.id||("s"+Date.now())).slice(0,40), name:String(se.name||"Session").slice(0,80), groups:Array.isArray(se.groups)?se.groups.map(String):[], startedAt:String(se.startedAt||""), archivedAt:String(se.archivedAt||new Date().toISOString()), students:st};
 }
 
 /* ================= Class overview ================= */
@@ -1251,8 +1301,11 @@ function studentsOf(se){ return Object.keys(se.students).map(function(k){return 
 function classHTML(){
   var se=activeSession(), list=studentsOf(se), ro=!!viewingArchive, h="";
   if(!ro){
-    h+='<div class="clsgrid"><div class="card"><h3>📱 '+esc(t("shareTitle"))+'</h3><div class="qrbox" id="qrBox">'+qrSVG(C.qrUrl)+'</div>';
-    h+='<label class="saved" for="qrUrl" style="display:block;margin-top:10px">'+esc(t("linkLbl"))+'</label><input class="urlin" id="qrUrl" value="'+esc(C.qrUrl)+'" spellcheck="false">';
+    h+='<div class="classbar"><span class="kicker">📚 '+esc(t("classesLbl"))+'</span><select id="clsSel">'+C.classes.map(function(x){return '<option value="'+esc(x.id)+'" '+(x.id===C.activeId?"selected":"")+'>'+esc(x.name)+' ('+Object.keys(x.students).length+')</option>';}).join("")+'</select>'+
+      '<button class="btn sm" id="clsEdit">✎ '+esc(t("editClass"))+'</button><button class="btn sm accent" id="clsNew">＋ '+esc(t("newClass"))+'</button>'+
+      '<span class="meta2">'+esc(t("groupsLbl"))+': '+((se.groups&&se.groups.length)?se.groups.map(teamLabel).map(esc).join(" · "):esc(t("noGroups")))+'</span></div>';
+    h+='<div class="clsgrid"><div class="card"><h3>📱 '+esc(t("shareTitle"))+'</h3><div class="kicker" style="margin-bottom:6px">'+esc(t("qrFor"))+' '+esc(se.name)+'</div><div class="qrbox" id="qrBox">'+qrSVG(classLink(se))+'</div>';
+    h+='<label class="saved" for="qrUrl" style="display:block;margin-top:10px">'+esc(t("baseUrlLbl"))+'</label><input class="urlin" id="qrUrl" value="'+esc(C.qrUrl)+'" spellcheck="false">';
     h+='<div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm" id="bigQr">⛶ '+esc(t("bigQr"))+'</button><button class="btn sm" id="copyLink">⧉ '+esc(t("copyLink"))+'</button></div>';
     h+='<ol class="steps">'+t("shareSteps").map(function(s){return '<li>'+esc(s)+'</li>';}).join("")+'</ol><div class="note">ⓘ '+esc(t("qrNote"))+'</div></div>';
     h+='<div class="card collect"><h3>📥 '+esc(t("collectTitle"))+'</h3><p class="brief" style="margin-top:0">'+esc(t("clsIntro"))+'</p><textarea id="clsPaste" placeholder="'+esc(t("clsPaste"))+'" '+(se.closedAt?"disabled":"")+'></textarea>';
@@ -1278,10 +1331,12 @@ function classHTML(){
   h+='<div class="cls3"><div class="card"><h3>'+esc(t("clsMix"))+'</h3><div class="stack">'+ROLES.map(function(r){return '<span style="'+cvars(r)+'width:'+(mix[r]/list.length*100)+'%"></span>';}).join("")+'</div><div class="bars">';
   ROLES.concat(["none"]).forEach(function(r){ if(r==="none" && !mix.none) return; h+='<div class="barrow" style="'+(r==="none"?"--c:var(--none)":cvars(r))+'"><span>'+esc(r==="none"?t("notSet"):rn(r))+'</span><div class="bartrack"><div class="barfill" style="width:'+(mix[r]/list.length*100)+'%"></div></div><span class="n">'+mix[r]+'</span></div>'; });
   h+='</div></div><div class="card"><h3>'+esc(t("clsTeams"))+'</h3><div class="teamlist">';
-  var teams={}; list.forEach(function(s){ var k=(s.t||"").toLowerCase(); if(!teams[k]) teams[k]={name:teamLabel(s.t),m:[]}; teams[k].m.push(s); });
-  Object.keys(teams).sort().forEach(function(k){ var tm=teams[k], have={}; tm.m.forEach(function(s){ if(FROMLETTER[s.r]) have[FROMLETTER[s.r]]=1; });
+  var teams={}; (se.groups||[]).forEach(function(g){ teams[g.toLowerCase()]={key:g,name:teamLabel(g),m:[]}; });
+  list.forEach(function(s){ var k=(s.t||"").toLowerCase(); if(!teams[k]) teams[k]={key:s.t,name:teamLabel(s.t),m:[]}; teams[k].m.push(s); });
+  Object.keys(teams).sort(function(x,y){return x.localeCompare(y,undefined,{numeric:true});}).forEach(function(k){ var tm=teams[k], have={};
+    if(!tm.m.length){ h+='<div class="teamrow" style="opacity:.6"><div class="tn"><span>'+esc(tm.name)+' <span class="saved">(0)</span></span><span class="saved">'+esc(t("grpNoData"))+'</span></div></div>'; return; } tm.m.forEach(function(s){ if(FROMLETTER[s.r]) have[FROMLETTER[s.r]]=1; });
     var miss=ROLES.filter(function(r){return !have[r];}).map(rn);
-    h+='<div class="teamrow"><div class="tn"><span>'+esc(tm.name)+' <span class="saved">('+tm.m.length+')</span></span><span class="saved" style="'+(miss.length?"color:#8a5600":"color:var(--diplomat-ink)")+'">'+esc(miss.length?t("clsTeamMissing")+miss.join(", "):t("clsTeamAll"))+'</span></div><div class="tm">'+tm.m.map(function(s){var r=FROMLETTER[s.r];return '<span class="tag" style="'+(r?cvars(r):"--cbg:var(--none-bg);--cink:var(--muted)")+'">'+esc(s.n)+(r?' · '+LETTER[r]:'')+'</span>';}).join("")+'</div></div>'; });
+    h+='<div class="teamrow"><div class="tn"><span>'+esc(tm.name)+' <span class="saved">('+tm.m.length+')</span> <button class="btn sm" data-grp="'+esc(tm.key||"")+'">⇄ '+esc(t("compareBtn"))+'</button></span><span class="saved" style="'+(miss.length?"color:#8a5600":"color:var(--diplomat-ink)")+'">'+esc(miss.length?t("clsTeamMissing")+miss.join(", "):t("clsTeamAll"))+'</span></div><div class="tm">'+tm.m.map(function(s){var r=FROMLETTER[s.r];return '<span class="tag" style="'+(r?cvars(r):"--cbg:var(--none-bg);--cink:var(--muted)")+'">'+esc(s.n)+(r?' · '+LETTER[r]:'')+'</span>';}).join("")+'</div></div>'; });
   h+='</div></div></div>';
 
   // consensus
@@ -1335,14 +1390,15 @@ function dlSession(se){ saveFile("workshop-session-"+safeName(se.name)+".json", 
 
 function openArchive(){
   var se=C.session, n=Object.keys(se.students).length;
-  var d=new Date(), nextName="Workshop "+d.toISOString().slice(0,10)+" (2)";
-  openModal('<h3>🗄️ '+esc(t("archTitle"))+'</h3><p class="brief">'+esc(t("archText")(se.name,n))+'</p><label class="check" style="margin:10px 0"><input type="checkbox" id="archDlChk" checked> '+esc(t("archDl"))+'</label><div><label class="saved" for="nextSess">'+esc(t("newSessName"))+'</label><input class="urlin" id="nextSess" value="'+esc(nextName)+'" maxlength="80"></div><div class="row"><button class="btn" data-close>'+esc(t("cancel"))+'</button><button class="btn accent" id="doArchive">🗄️ '+esc(t("archive"))+'</button></div>');
+  openModal('<h3>🗄️ '+esc(t("archTitle"))+'</h3><p class="brief">'+esc(t("archText")(se.name,n))+'</p><label class="check" style="margin:10px 0"><input type="checkbox" id="archDlChk" checked> '+esc(t("archDl"))+'</label><div class="row"><button class="btn" data-close>'+esc(t("cancel"))+'</button><button class="btn accent" id="doArchive">🗄️ '+esc(t("archive"))+'</button></div>');
 }
 function doArchive(){
-  var dl=$("#archDlChk").checked, nm=($("#nextSess").value||"").trim();
+  var dl=$("#archDlChk").checked;
   var se=C.session; se.archivedAt=new Date().toISOString();
   if(dl) dlSession(se);
-  C.archives.push(se); C.session=newSession(nm); saveC(); closeModal(); render(); toast(t("archDone"));
+  C.archives.push(se); C.classes=C.classes.filter(function(x){return x!==se;});
+  if(!C.classes.length) C.classes.push(newSession());
+  C.activeId=C.classes[C.classes.length-1].id; saveC(); closeModal(); render(); toast(t("archDone"));
 }
 
 /* ================= Student submit ================= */
@@ -1444,6 +1500,11 @@ en:{
   insBestTeam:function(n,pc){return "Closest to the model: "+n+" ("+pc+"%).";},
   insMissed:function(tk,c,k){return "Most often different: “"+tk+"” — the class chose "+c+", the model says "+k+".";},
   noDiffs:"All in line with the model answers.",
+  classesLbl:"Class", newClass:"New class", editClass:"Edit", classNameLbl:"Class name", groupsLbl:"Groups", noGroups:"none (students type a team number)", classDefault:"Class",
+  groupsHint:"One group per line. Plain numbers are shown as “Team 1”, “Team 2”… You can also use names.", editWarn:"Changing the name or groups creates a new QR code — show the new one to students.",
+  createBtn:"Create", saveBtn:"Save", baseUrlLbl:"App address (the QR adds this class to it)", qrFor:"QR code for:", classLbl:"Class", pickGroup:"Your group",
+  joinTextCls:"Enter your name and choose your group from the list.", movedTo:function(n){return n+" went to their own class.";},
+  compareBtn:"Compare", grpNoData:"no submissions yet", grpAgree:function(pc){return "members fully agree on "+pc+"% of tasks";}, colTeam:"Team",
   topAgree:"Clearest agreement", noData:"Not enough data yet."
 },
 pl:{
@@ -1475,6 +1536,11 @@ pl:{
   insBestTeam:function(n,pc){return "Najbliżej wzorca: "+n+" ("+pc+"%).";},
   insMissed:function(tk,c,k){return "Najczęściej inaczej: „"+tk+"” — grupa wybrała: "+c+", wzorzec: "+k+".";},
   noDiffs:"Wszystko zgodne ze wzorcem.",
+  classesLbl:"Zajęcia", newClass:"Nowe zajęcia", editClass:"Edytuj", classNameLbl:"Nazwa zajęć", groupsLbl:"Grupy", noGroups:"brak (studenci wpisują numer zespołu)", classDefault:"Zajęcia",
+  groupsHint:"Jedna grupa w linii. Same numery wyświetlą się jako „Zespół 1”, „Zespół 2”… Możesz też wpisać nazwy.", editWarn:"Zmiana nazwy lub grup tworzy nowy kod QR — pokaż studentom nowy.",
+  createBtn:"Utwórz", saveBtn:"Zapisz", baseUrlLbl:"Adres aplikacji (kod QR dodaje do niego te zajęcia)", qrFor:"Kod QR dla:", classLbl:"Zajęcia", pickGroup:"Twoja grupa",
+  joinTextCls:"Wpisz swoje imię i wybierz grupę z listy.", movedTo:function(n){return "Do swoich zajęć trafiło: "+n+".";},
+  compareBtn:"Porównaj", grpNoData:"brak zgłoszeń", grpAgree:function(pc){return "pełna zgodność członków w "+pc+"% zadań";}, colTeam:"Zespół",
   topAgree:"Największa zgodność", noData:"Za mało danych."
 },
 cs:{
@@ -1506,6 +1572,11 @@ cs:{
   insBestTeam:function(n,pc){return "Nejblíž vzoru: "+n+" ("+pc+" %).";},
   insMissed:function(tk,c,k){return "Nejčastěji jinak: „"+tk+"“ — třída zvolila "+c+", vzor říká "+k+".";},
   noDiffs:"Vše odpovídá vzoru.",
+  classesLbl:"Výuka", newClass:"Nová výuka", editClass:"Upravit", classNameLbl:"Název výuky", groupsLbl:"Skupiny", noGroups:"žádné (studenti píší číslo týmu)", classDefault:"Výuka",
+  groupsHint:"Jedna skupina na řádek. Samotná čísla se zobrazí jako „Tým 1“, „Tým 2“… Můžete použít i názvy.", editWarn:"Změna názvu nebo skupin vytvoří nový QR kód — ukažte studentům nový.",
+  createBtn:"Vytvořit", saveBtn:"Uložit", baseUrlLbl:"Adresa aplikace (QR k ní přidá tuto výuku)", qrFor:"QR kód pro:", classLbl:"Výuka", pickGroup:"Vaše skupina",
+  joinTextCls:"Zadejte své jméno a vyberte skupinu ze seznamu.", movedTo:function(n){return "Do své výuky přesunuto: "+n+".";},
+  compareBtn:"Porovnat", grpNoData:"zatím nic", grpAgree:function(pc){return "plná shoda členů u "+pc+" % úkolů";}, colTeam:"Tým",
   topAgree:"Největší shoda", noData:"Zatím málo dat."
 }};
 LANGS.forEach(function(l){ Object.keys(T2[l]).forEach(function(k){ T[l][k]=T2[l][k]; }); });
@@ -1513,9 +1584,14 @@ LANGS.forEach(function(l){ Object.keys(T2[l]).forEach(function(k){ T[l][k]=T2[l]
 /* ================= Join (students) ================= */
 function openJoin(){
   openModal('<div class="seg" role="group" aria-label="Language" style="background:#efede7;margin-bottom:12px">'+LANGS.map(function(l){return '<button data-jlang="'+l+'" aria-pressed="'+(S.lang===l)+'" style="color:var(--ink)">'+l.toUpperCase()+'</button>';}).join("")+'</div>'+
-    '<h3 style="font-family:Fraunces,Georgia,serif;font-size:1.4rem">'+esc(t("joinTitle"))+'</h3><p class="brief">'+esc(t("joinText"))+'</p>'+
-    '<div class="fields"><div><label for="joinName">'+esc(t("yourName"))+'</label><input id="joinName" maxlength="60" autocomplete="name" value="'+esc(S.reflection.name)+'"></div><div><label for="joinTeam">'+esc(t("teamNo"))+'</label><input id="joinTeam" maxlength="60" value="'+esc(S.reflection.team)+'"></div></div>'+
+    '<h3 style="font-family:Fraunces,Georgia,serif;font-size:1.4rem">'+esc(t("joinTitle"))+'</h3>'+(S.cls?'<div class="clspill">📚 '+esc(t("classLbl"))+': <b>'+esc(S.cls.n)+'</b></div>':'')+'<p class="brief">'+esc(S.cls&&S.cls.g.length?t("joinTextCls"):t("joinText"))+'</p>'+
+    '<div class="fields"><div><label for="joinName">'+esc(t("yourName"))+'</label><input id="joinName" maxlength="60" autocomplete="name" value="'+esc(S.reflection.name)+'"></div><div><label for="joinTeam">'+esc(S.cls&&S.cls.g.length?t("pickGroup"):t("teamNo"))+'</label>'+teamField("joinTeam",false)+'</div></div>'+
     '<div class="row"><button class="btn accent" id="joinOk" style="font-size:1rem;padding:10px 18px">'+esc(t("joinStart"))+' →</button></div>');
+}
+function teamField(id, bound){
+  var attr=bound?' data-ref="team"':'';
+  if(S.cls && S.cls.g.length){ return '<select id="'+id+'"'+attr+' class="teamsel"><option value="">—</option>'+S.cls.g.map(function(g){return '<option value="'+esc(g)+'" '+(S.reflection.team===g?"selected":"")+'>'+esc(teamLabel(g))+'</option>';}).join("")+'</select>'; }
+  return '<input id="'+id+'"'+attr+' maxlength="60" value="'+esc(S.reflection.team)+'">';
 }
 function joinSubmit(){
   var nm=$("#joinName").value.trim(), tm=$("#joinTeam").value.trim();
@@ -1647,6 +1723,64 @@ document.addEventListener("keydown",function(e){
 });
 
 
+
+/* ================= Classes & groups (instructor) ================= */
+function openClassModal(edit){
+  var se=edit?C.session:null, d=new Date();
+  var nm=se?se.name:(t("classDefault")+" "+d.toISOString().slice(0,10));
+  var gs=se?(se.groups||[]):DEFAULT_GROUPS;
+  openModal('<h3>📚 '+esc(edit?t("editClass"):t("newClass"))+'</h3>'+
+    '<div style="margin:10px 0"><label class="saved" for="cName">'+esc(t("classNameLbl"))+'</label><input class="urlin" id="cName" maxlength="80" value="'+esc(nm)+'"></div>'+
+    '<label class="saved" for="cGroups">'+esc(t("groupsLbl"))+'</label><div class="hints" style="margin:4px 0 6px">'+[3,4,5,6,8].map(function(n){return '<button class="hint" data-gq="'+n+'">'+n+'</button>';}).join("")+'</div>'+
+    '<textarea id="cGroups" class="grpta" rows="6">'+esc(gs.join("\n"))+'</textarea><div class="note" style="margin-top:4px">'+esc(t("groupsHint"))+'</div>'+
+    (edit?'<div class="warn">'+esc(t("editWarn"))+'</div>':'')+
+    '<div class="row"><button class="btn" data-close>'+esc(t("cancel"))+'</button><button class="btn accent" id="cSave" data-edit="'+(edit?1:0)+'">'+esc(edit?t("saveBtn"):t("createBtn"))+'</button></div>');
+}
+function saveClassModal(edit){
+  var nm=$("#cName").value.trim(); if(!nm){ $("#cName").focus(); return; }
+  var gs=$("#cGroups").value.split(/\n|;/).map(function(x){return x.trim();}).filter(function(x,i,arr){return x && arr.indexOf(x)===i;}).slice(0,30);
+  if(edit){ C.session.name=nm; C.session.groups=gs; }
+  else { C.classes=C.classes.filter(function(x){ return Object.keys(x.students).length || !/^Workshop \d{4}-/.test(x.name); }); var c=newSession(nm,gs); C.classes.push(c); C.activeId=c.id; }
+  viewingArchive=null; saveC(); closeModal(); render(); window.scrollTo(0,0);
+}
+var grpProj="p1";
+function openGroup(key){
+  var se=activeSession(), k=String(key||"").toLowerCase();
+  var mem=studentsOf(se).filter(function(s){return (s.t||"").toLowerCase()===k;});
+  if(!mem.length) return;
+  var p=grpProj, akey=p==="p1"?"a1":"a2";
+  var agreeAll=0, withData=0, memMatch=mem.map(function(){return {m:0,a:0};});
+  var rows=PROJECTS[p].tasks.map(function(x,i){
+    var cnt={}, best=null, tot=0;
+    var cells=mem.map(function(s,j){ var r=FROMLETTER[s[akey].charAt(i)]; if(r){ cnt[r]=(cnt[r]||0)+1; tot++; if(!best||cnt[r]>cnt[best]) best=r; memMatch[j].a++; if(r===x[0]) memMatch[j].m++; }
+      return '<td class="gc">'+(r?'<span class="gl" style="'+cvars(r)+'">'+LETTER[r]+'</span>':'<span class="saved">·</span>')+'</td>'; }).join("");
+    if(tot){ withData++; if(cnt[best]===tot && tot===mem.length) agreeAll++; }
+    var cons=best?'<span class="gl" style="'+cvars(best)+'">'+LETTER[best]+'</span>'+(cnt[best]<tot?'<span class="saved"> '+cnt[best]+'/'+tot+'</span>':''):'—';
+    return '<tr><td class="n">'+(i+1)+'</td><td>'+esc(taskTitle(p,i))+'</td>'+cells+'<td class="gc gteam">'+cons+'</td><td class="gc"><span class="gl" style="'+cvars(x[0])+'">'+LETTER[x[0]]+'</span>'+(best?(best===x[0]?' ✓':''):'')+'</td></tr>';
+  }).join("");
+  var have={}; mem.forEach(function(s){ if(FROMLETTER[s.r]) have[FROMLETTER[s.r]]=1; });
+  var miss=ROLES.filter(function(r){return !have[r];});
+  var h='<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h3 style="margin:0">⇄ '+esc(teamLabel(mem[0].t))+' <span class="saved">· '+esc(se.name)+'</span></h3><div style="display:flex;gap:6px">'+["p1","p2"].map(function(pp){return '<button class="chip" data-gproj="'+pp+'" data-gkey="'+esc(mem[0].t)+'" aria-pressed="'+(pp===p)+'">'+PROJECTS[pp].emoji+' '+esc(pr(pp).short)+'</button>';}).join("")+'</div></div>';
+  h+='<div class="gsum"><span class="tag" style="--cbg:#efede7;--cink:var(--ink)">🤝 '+esc(t("grpAgree")(withData?Math.round(agreeAll/withData*100):0))+'</span>';
+  h+=mem.map(function(s,j){var r=FROMLETTER[s.r];return '<span class="tag" style="'+(r?cvars(r):"--cbg:var(--none-bg);--cink:var(--muted)")+'">'+esc(s.n)+(r?' · '+esc(rn(r)):'')+' · 🔑 '+(memMatch[j].a?Math.round(memMatch[j].m/memMatch[j].a*100)+'%':'—')+'</span>';}).join("");
+  h+= miss.length?'<span class="tag" style="--cbg:#fff6e0;--cink:#6b4a00">🔎 '+esc(K("lookingFor")+miss.map(rn).join(", "))+'</span>':'<span class="tag" style="--cbg:#e7f6ee;--cink:#0b5c3e">✓ '+esc(t("clsTeamAll"))+'</span>';
+  h+='</div><div class="tblwrap"><table class="load gtable"><thead><tr><th>#</th><th></th>'+mem.map(function(s){return '<th class="gc">'+esc(s.n)+'</th>';}).join("")+'<th class="gc">'+esc(t("colTeam"))+'</th><th class="gc">🔑</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+  h+='<div class="note">A = '+esc(rn("analyst"))+' · D = '+esc(rn("diplomat"))+' · S = '+esc(rn("sentinel"))+' · E = '+esc(rn("explorer"))+'</div><div class="row"><button class="btn primary" data-close>'+esc(t("close"))+'</button></div>';
+  openModal(h,true);
+}
+document.addEventListener("click",function(e){
+  var el, tg=e.target;
+  if(tg.closest("#clsNew")){ openClassModal(false); return; }
+  if(tg.closest("#clsEdit")){ openClassModal(true); return; }
+  if((el=tg.closest("#cSave"))){ saveClassModal(el.dataset.edit==="1"); return; }
+  if((el=tg.closest("[data-gq]"))){ var n=+el.dataset.gq, arr=[]; for(var i=1;i<=n;i++) arr.push(String(i)); $("#cGroups").value=arr.join("\n"); return; }
+  if((el=tg.closest("[data-grp]"))){ openGroup(el.dataset.grp); return; }
+  if((el=tg.closest("[data-gproj]"))){ grpProj=el.dataset.gproj; openGroup(el.dataset.gkey); return; }
+});
+document.addEventListener("change",function(e){
+  if(e.target.id==="clsSel"){ C.activeId=e.target.value; viewingArchive=null; saveC(); render(); }
+});
+
 /* ================= Events ================= */
 function readFiles(files, cb){ var arr=[], left=files.length; if(!left) return; Array.prototype.forEach.call(files,function(f){ var fr=new FileReader(); fr.onload=function(){ arr.push(String(fr.result)); if(--left===0) cb(arr); }; fr.onerror=function(){ if(--left===0) cb(arr); }; fr.readAsText(f); }); }
 
@@ -1700,8 +1834,8 @@ document.addEventListener("click",function(e){
   if(tg.closest("#pvBack")){ closePrint(); return; }
   // class
   if(tg.closest("#clsAdd")){ if(C.session.closedAt){ toast(t("collectClosed")); return; } var tx=$("#clsPaste").value; if(tx.trim()){ addIncoming([tx]); } return; }
-  if(tg.closest("#copyLink")){ copyText(C.qrUrl, t("copied")); return; }
-  if(tg.closest("#bigQr")){ openModal('<div class="bigqr"><h3>'+esc(t("title"))+'</h3><div class="qrbox">'+qrSVG(C.qrUrl)+'</div><div class="u">'+esc(C.qrUrl)+'</div><div class="row" style="justify-content:center"><button class="btn primary" data-close>'+esc(t("close"))+'</button></div></div>',true); return; }
+  if(tg.closest("#copyLink")){ copyText(classLink(), t("copied")); return; }
+  if(tg.closest("#bigQr")){ openModal('<div class="bigqr"><h3>'+esc(C.session.name)+'</h3><div class="qrbox">'+qrSVG(classLink())+'</div><div class="u">'+esc(baseUrl())+'</div><div class="row" style="justify-content:center"><button class="btn primary" data-close>'+esc(t("close"))+'</button></div></div>',true); return; }
   if((el=tg.closest("[data-cproj]"))){ C.classProj=el.dataset.cproj; saveC(); var y=window.scrollY; render(); window.scrollTo(0,y); return; }
   if((el=tg.closest("[data-stu]"))){ studentModal(el.dataset.stu); return; }
   if((el=tg.closest("[data-stu-del]"))){ delete C.session.students[el.dataset.stuDel]; saveC(); render(); return; }
@@ -1727,7 +1861,7 @@ document.addEventListener("input",function(e){
   if(el.classList.contains("member")){ var row=el.closest(".task"); setA(row.dataset.p,+row.dataset.n,{member:el.value}); return; }
   if(el.dataset && el.dataset.ref){ S.reflection[el.dataset.ref]=el.value; save();
     document.querySelectorAll('[data-ref="'+el.dataset.ref+'"]').forEach(function(o){ if(o!==el) o.value=el.value; }); return; }
-  if(el.id==="qrUrl"){ C.qrUrl=el.value.trim(); saveC(); var box=$("#qrBox"); if(box) box.innerHTML=qrSVG(C.qrUrl); return; }
+  if(el.id==="qrUrl"){ C.qrUrl=el.value.trim(); saveC(); var box=$("#qrBox"); if(box) box.innerHTML=qrSVG(classLink()); return; }
   if(el.id==="sessName" && !viewingArchive){ C.session.name=el.value; saveC(); return; }
 });
 document.addEventListener("change",function(e){
@@ -1752,7 +1886,7 @@ document.addEventListener("keydown",function(e){
 });
 
 render();
-if(!S.instructor && !S.reflection.name.trim()) setTimeout(openJoin,50);
+if(!S.instructor && (!S.reflection.name.trim() || (S.cls && S.cls.g.length && !S.reflection.team))) setTimeout(openJoin,50);
 })();
 
 </script>
