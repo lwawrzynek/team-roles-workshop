@@ -2,6 +2,7 @@
 // Same API as the Google Apps Script version:
 //   GET  ?action=init&key=…          – first call stores the instructor key
 //   GET  ?action=list&key=…&k=class  – instructor reads answers of one class
+//   GET  ?action=delete&key=…&k=class – instructor deletes all answers of one class
 //   POST {k,d,n,t,code}              – student device saves/updates its answer
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -52,6 +53,14 @@ export default {
       if (!cur) await db.prepare("INSERT OR IGNORE INTO meta (k, v) VALUES ('key', ?1)").bind(key).run();
       const now = await db.prepare("SELECT v FROM meta WHERE k = 'key'").first();
       return now && now.v === key ? json({ ok: true }) : json({ ok: false, error: "already-initialized" });
+    }
+    if (action === "delete") {
+      const cur = await db.prepare("SELECT v FROM meta WHERE k = 'key'").first();
+      if (!cur || p.get("key") !== cur.v) return json({ ok: false, error: "bad-key" }, 403);
+      const k = p.get("k");
+      if (!k) return json({ ok: false, error: "no-class" }, 400);
+      const r = await db.prepare("DELETE FROM responses WHERE class = ?1").bind(k).run();
+      return json({ ok: true, deleted: (r && r.meta && r.meta.changes) || 0 });
     }
     if (action === "list") {
       const cur = await db.prepare("SELECT v FROM meta WHERE k = 'key'").first();

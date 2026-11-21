@@ -28,6 +28,16 @@ function doGet(e) {
     }
     return out_({ ok: true, rows: rows });
   }
+  if (p.action === 'delete') {
+    if (!p.key || p.key !== props.getProperty('KEY') || !p.k) return out_({ ok: false, error: 'bad-key' });
+    const lock = LockService.getScriptLock(); lock.waitLock(25000);
+    let deleted = 0;
+    try {
+      const s = sheet_(), v = s.getDataRange().getValues();
+      for (let i = v.length - 1; i >= 1; i--) if (String(v[i][1]) === p.k) { s.deleteRow(i + 1); deleted++; }
+    } finally { lock.releaseLock(); }
+    return out_({ ok: true, deleted: deleted });
+  }
   return out_({ ok: true, app: 'team-roles-workshop', initialized: !!props.getProperty('KEY') });
 }
 function doPost(e) {

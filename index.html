@@ -45,7 +45,7 @@ h1{font-family:Fraunces,Georgia,serif;font-weight:700;font-size:1.9rem;margin:4p
 /* Starting point */
 .start{margin-top:-2px;background:var(--card);border-radius:0 0 var(--radius) var(--radius);box-shadow:var(--shadow);padding:16px 18px 14px}
 .start h2{font-size:.8rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:0 0 10px;font-weight:700}
-.startgrid{display:grid;grid-template-columns:repeat(4,1fr) minmax(210px,260px);gap:10px}
+.startgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 .rolecard{border:2px solid var(--line);background:#fff;border-radius:12px;padding:10px 12px;text-align:left;transition:.15s;position:relative}
 .rolecard:hover{transform:translateY(-1px)}
 .rolecard .rn{font-weight:800;font-size:1.02rem;display:flex;align-items:center;gap:8px}
@@ -1105,9 +1105,6 @@ function renderStart(){
   var h="";
   ROLES.forEach(function(r){ var d=ROLE[r][S.lang];
     h+='<button class="rolecard" style="'+cvars(r)+'" data-role="'+r+'" aria-pressed="'+(S.myRole===r)+'"><div class="rn"><span class="dot"></span>'+esc(d.name)+'</div><div class="rt">'+esc(d.tag)+'</div><div class="rc">'+ROLE[r].codes.join(" · ")+'</div></button>'; });
-  var cr=S.myCode?codeToRole(S.myCode):null;
-  var msg=!S.myCode?"":(cr?t("codeOk")(S.myCode,rn(cr)):(S.myCode.length>=4?t("codeBad"):""));
-  h+='<div class="codebox"><label for="codeIn">'+esc(t("codeLabel"))+'</label><input id="codeIn" maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="'+esc(t("codePh"))+'" value="'+esc(S.myCode)+'"><div class="codemsg" id="codeMsg" '+(cr?'style="color:var(--'+cr+'-ink);font-weight:600"':'')+'>'+esc(msg)+'</div></div>';
   $("#roleCards").innerHTML=h;
   $("#joinRow").innerHTML='<div><label for="jName">'+esc(t("yourName"))+'</label><input id="jName" data-ref="name" maxlength="60" autocomplete="name" value="'+esc(S.reflection.name)+'"></div><div><label for="jTeam">'+esc(S.cls&&S.cls.g.length?t("pickGroup"):t("teamNo"))+'</label>'+teamField("jTeam",true)+'</div>'+(S.cls?'<div class="clspill" style="grid-column:1/-1;margin:0">📚 '+esc(t("classLbl"))+': <b>'+esc(S.cls.n)+'</b></div>':'');
   var rem=$("#reminder");
@@ -1448,12 +1445,13 @@ function dlSession(se){ saveFile("workshop-session-"+safeName(se.name)+".json", 
 
 function openArchive(){
   var se=C.session, n=Object.keys(se.students).length;
-  openModal('<h3>🗄️ '+esc(t("archTitle"))+'</h3><p class="brief">'+esc(t("archText")(se.name,n))+'</p><label class="check" style="margin:10px 0"><input type="checkbox" id="archDlChk" checked> '+esc(t("archDl"))+'</label><div class="row"><button class="btn" data-close>'+esc(t("cancel"))+'</button><button class="btn accent" id="doArchive">🗄️ '+esc(t("archive"))+'</button></div>');
+  openModal('<h3>🗄️ '+esc(t("archTitle"))+'</h3><p class="brief">'+esc(t("archText")(se.name,n))+'</p><label class="check" style="margin:10px 0"><input type="checkbox" id="archDlChk" checked> '+esc(t("archDl"))+'</label>'+(C.live&&C.live.url?'<label class="check" style="margin:0 0 10px"><input type="checkbox" id="archDelSrv" checked> 🗑 '+esc(t("archDelSrv"))+'</label>':'')+'<div class="row"><button class="btn" data-close>'+esc(t("cancel"))+'</button><button class="btn accent" id="doArchive">🗄️ '+esc(t("archive"))+'</button></div>');
 }
 function doArchive(){
-  var dl=$("#archDlChk").checked;
+  var dl=$("#archDlChk").checked, delSrv=!!($("#archDelSrv") && $("#archDelSrv").checked);
   var se=C.session; se.archivedAt=new Date().toISOString();
   if(dl) dlSession(se);
+  if(delSrv) liveDelete(se.id, se.name);
   C.archives.push(se); C.classes=C.classes.filter(function(x){return x!==se;});
   if(!C.classes.length) C.classes.push(newSession());
   C.activeId=C.classes[C.classes.length-1].id; saveC(); closeModal(); render(); toast(t("archDone"));
@@ -1582,6 +1580,9 @@ en:{
   liveShareSteps:["Students scan the QR code of this class.","They enter their name and pick their group.","Their answers save automatically to your Google Sheet.","This view updates live — then “End collection & show conclusions”."],
   liveCfgCopied:"Settings copied — paste them on the other computer and click Connect",
   liveCfgClasses:function(n){return n+" class(es) added";},
+  archDelSrv:"Also delete this class’s answers from the server (the file and archive keep a copy)", liveDelBtn:"Delete this class’s data from the server",
+  liveDelText:function(n){return "All answers of “"+n+"” will be permanently deleted from the server. Download the class first if you want a copy.";}, liveDelLocal:"Also clear the answers shown on this computer",
+  liveDeleted:function(n){return "Server data deleted: “"+n+"”";}, liveDelFail:"Couldn’t delete on the server.",
   topAgree:"Clearest agreement", noData:"Not enough data yet."
 },
 pl:{
@@ -1633,6 +1634,9 @@ pl:{
   liveShareSteps:["Studenci skanują kod QR tych zajęć.","Wpisują imię i wybierają grupę z listy.","Odpowiedzi zapisują się same w Twoim arkuszu Google.","Ten widok aktualizuje się na żywo — na koniec „Zakończ zbieranie i pokaż wnioski”."],
   liveCfgCopied:"Skopiowano ustawienia — wklej je na drugim komputerze i kliknij Połącz",
   liveCfgClasses:function(n){return "dodano zajęć: "+n;},
+  archDelSrv:"Usuń też odpowiedzi tych zajęć z serwera (kopia zostaje w pliku i w archiwum)", liveDelBtn:"Usuń dane tych zajęć z serwera",
+  liveDelText:function(n){return "Wszystkie odpowiedzi zajęć „"+n+"” zostaną trwale usunięte z serwera. Jeśli chcesz mieć kopię, najpierw pobierz zajęcia.";}, liveDelLocal:"Wyczyść też odpowiedzi widoczne na tym komputerze",
+  liveDeleted:function(n){return "Usunięto dane z serwera: „"+n+"”";}, liveDelFail:"Nie udało się usunąć danych z serwera.",
   topAgree:"Największa zgodność", noData:"Za mało danych."
 },
 cs:{
@@ -1684,6 +1688,9 @@ cs:{
   liveShareSteps:["Studenti naskenují QR kód této výuky.","Zadají jméno a vyberou skupinu.","Odpovědi se samy ukládají do vaší tabulky Google.","Tento pohled se aktualizuje živě — nakonec „Ukončit sběr a ukázat závěry“."],
   liveCfgCopied:"Nastavení zkopírováno — vložte ho na druhém počítači a klikněte na Připojit",
   liveCfgClasses:function(n){return "přidáno výuk: "+n;},
+  archDelSrv:"Smazat i odpovědi této výuky ze serveru (kopie zůstane v souboru a v archivu)", liveDelBtn:"Smazat data této výuky ze serveru",
+  liveDelText:function(n){return "Všechny odpovědi výuky „"+n+"“ budou ze serveru trvale smazány. Chcete-li kopii, nejprve výuku stáhněte.";}, liveDelLocal:"Vymazat i odpovědi zobrazené na tomto počítači",
+  liveDeleted:function(n){return "Data smazána ze serveru: „"+n+"“";}, liveDelFail:"Smazání na serveru se nezdařilo.",
   topAgree:"Největší shoda", noData:"Zatím málo dat."
 }};
 LANGS.forEach(function(l){ Object.keys(T2[l]).forEach(function(k){ T[l][k]=T2[l][k]; }); });
@@ -1919,7 +1926,7 @@ var livePoll={timer:0,busy:false,at:"",n:0,err:""};
 function liveCardHTML(){
   var L=C.live, h='<div class="card livecard" style="margin-bottom:18px">';
   if(L && L.url){
-    h+='<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h3 style="margin:0">'+(livePoll.err?'🟠':'🟢')+' '+esc(t("liveOnTitle"))+' <span class="saved">· '+esc(/workers\.dev/.test(L.url)?"Cloudflare":"Google")+'</span></h3><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm" id="liveNow">↻ '+esc(t("liveRefresh"))+'</button><button class="btn sm" id="liveCopyCfg">⧉ '+esc(t("liveCopyCfg"))+'</button><button class="btn sm danger" id="liveOff">'+esc(t("liveDisconnect"))+'</button></div></div>';
+    h+='<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h3 style="margin:0">'+(livePoll.err?'🟠':'🟢')+' '+esc(t("liveOnTitle"))+' <span class="saved">· '+esc(/workers\.dev/.test(L.url)?"Cloudflare":"Google")+'</span></h3><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm" id="liveNow">↻ '+esc(t("liveRefresh"))+'</button><button class="btn sm" id="liveCopyCfg">⧉ '+esc(t("liveCopyCfg"))+'</button><button class="btn sm danger" id="liveDelCls">🗑 '+esc(t("liveDelBtn"))+'</button><button class="btn sm danger" id="liveOff">'+esc(t("liveDisconnect"))+'</button></div></div>';
     h+='<div class="note" id="liveInfo">'+liveInfoText()+'</div><div class="note">ⓘ '+esc(t("liveQrNote"))+'</div>';
   } else {
     h+='<h3 style="margin:0 0 6px">🔴 '+esc(t("liveSetupTitle"))+'</h3><p class="brief" style="margin-top:0">'+esc(t("liveSetupIntro"))+'</p>';
@@ -1974,6 +1981,12 @@ function livePollOnce(){
     if(changed){ saveC(); liveRerender(); } else liveRefreshInfo();
   }).catch(function(){ livePoll.busy=false; livePoll.err="offline"; liveRefreshInfo(); });
 }
+function liveDelete(id, name, cb){
+  if(!C.live || !C.live.url) return;
+  fetch(C.live.url+"?action=delete&key="+encodeURIComponent(C.live.key)+"&k="+encodeURIComponent(id)).then(function(r){return r.json();}).then(function(j){
+    if(j && j.ok){ toast("🗑 "+t("liveDeleted")(name)); if(cb) cb(true); } else { toast("⚠️ "+t("liveDelFail")+" "+((j&&j.error)||"")); if(cb) cb(false); }
+  }).catch(function(){ toast("⚠️ "+t("liveDelFail")); if(cb) cb(false); });
+}
 function liveRefreshInfo(){ var el=$("#liveInfo"); if(el) el.innerHTML=liveInfoText(); }
 function liveRerender(){
   if(S.view!=="class" || !S.instructor){ renderTabs(); return; }
@@ -1990,6 +2003,9 @@ document.addEventListener("click",function(e){
   if(tg.closest("#liveNow")){ livePollOnce(); return; }
   if(tg.closest("#liveCopyCfg")){ copyText(liveCfgString(), t("liveCfgCopied")); return; }
   if(tg.closest("#liveOff")){ openModal('<h3>'+esc(t("liveDisconnect"))+'</h3><p class="brief">'+esc(t("liveOffText"))+'</p><div class="row"><button class="btn" data-close>'+esc(t("cancel"))+'</button><button class="btn primary" id="liveOffOk" style="background:#b42318;border-color:#b42318">'+esc(t("liveDisconnect"))+'</button></div>'); return; }
+  if(tg.closest("#liveDelCls")){ openModal('<h3>🗑 '+esc(t("liveDelBtn"))+'</h3><p class="brief">'+esc(t("liveDelText")(C.session.name))+'</p><label class="check" style="margin:8px 0"><input type="checkbox" id="liveDelLocal"> '+esc(t("liveDelLocal"))+'</label><div class="row"><button class="btn" data-close>'+esc(t("cancel"))+'</button><button class="btn primary" id="liveDelOk" style="background:#b42318;border-color:#b42318">🗑 '+esc(t("delete"))+'</button></div>'); return; }
+  if(tg.closest("#liveDelOk")){ var se=C.session, alsoLocal=$("#liveDelLocal").checked; closeModal(); clearInterval(livePoll.timer); livePoll.timer=0;
+    liveDelete(se.id, se.name, function(ok){ if(ok && alsoLocal){ se.students={}; delete se.closedAt; saveC(); } liveStartPoll(false); render(); }); return; }
   if(tg.closest("#liveOffOk")){ C.live=null; saveC(); clearInterval(livePoll.timer); closeModal(); render(); return; }
   if(tg.closest(".tab") || tg.closest("#endCollect") || tg.closest("#showConcl")){ setTimeout(function(){ if(C.live) livePollOnce(); },50); }
 });
