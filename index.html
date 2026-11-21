@@ -1356,7 +1356,7 @@ function classHTML(){
   var se=activeSession(), list=studentsOf(se), ro=!!viewingArchive, h="";
   if(!ro){
     h+='<div class="classbar"><span class="kicker">📚 '+esc(t("classesLbl"))+'</span><select id="clsSel">'+C.classes.map(function(x){return '<option value="'+esc(x.id)+'" '+(x.id===C.activeId?"selected":"")+'>'+esc(x.name)+' ('+Object.keys(x.students).length+')</option>';}).join("")+'</select>'+
-      '<button class="btn sm" id="clsEdit">✎ '+esc(t("editClass"))+'</button><button class="btn sm accent" id="clsNew">＋ '+esc(t("newClass"))+'</button>'+
+      '<button class="btn sm" id="clsEdit">✎ '+esc(t("editClass"))+'</button><button class="btn sm" id="clsDel">🗑 '+esc(t("delete"))+'</button><button class="btn sm accent" id="clsNew">＋ '+esc(t("newClass"))+'</button>'+
       '<span class="meta2">'+esc(t("groupsLbl"))+': '+((se.groups&&se.groups.length)?se.groups.map(teamLabel).map(esc).join(" · "):esc(t("noGroups")))+'</span></div>';
     h+='<div class="clsgrid"><div class="card"><h3>📱 '+esc(t("shareTitle"))+'</h3><div class="kicker" style="margin-bottom:6px">'+esc(t("qrFor"))+' '+esc(se.name)+'</div><div class="qrbox" id="qrBox">'+qrSVG(classLink(se))+'</div>';
     h+='<label class="saved" for="qrUrl" style="display:block;margin-top:10px">'+esc(t("baseUrlLbl"))+'</label><input class="urlin" id="qrUrl" value="'+esc(C.qrUrl)+'" spellcheck="false">';
@@ -1583,6 +1583,7 @@ en:{
   archDelSrv:"Also delete this class’s answers from the server (the file and archive keep a copy)", liveDelBtn:"Delete this class’s data from the server",
   liveDelText:function(n){return "All answers of “"+n+"” will be permanently deleted from the server. Download the class first if you want a copy.";}, liveDelLocal:"Also clear the answers shown on this computer",
   liveDeleted:function(n){return "Server data deleted: “"+n+"”";}, liveDelFail:"Couldn’t delete on the server.",
+  clsDelTitle:"Delete this class?", clsDelText:function(n,c){return "“"+n+"”"+(c?" and its "+c+" submission(s)":"")+" will be removed from this browser. This cannot be undone.";}, clsDelSrv:"Also delete its answers from the server", clsDeleted:function(n){return "Class deleted: “"+n+"”";},
   topAgree:"Clearest agreement", noData:"Not enough data yet."
 },
 pl:{
@@ -1637,6 +1638,7 @@ pl:{
   archDelSrv:"Usuń też odpowiedzi tych zajęć z serwera (kopia zostaje w pliku i w archiwum)", liveDelBtn:"Usuń dane tych zajęć z serwera",
   liveDelText:function(n){return "Wszystkie odpowiedzi zajęć „"+n+"” zostaną trwale usunięte z serwera. Jeśli chcesz mieć kopię, najpierw pobierz zajęcia.";}, liveDelLocal:"Wyczyść też odpowiedzi widoczne na tym komputerze",
   liveDeleted:function(n){return "Usunięto dane z serwera: „"+n+"”";}, liveDelFail:"Nie udało się usunąć danych z serwera.",
+  clsDelTitle:"Usunąć te zajęcia?", clsDelText:function(n,c){return "Zajęcia „"+n+"”"+(c?" i ich zgłoszenia ("+c+")":"")+" zostaną usunięte z tej przeglądarki. Tego nie można cofnąć.";}, clsDelSrv:"Usuń też ich odpowiedzi z serwera", clsDeleted:function(n){return "Usunięto zajęcia: „"+n+"”";},
   topAgree:"Największa zgodność", noData:"Za mało danych."
 },
 cs:{
@@ -1691,6 +1693,7 @@ cs:{
   archDelSrv:"Smazat i odpovědi této výuky ze serveru (kopie zůstane v souboru a v archivu)", liveDelBtn:"Smazat data této výuky ze serveru",
   liveDelText:function(n){return "Všechny odpovědi výuky „"+n+"“ budou ze serveru trvale smazány. Chcete-li kopii, nejprve výuku stáhněte.";}, liveDelLocal:"Vymazat i odpovědi zobrazené na tomto počítači",
   liveDeleted:function(n){return "Data smazána ze serveru: „"+n+"“";}, liveDelFail:"Smazání na serveru se nezdařilo.",
+  clsDelTitle:"Smazat tuto výuku?", clsDelText:function(n,c){return "Výuka „"+n+"“"+(c?" a její odevzdání ("+c+")":"")+" bude odstraněna z tohoto prohlížeče. Nelze vrátit zpět.";}, clsDelSrv:"Smazat i její odpovědi ze serveru", clsDeleted:function(n){return "Výuka smazána: „"+n+"“";},
   topAgree:"Největší shoda", noData:"Zatím málo dat."
 }};
 LANGS.forEach(function(l){ Object.keys(T2[l]).forEach(function(k){ T[l][k]=T2[l][k]; }); });
@@ -1886,6 +1889,13 @@ function openGroup(key){
 document.addEventListener("click",function(e){
   var el, tg=e.target;
   if(tg.closest("#clsNew")){ openClassModal(false); return; }
+  if(tg.closest("#clsDel")){ var cs=C.session, cn=Object.keys(cs.students).length;
+    openModal('<h3>🗑 '+esc(t("clsDelTitle"))+'</h3><p class="brief">'+esc(t("clsDelText")(cs.name,cn))+'</p>'+(cn?'<label class="check" style="margin:6px 0"><input type="checkbox" id="clsDelDl"> '+esc(t("archDl"))+'</label>':'')+(C.live&&C.live.url?'<label class="check" style="margin:6px 0"><input type="checkbox" id="clsDelSrv" checked> 🗑 '+esc(t("clsDelSrv"))+'</label>':'')+'<div class="row"><button class="btn" data-close>'+esc(t("cancel"))+'</button><button class="btn primary" id="clsDelOk" style="background:#b42318;border-color:#b42318">🗑 '+esc(t("delete"))+'</button></div>'); return; }
+  if(tg.closest("#clsDelOk")){ var dc=C.session;
+    if($("#clsDelDl") && $("#clsDelDl").checked) dlSession(dc);
+    if($("#clsDelSrv") && $("#clsDelSrv").checked) liveDelete(dc.id, dc.name);
+    C.classes=C.classes.filter(function(x){return x!==dc;}); if(!C.classes.length) C.classes.push(newSession());
+    C.activeId=C.classes[C.classes.length-1].id; viewingArchive=null; saveC(); closeModal(); render(); toast("🗑 "+t("clsDeleted")(dc.name)); return; }
   if(tg.closest("#clsEdit")){ openClassModal(true); return; }
   if((el=tg.closest("#cSave"))){ saveClassModal(el.dataset.edit==="1"); return; }
   if((el=tg.closest("[data-gq]"))){ var n=+el.dataset.gq, arr=[]; for(var i=1;i<=n;i++) arr.push(String(i)); $("#cGroups").value=arr.join("\n"); return; }
