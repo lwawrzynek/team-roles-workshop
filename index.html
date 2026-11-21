@@ -940,22 +940,32 @@ function speak(text){
 }
 var speakGen=0, lastWasBusy=false, ttsDiag="";
 function diag(msg){ ttsDiag=msg; var el=$("#iDiag"); if(el) el.textContent=msg; }
+var uttRefs=[];
 function browserSpeak(say){
   if(!("speechSynthesis" in window)){ voiceNote(true); diag("speechSynthesis: brak w tej przeglądarce / not supported"); return; }
-  var synth=window.speechSynthesis, gen=speakGen;
+  var synth=window.speechSynthesis, gen=speakGen, started=false;
+  function mk(txt, v, last){
+    var u=new SpeechSynthesisUtterance(txt); u.lang=LOCALE[S.lang]; if(v) u.voice=v; u.rate=1; u.volume=1;
+    u.onstart=function(){ started=true; if(gen===speakGen){ setSpeaking(true); diag(base+" · ▶"); } };
+    u.onend=function(){ if(gen===speakGen && last){ setSpeaking(false); diag(base+" · ✓"); } };
+    u.onerror=function(ev){ if(ev && ev.error && ev.error!=="interrupted" && ev.error!=="canceled") diag(base+" · error: "+ev.error); if(gen===speakGen && last) setSpeaking(false); };
+    uttRefs.push(u); return u;
+  }
+  var base="";
   var go=function(){
     if(gen!==speakGen) return;
+    uttRefs=[];
     var vs=synth.getVoices()||[], v=pickVoice(); voiceNote(!v);
-    diag("🔧 "+vs.length+" voices · "+(v?(v.name+" ("+v.lang+")"):"default / "+LOCALE[S.lang]));
+    base="🔧 "+vs.length+" voices · "+(v?(v.name+" ("+v.lang+")"):"default / "+LOCALE[S.lang]); diag(base+" · …");
     var parts=(say.match(/[^.!?…]+[.!?…]*/g)||[say]).map(function(x){return x.trim();}).filter(Boolean);
-    parts.forEach(function(txt,i){
-      var u=new SpeechSynthesisUtterance(txt); u.lang=LOCALE[S.lang]; if(v) u.voice=v; u.rate=1; u.volume=1;
-      u.onstart=function(){ if(gen===speakGen) setSpeaking(true); };
-      u.onend=function(){ if(gen===speakGen && i===parts.length-1) setSpeaking(false); };
-      u.onerror=function(ev){ if(ev && ev.error && ev.error!=="interrupted" && ev.error!=="canceled") diag("🔧 "+vs.length+" voices · error: "+ev.error); if(gen===speakGen && i===parts.length-1) setSpeaking(false); };
-      synth.speak(u);
-    });
+    parts.forEach(function(txt,i){ synth.speak(mk(txt, v, i===parts.length-1)); });
     setSpeaking(true); try{ if(synth.paused) synth.resume(); }catch(e){}
+    // fallback: some browsers (iOS Safari) stay silent with an explicit voice — retry once without it
+    setTimeout(function(){
+      if(started || gen!==speakGen) return;
+      try{ synth.cancel(); }catch(e){}
+      setTimeout(function(){ if(gen!==speakGen) return; base+=" · retry"; uttRefs=[]; synth.speak(mk(say, null, true)); try{ synth.resume(); }catch(e){} },120);
+    },1800);
   };
   if(!synth.getVoices().length){ var done=false, h=function(){ if(done) return; done=true; go(); };
     try{ synth.addEventListener("voiceschanged",h,{once:true}); }catch(e){ synth.onvoiceschanged=h; } setTimeout(h,700); }
