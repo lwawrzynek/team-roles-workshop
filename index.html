@@ -405,6 +405,7 @@ body.instructor #joinRow{display:none}
         <button class="btn ghost" id="bIntro" data-instructor></button>
         <button class="switch" id="presToggle" aria-pressed="false" data-instructor><span class="knob"></span><span id="tPres"></span></button>
         <button class="btn ghost sm" id="bStudentView" data-instructor></button>
+        <button class="btn sm" id="bBackInstr" style="display:none;background:#f2b705;border-color:#f2b705;color:#1b2133"></button>
       </div>
     </div>
   </header>
@@ -825,7 +826,7 @@ function merge(base, src){
   if(!src || typeof src!=="object") return base;
   ["lang","myCode","view","filter"].forEach(function(k){ if(typeof src[k]==="string") base[k]=src[k]; });
   if(src.cls && typeof src.cls.i==="string") base.cls={i:src.cls.i,n:String(src.cls.n||""),g:Array.isArray(src.cls.g)?src.cls.g.map(String):[]};
-  ["instructor","forceStudent","presenter","showFit","introSeen","autoRead"].forEach(function(k){ if(typeof src[k]==="boolean") base[k]=src[k]; });
+  ["instructor","forceStudent","wasInstructor","presenter","showFit","introSeen","autoRead"].forEach(function(k){ if(typeof src[k]==="boolean") base[k]=src[k]; });
   if(ROLES.indexOf(src.myRole)>-1) base.myRole=src.myRole;
   if(src.assign){ ["p1","p2"].forEach(function(p){ var a=src.assign[p]||{}; for(var n=1;n<=20;n++){ var x=a[n]; if(x){ base.assign[p][n]={role:ROLES.indexOf(x.role)>-1?x.role:null,member:typeof x.member==="string"?x.member.slice(0,60):""}; } } }); }
   if(src.reflection){ ["name","team","q1","q2","q3"].forEach(function(k){ if(typeof src.reflection[k]==="string") base.reflection[k]=src.reflection[k].slice(0,4000); }); }
@@ -1073,6 +1074,8 @@ function renderChrome(){
   $("#presToggle").setAttribute("aria-pressed", String(S.presenter));
   document.body.classList.toggle("presenter", S.presenter);
   document.body.classList.toggle("instructor", !!S.instructor);
+  if(S.instructor) S.wasInstructor=true;
+  var bb=$("#bBackInstr"); if(bb){ bb.style.display=(!S.instructor && S.wasInstructor)?"":"none"; bb.innerHTML="🎓 "+esc(t("backInstr")); }
   $("#bStudentView").innerHTML="👤 "+esc(t("studentView")); $("#instrBadge").textContent="🎓 "+t("instructorLbl");
   renderStart(); renderTabs();
 }
@@ -1537,6 +1540,7 @@ en:{
   createBtn:"Create", saveBtn:"Save", baseUrlLbl:"App address (the QR adds this class to it)", qrFor:"QR code for:", classLbl:"Class", pickGroup:"Your group",
   joinTextCls:"Enter your name and choose your group from the list.", movedTo:function(n){return n+" went to their own class.";},
   compareBtn:"Compare", grpNoData:"no submissions yet", grpAgree:function(pc){return "members fully agree on "+pc+"% of tasks";}, colTeam:"Team",
+  backInstr:"Back to instructor view",
   topAgree:"Clearest agreement", noData:"Not enough data yet."
 },
 pl:{
@@ -1573,6 +1577,7 @@ pl:{
   createBtn:"Utwórz", saveBtn:"Zapisz", baseUrlLbl:"Adres aplikacji (kod QR dodaje do niego te zajęcia)", qrFor:"Kod QR dla:", classLbl:"Zajęcia", pickGroup:"Twoja grupa",
   joinTextCls:"Wpisz swoje imię i wybierz grupę z listy.", movedTo:function(n){return "Do swoich zajęć trafiło: "+n+".";},
   compareBtn:"Porównaj", grpNoData:"brak zgłoszeń", grpAgree:function(pc){return "pełna zgodność członków w "+pc+"% zadań";}, colTeam:"Zespół",
+  backInstr:"Wróć do widoku prowadzącego",
   topAgree:"Największa zgodność", noData:"Za mało danych."
 },
 cs:{
@@ -1609,6 +1614,7 @@ cs:{
   createBtn:"Vytvořit", saveBtn:"Uložit", baseUrlLbl:"Adresa aplikace (QR k ní přidá tuto výuku)", qrFor:"QR kód pro:", classLbl:"Výuka", pickGroup:"Vaše skupina",
   joinTextCls:"Zadejte své jméno a vyberte skupinu ze seznamu.", movedTo:function(n){return "Do své výuky přesunuto: "+n+".";},
   compareBtn:"Porovnat", grpNoData:"zatím nic", grpAgree:function(pc){return "plná shoda členů u "+pc+" % úkolů";}, colTeam:"Tým",
+  backInstr:"Zpět do pohledu vyučujícího",
   topAgree:"Největší shoda", noData:"Zatím málo dat."
 }};
 LANGS.forEach(function(l){ Object.keys(T2[l]).forEach(function(k){ T[l][k]=T2[l][k]; }); });
@@ -1735,7 +1741,8 @@ document.addEventListener("click",function(e){
   var el, tg=e.target;
   if((el=tg.closest("[data-jlang]"))){ var nm=$("#joinName").value, tm=$("#joinTeam").value; S.lang=el.dataset.jlang; save(); render(); openJoin(); $("#joinName").value=nm; $("#joinTeam").value=tm; return; }
   if(tg.closest("#joinOk")){ joinSubmit(); return; }
-  if(tg.closest("#bStudentView")){ S.instructor=false; S.forceStudent=true; S.presenter=false; if(S.view==="class") S.view="p1"; save(); render(); if(!S.reflection.name.trim()) openJoin(); return; }
+  if(tg.closest("#bStudentView")){ S.instructor=false; S.forceStudent=true; S.wasInstructor=true; S.presenter=false; if(S.view==="class") S.view="p1"; save(); setHash("student"); render(); return; }
+  if(tg.closest("#bBackInstr")){ S.instructor=true; S.forceStudent=false; save(); closeModal(); setHash("instructor"); render(); return; }
   if(tg.closest("#endCollect")){ endCollection(); return; }
   if(tg.closest("#reopenCollect")){ reopenCollection(); return; }
   if(tg.closest("#showConcl")){ openDeck(); return; }
@@ -1917,6 +1924,7 @@ document.addEventListener("keydown",function(e){
   }
 });
 
+function setHash(h){ try{ if(history.replaceState) history.replaceState(null,"",location.pathname+location.search+"#"+h); else location.hash=h; }catch(e){ try{ location.hash=h; }catch(x){} } }
 window.addEventListener("hashchange",function(){
   var h=(location.hash||"").replace("#","").toLowerCase();
   if(h==="instructor"||h==="prowadzacy"||h==="vyucujici"){ if(!S.instructor){ S.instructor=true; S.forceStudent=false; save(); closeModal(); render(); toast("🎓 "+t("instructorLbl")); } }
