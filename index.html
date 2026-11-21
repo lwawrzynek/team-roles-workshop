@@ -938,30 +938,34 @@ function speak(text){
   if(ttsBlocked) return;
   browserSpeak(say);
 }
-var speakGen=0;
+var speakGen=0, lastWasBusy=false, ttsDiag="";
+function diag(msg){ ttsDiag=msg; var el=$("#iDiag"); if(el) el.textContent=msg; }
 function browserSpeak(say){
-  if(!("speechSynthesis" in window)){ voiceNote(true); return; }
+  if(!("speechSynthesis" in window)){ voiceNote(true); diag("speechSynthesis: brak w tej przeglądarce / not supported"); return; }
   var synth=window.speechSynthesis, gen=speakGen;
   var go=function(){
     if(gen!==speakGen) return;
-    var v=pickVoice(); voiceNote(!v);
+    var vs=synth.getVoices()||[], v=pickVoice(); voiceNote(!v);
+    diag("🔧 "+vs.length+" voices · "+(v?(v.name+" ("+v.lang+")"):"default / "+LOCALE[S.lang]));
     var parts=(say.match(/[^.!?…]+[.!?…]*/g)||[say]).map(function(x){return x.trim();}).filter(Boolean);
     parts.forEach(function(txt,i){
       var u=new SpeechSynthesisUtterance(txt); u.lang=LOCALE[S.lang]; if(v) u.voice=v; u.rate=1; u.volume=1;
       u.onstart=function(){ if(gen===speakGen) setSpeaking(true); };
-      u.onend=u.onerror=function(){ if(gen===speakGen && i===parts.length-1) setSpeaking(false); };
+      u.onend=function(){ if(gen===speakGen && i===parts.length-1) setSpeaking(false); };
+      u.onerror=function(ev){ if(ev && ev.error && ev.error!=="interrupted" && ev.error!=="canceled") diag("🔧 "+vs.length+" voices · error: "+ev.error); if(gen===speakGen && i===parts.length-1) setSpeaking(false); };
       synth.speak(u);
     });
-    setSpeaking(true); try{ synth.resume(); }catch(e){}
+    setSpeaking(true); try{ if(synth.paused) synth.resume(); }catch(e){}
   };
   if(!synth.getVoices().length){ var done=false, h=function(){ if(done) return; done=true; go(); };
-    try{ synth.addEventListener("voiceschanged",h,{once:true}); }catch(e){ synth.onvoiceschanged=h; } setTimeout(h,800); }
-  else setTimeout(go,120);
+    try{ synth.addEventListener("voiceschanged",h,{once:true}); }catch(e){ synth.onvoiceschanged=h; } setTimeout(h,700); }
+  else if(lastWasBusy) setTimeout(go,150);
+  else go();
 }
 function stopSpeak(){
-  speakGen++;
+  speakGen++; lastWasBusy=false;
   if(hostTTS){ try{ hostTTS.stop().catch(function(){}); }catch(e){} }
-  try{ if("speechSynthesis" in window) speechSynthesis.cancel(); }catch(e){}
+  try{ if("speechSynthesis" in window){ var sy=window.speechSynthesis; if(sy.speaking||sy.pending){ lastWasBusy=true; sy.cancel(); } } }catch(e){}
   setSpeaking(false);
 }
 function voiceNote(show){ var n=$("#iVoiceNote"); if(n){ n.textContent=show?t("noVoice"):""; } }
@@ -1017,7 +1021,7 @@ function renderIntro(){
   h+='<button class="btn" id="iSkip">'+esc(t("introSkip"))+' ✕</button></div>';
   h+='<div class="ibody"><div class="ivis">'+visHTML(s.v)+'</div><div class="itext"><div class="kicker">'+(slide+1)+' / '+list.length+'</div><h2 id="iH">'+esc(s.h)+'</h2><p>'+esc(s.p)+'</p>';
   h+='<div style="margin-top:16px"><button class="btn listen'+(speaking?" on":"")+'" id="iListen"><span class="wave"><i></i><i></i><i></i><i></i></span><span class="lbl">'+esc(speaking?t("stop"):t("listen"))+'</span></button></div></div></div>';
-  h+='<div class="vnote" id="iVoiceNote" aria-live="polite"></div>';
+  h+='<div class="vnote" id="iVoiceNote" aria-live="polite"></div><div class="vnote" id="iDiag" style="font-size:.72rem;opacity:.7">'+esc(ttsDiag)+'</div>';
   h+='<div class="ibot"><button class="btn" id="iPrev" '+(slide===0?"disabled style=\"opacity:.4\"":"")+'>← '+esc(t("introPrev"))+'</button><div class="dots">'+list.map(function(_,i){return '<button data-dot="'+i+'" aria-label="'+(i+1)+'" aria-current="'+(i===slide)+'"></button>';}).join("")+'</div>';
   h+='<button class="btn '+(last?"accent":"primary")+'" id="iNext">'+(last?esc(t("introStart"))+" 🚀":esc(t("introNext"))+" →")+'</button></div></div>';
   $("#intro").innerHTML=h;
