@@ -379,6 +379,11 @@ select.teamsel{width:100%;border:1px solid var(--line);border-radius:10px;paddin
 .gl{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:6px;background:var(--c);color:#fff;font-weight:800;font-size:.78rem}
 .classbar .btn:not(.accent){color:var(--ink)}
 body.instructor #joinRow{display:none}
+.iprog{height:8px;background:#ecebe5;border-radius:999px;overflow:hidden;margin-top:18px;max-width:560px}
+.iprog>div{height:100%;width:0;background:linear-gradient(90deg,var(--analyst),var(--diplomat),var(--sentinel),var(--explorer));border-radius:999px;transition:width .25s linear}
+.itext [data-si]{transition:background .25s,color .25s;border-radius:4px}
+.itext [data-si].now{background:#fff3c4;box-shadow:0 0 0 3px #fff3c4}
+.itext p [data-si].past{color:#7a8094}
 
 </style>
 </head>
@@ -913,7 +918,7 @@ function safeName(s){ return (s||"x").replace(/[^\w\-]+/g,"_").slice(0,40); }
 
 /* ================= Narration ================= */
 var speaking=false;
-function setSpeaking(on){ speaking=on; var b=$("#iListen"); if(b){ b.classList.toggle("on",on); b.querySelector(".lbl").textContent=on?t("stop"):t("listen"); } }
+function setSpeaking(on){ speaking=on; if(on && typeof narr!=="undefined" && !narr.raf && narr.cur>=0) narrLoop(); var b=$("#iListen"); if(b){ b.classList.toggle("on",on); b.querySelector(".lbl").textContent=on?t("stop"):t("listen"); } }
 function narrationText(txt){ return txt.replace(/\b([EI])([NS])([TF])([JP])\b/g,"$1 $2 $3 $4"); }
 function pickVoice(){
   if(!("speechSynthesis" in window)) return null;
@@ -924,11 +929,23 @@ function pickVoice(){
   var good=list.filter(function(v){return /natural|neural|google|premium|enhanced/i.test(v.name);});
   return (good[0]||list[0]);
 }
+function splitSent(x){ return (String(x).match(/[^.!?…]+[.!?…]*/g)||[String(x)]).map(function(y){return y.trim();}).filter(Boolean); }
+var narr={parts:[],cum:[],lens:[],total:1,cur:-1,curChar:0,t0:0,raf:0,done:false};
+function narrInit(text){ var ps=splitSent(text), c=0; narr.parts=ps; narr.cum=[]; narr.lens=[]; ps.forEach(function(x){ narr.cum.push(c); narr.lens.push(x.length); c+=x.length; }); narr.total=Math.max(1,c); narr.cur=-1; narr.curChar=0; narr.done=false; narrPaint(); }
+function narrPart(i){ narr.cur=i; narr.curChar=0; narr.t0=Date.now(); document.querySelectorAll(".itext [data-si]").forEach(function(el){ el.classList.toggle("now", +el.dataset.si===i); el.classList.toggle("past", +el.dataset.si<i); }); if(!narr.raf) narrLoop(); }
+function narrPct(){ if(narr.done) return 100; if(narr.cur<0) return 0; var len=narr.lens[narr.cur]||0, est=Math.min(len, Math.max(narr.curChar,(Date.now()-narr.t0)/1000*14)); return Math.min(99,(narr.cum[narr.cur]+est)/narr.total*100); }
+function narrPaint(){ var b=$("#iProg"); if(b) b.style.width=narrPct()+"%"; }
+function narrLoop(){ narrPaint(); if(speaking && !narr.done){ narr.raf=requestAnimationFrame(narrLoop); } else narr.raf=0; }
+function narrEnd(){ narr.done=true; narrPaint(); document.querySelectorAll(".itext [data-si]").forEach(function(el){ el.classList.remove("now"); el.classList.add("past"); }); }
+function narrReset(){ narr.cur=-1; narr.done=false; narrPaint(); document.querySelectorAll(".itext [data-si]").forEach(function(el){ el.classList.remove("now","past"); }); }
+var hostLineHooked=false;
 function speak(text){
   stopSpeak();
+  narrInit(text);
   var say=narrationText(text);
   if(hostTTS && !ttsBlocked){
-    hostTTS.speak(say,{language:S.lang}).catch(function(e){
+    if(!hostLineHooked){ hostLineHooked=true; try{ hostTTS.onLine(function(e){ narrPart(e.line); }); hostTTS.onPosition(function(e){ narr.curChar=e.ms/1000*14; }); hostTTS.onState(function(e){ if(e.state==="idle"){ if(e.reason==="completed") narrEnd(); } else if(!narr.raf) narrLoop(); }); }catch(e){} }
+    hostTTS.speak(narr.parts.map(function(x,i){ return {text:narrationText(x), id:"s"+i}; }),{language:S.lang}).catch(function(e){
       if(e && e.code==="not_granted"){ ttsBlocked=true; setSpeaking(false); return; }
       if(e && e.code==="stopped") return;
       hostTTS=null; browserSpeak(say);
@@ -944,10 +961,11 @@ var uttRefs=[];
 function browserSpeak(say){
   if(!("speechSynthesis" in window)){ voiceNote(true); diag("speechSynthesis: brak w tej przeglądarce / not supported"); return; }
   var synth=window.speechSynthesis, gen=speakGen, started=false;
-  function mk(txt, v, last){
+  function mk(txt, v, last, pi){
     var u=new SpeechSynthesisUtterance(txt); u.lang=LOCALE[S.lang]; if(v) u.voice=v; u.rate=1; u.volume=1;
-    u.onstart=function(){ started=true; if(gen===speakGen){ setSpeaking(true); diag(base+" · ▶"); } };
-    u.onend=function(){ if(gen===speakGen && last){ setSpeaking(false); diag(base+" · ✓"); } };
+    u.onstart=function(){ started=true; if(gen===speakGen){ setSpeaking(true); diag(base+" · ▶"); narrPart(pi); } };
+    u.onboundary=function(ev){ if(gen===speakGen && typeof ev.charIndex==="number") narr.curChar=ev.charIndex; };
+    u.onend=function(){ if(gen===speakGen && last){ narrEnd(); setSpeaking(false); diag(base+" · ✓"); } };
     u.onerror=function(ev){ if(ev && ev.error && ev.error!=="interrupted" && ev.error!=="canceled") diag(base+" · error: "+ev.error); if(gen===speakGen && last) setSpeaking(false); };
     uttRefs.push(u); return u;
   }
@@ -957,14 +975,14 @@ function browserSpeak(say){
     uttRefs=[];
     var vs=synth.getVoices()||[], v=pickVoice(); voiceNote(!v);
     base="🔧 "+vs.length+" voices · "+(v?(v.name+" ("+v.lang+")"):"default / "+LOCALE[S.lang]); diag(base+" · …");
-    var parts=(say.match(/[^.!?…]+[.!?…]*/g)||[say]).map(function(x){return x.trim();}).filter(Boolean);
-    parts.forEach(function(txt,i){ synth.speak(mk(txt, v, i===parts.length-1)); });
+    var parts=narr.parts.map(narrationText);
+    parts.forEach(function(txt,i){ synth.speak(mk(txt, v, i===parts.length-1, i)); });
     setSpeaking(true); try{ if(synth.paused) synth.resume(); }catch(e){}
     // fallback: some browsers (iOS Safari) stay silent with an explicit voice — retry once without it
     setTimeout(function(){
       if(started || gen!==speakGen) return;
       try{ synth.cancel(); }catch(e){}
-      setTimeout(function(){ if(gen!==speakGen) return; base+=" · retry"; uttRefs=[]; synth.speak(mk(say, null, true)); try{ synth.resume(); }catch(e){} },120);
+      setTimeout(function(){ if(gen!==speakGen) return; base+=" · retry"; uttRefs=[]; narr.cum=[0]; narr.lens=[narr.total]; synth.speak(mk(say, null, true, 0)); try{ synth.resume(); }catch(e){} },120);
     },1800);
   };
   if(!synth.getVoices().length){ var done=false, h=function(){ if(done) return; done=true; go(); };
@@ -973,7 +991,7 @@ function browserSpeak(say){
   else go();
 }
 function stopSpeak(){
-  speakGen++; lastWasBusy=false;
+  speakGen++; lastWasBusy=false; if(narr.raf){ cancelAnimationFrame(narr.raf); narr.raf=0; } narrReset();
   if(hostTTS){ try{ hostTTS.stop().catch(function(){}); }catch(e){} }
   try{ if("speechSynthesis" in window){ var sy=window.speechSynthesis; if(sy.speaking||sy.pending){ lastWasBusy=true; sy.cancel(); } } }catch(e){}
   setSpeaking(false);
@@ -1029,8 +1047,8 @@ function renderIntro(){
   h+='<div class="itop"><div class="seg" role="group" aria-label="Language">'+LANGS.map(function(l){return '<button data-ilang="'+l+'" aria-pressed="'+(S.lang===l)+'">'+l.toUpperCase()+'</button>';}).join("")+'</div>';
   h+='<label class="check"><input type="checkbox" id="iAuto" '+(S.autoRead?"checked":"")+'> 🔊 '+esc(t("autoRead"))+'</label>';
   h+='<button class="btn" id="iSkip">'+esc(t("introSkip"))+' ✕</button></div>';
-  h+='<div class="ibody"><div class="ivis">'+visHTML(s.v)+'</div><div class="itext"><div class="kicker">'+(slide+1)+' / '+list.length+'</div><h2 id="iH">'+esc(s.h)+'</h2><p>'+esc(s.p)+'</p>';
-  h+='<div style="margin-top:16px"><button class="btn listen'+(speaking?" on":"")+'" id="iListen"><span class="wave"><i></i><i></i><i></i><i></i></span><span class="lbl">'+esc(speaking?t("stop"):t("listen"))+'</span></button></div></div></div>';
+  h+='<div class="ibody"><div class="ivis">'+visHTML(s.v)+'</div><div class="itext"><div class="kicker">'+(slide+1)+' / '+list.length+'</div><h2 id="iH"><span data-si="0">'+esc(s.h)+'</span></h2><p>'+splitSent(s.p).map(function(x,i){return '<span data-si="'+(i+1)+'">'+esc(x)+'</span>';}).join(" ")+'</p>';
+  h+='<div class="iprog" aria-hidden="true"><div id="iProg"></div></div><div style="margin-top:12px"><button class="btn listen'+(speaking?" on":"")+'" id="iListen"><span class="wave"><i></i><i></i><i></i><i></i></span><span class="lbl">'+esc(speaking?t("stop"):t("listen"))+'</span></button></div></div></div>';
   h+='<div class="vnote" id="iVoiceNote" aria-live="polite"></div><div class="vnote" id="iDiag" style="font-size:.72rem;opacity:.7">'+esc(ttsDiag)+'</div>';
   h+='<div class="ibot"><button class="btn" id="iPrev" '+(slide===0?"disabled style=\"opacity:.4\"":"")+'>← '+esc(t("introPrev"))+'</button><div class="dots">'+list.map(function(_,i){return '<button data-dot="'+i+'" aria-label="'+(i+1)+'" aria-current="'+(i===slide)+'"></button>';}).join("")+'</div>';
   h+='<button class="btn '+(last?"accent":"primary")+'" id="iNext">'+(last?esc(t("introStart"))+" 🚀":esc(t("introNext"))+" →")+'</button></div></div>';
