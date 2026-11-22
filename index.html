@@ -2063,8 +2063,10 @@ document.addEventListener("click",function(e){
     var mode=(document.querySelector('input[name="rs"]:checked')||{}).value;
     if(mode==="cur"){ S.assign[(S.view==="p2")?"p2":"p1"]={}; }
     else if(mode==="all"){ S.assign={p1:{},p2:{}}; }
-    else if(mode==="every"){ var keep={lang:S.lang,presenter:S.presenter,autoRead:S.autoRead}; S=blank(); S.lang=keep.lang; S.presenter=keep.presenter; S.autoRead=keep.autoRead; S.introSeen=false; }
-    save(); closeModal(); render(); toast(t("resetDone")); if(mode==="every" && !S.presenter) openIntro(); return;
+    else if(mode==="every"){ var keep=S; S=blank();
+      ["lang","presenter","autoRead","instructor","forceStudent","wasInstructor","did","voiceLang","introSeen","cls"].forEach(function(k){ if(keep[k]!==undefined) S[k]=keep[k]; });
+      if(S.cls && S.cls.g && S.cls.g.length===1) S.reflection.team=S.cls.g[0]; }
+    save(); closeModal(); render(); toast(t("resetDone")); if(mode==="every" && !S.instructor) openJoin(); return;
   }
   if(tg.closest("#subNameOk")){ var nm=$("#subName").value.trim(); if(!nm){ $("#subName").focus(); return; } S.reflection.name=nm; S.reflection.team=$("#subTeam").value.trim(); save(); render(); openSubmit(); return; }
   if(tg.closest("#subCopy")){ copyText(encodeSub(), t("codeCopied")); return; }
