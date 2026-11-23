@@ -479,6 +479,18 @@ body.instructor #joinRow{display:none}
 .dk-grid.three .dk-met{font-size:16px;white-space:normal;flex-wrap:wrap;gap:10px}
 .dk-grid.three .dk-met b{font-size:24px}
 .dk-grid.three .dk-line{font-size:16.5px;line-height:1.35}
+/* ---- Deck interpretation strip ---- */
+.dk-strip{background:#0b1028;border-top:1px solid rgba(255,255,255,.08);padding:10px 22px 8px}
+.dk-strip-in{display:flex;gap:14px;align-items:baseline;max-width:1280px;margin:0 auto}
+.dk-strip-l{flex:none;font-size:.78rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#f2b705}
+.dk-interp{font-size:clamp(.95rem,1.35vw,1.18rem);line-height:1.45;color:#e9ecf6}
+.dk-interp [data-si]{transition:background .25s,color .25s;border-radius:4px}
+.dk-interp [data-si].now{background:#fff3c4;color:#14182b;box-shadow:0 0 0 3px #fff3c4}
+.dk-interp [data-si].past{color:#9aa1b8}
+.iprog.dkp{height:4px;margin:8px auto 0;max-width:1280px;background:rgba(255,255,255,.12)}
+.dkchk{color:#fff;font-size:.85rem;display:inline-flex;gap:6px;align-items:center;font-weight:600}
+#dkInterpT[aria-pressed="false"]{opacity:.45}
+.deck .btn.ghost.listen{color:#fff}
 
 </style>
 </head>
@@ -713,7 +725,7 @@ en:{
   agree:"agree", noAnswers:"no answers",
   thName:"Name", thTeam:"Team", thRole:"Role", thRefl:"Reflection",
   clsView:"View", clsRemove:"Remove", copyCsv:"Copy CSV", delete:"Delete",
-  introPrev:"Back", introNext:"Next", introStart:"Let’s start", introSkip:"Skip", listen:"Listen", stop:"Stop",
+  introPrev:"Back", introNext:"Next", introStart:"Let’s start", introSkip:"Skip", listen:"Listen", stop:"Stop", interpLbl:"What this means", deckAutoLbl:"Read aloud",
   autoRead:"Read slides aloud", noVoice:"No voice for this language on this device — the text is on screen."
 },
 pl:{
@@ -794,7 +806,7 @@ pl:{
   agree:"zgodnych", noAnswers:"brak odpowiedzi",
   thName:"Imię", thTeam:"Zespół", thRole:"Rola", thRefl:"Refleksja",
   clsView:"Pokaż", clsRemove:"Usuń", copyCsv:"Kopiuj CSV", delete:"Usuń",
-  introPrev:"Wstecz", introNext:"Dalej", introStart:"Zaczynamy", introSkip:"Pomiń", listen:"Posłuchaj", stop:"Zatrzymaj",
+  introPrev:"Wstecz", introNext:"Dalej", introStart:"Zaczynamy", introSkip:"Pomiń", listen:"Posłuchaj", stop:"Zatrzymaj", interpLbl:"Co z tego wynika", deckAutoLbl:"Czytaj na głos",
   autoRead:"Czytaj slajdy na głos", noVoice:"Brak głosu dla tego języka na tym urządzeniu — tekst jest na ekranie."
 },
 cs:{
@@ -875,7 +887,7 @@ cs:{
   agree:"shoda", noAnswers:"bez odpovědí",
   thName:"Jméno", thTeam:"Tým", thRole:"Role", thRefl:"Reflexe",
   clsView:"Zobrazit", clsRemove:"Odebrat", copyCsv:"Kopírovat CSV", delete:"Smazat",
-  introPrev:"Zpět", introNext:"Dál", introStart:"Jdeme na to", introSkip:"Přeskočit", listen:"Poslechnout", stop:"Zastavit",
+  introPrev:"Zpět", introNext:"Dál", introStart:"Jdeme na to", introSkip:"Přeskočit", listen:"Poslechnout", stop:"Zastavit", interpLbl:"Co z toho plyne", deckAutoLbl:"Číst nahlas",
   autoRead:"Číst snímky nahlas", noVoice:"Pro tento jazyk není na zařízení k dispozici hlas — text je na obrazovce."
 }
 };
@@ -922,7 +934,7 @@ function merge(base, src){
   if(!src || typeof src!=="object") return base;
   ["lang","myCode","view","filter","voiceLang","did"].forEach(function(k){ if(typeof src[k]==="string") base[k]=src[k]; });
   if(src.cls && typeof src.cls.i==="string") base.cls={r:!!src.cls.r,u:typeof src.cls.u==="string"?src.cls.u:"",i:src.cls.i,n:String(src.cls.n||""),g:Array.isArray(src.cls.g)?src.cls.g.map(String):[]};
-  ["instructor","forceStudent","wasInstructor","presenter","showFit","introSeen","autoRead"].forEach(function(k){ if(typeof src[k]==="boolean") base[k]=src[k]; });
+  ["instructor","forceStudent","wasInstructor","presenter","showFit","introSeen","autoRead","deckAuto","deckInterp"].forEach(function(k){ if(typeof src[k]==="boolean") base[k]=src[k]; });
   if(ROLES.indexOf(src.myRole)>-1) base.myRole=src.myRole;
   if(src.assign){ ["p1","p2"].forEach(function(p){ var a=src.assign[p]||{}; for(var n=1;n<=20;n++){ var x=a[n]; if(x){ base.assign[p][n]={role:ROLES.indexOf(x.role)>-1?x.role:null,member:typeof x.member==="string"?x.member.slice(0,60):""}; } } }); }
   if(src.reflection){ ["name","team","q1","q2","q3"].forEach(function(k){ if(typeof src.reflection[k]==="string") base.reflection[k]=src.reflection[k].slice(0,4000); }); }
@@ -1017,7 +1029,7 @@ function safeName(s){ return (s||"x").replace(/[^\w\-]+/g,"_").slice(0,40); }
 
 /* ================= Narration ================= */
 var speaking=false;
-function setSpeaking(on){ speaking=on; if(on && typeof narr!=="undefined" && !narr.raf && narr.cur>=0) narrLoop(); var b=$("#iListen"); if(b){ b.classList.toggle("on",on); b.querySelector(".lbl").textContent=on?t("stop"):t("listen"); } }
+function setSpeaking(on){ speaking=on; if(on && typeof narr!=="undefined" && !narr.raf && narr.cur>=0) narrLoop(); ["#iListen","#dkListen"].forEach(function(id){ var b=$(id); if(b){ b.classList.toggle("on",on); b.querySelector(".lbl").textContent=on?t("stop"):t("listen"); } }); }
 function narrationText(txt){ return txt.replace(/\b([EI])([NS])([TF])([JP])\b/g,"$1 $2 $3 $4"); }
 function pickVoice(){
   if(!("speechSynthesis" in window)) return null;
@@ -1033,12 +1045,12 @@ function vLang(){ return (S.voiceLang && LANGS.indexOf(S.voiceLang)>-1)?S.voiceL
 function splitSent(x){ return (String(x).match(/[^.!?…]+[.!?…]*/g)||[String(x)]).map(function(y){return y.trim();}).filter(Boolean); }
 var narr={parts:[],cum:[],lens:[],total:1,cur:-1,curChar:0,t0:0,raf:0,done:false};
 function narrInit(text){ var ps=splitSent(text), c=0; narr.parts=ps; narr.cum=[]; narr.lens=[]; ps.forEach(function(x){ narr.cum.push(c); narr.lens.push(x.length); c+=x.length; }); narr.total=Math.max(1,c); narr.cur=-1; narr.curChar=0; narr.done=false; narrPaint(); }
-function narrPart(i){ narr.cur=i; narr.curChar=0; narr.t0=Date.now(); if(vLang()===S.lang) document.querySelectorAll(".itext [data-si]").forEach(function(el){ el.classList.toggle("now", +el.dataset.si===i); el.classList.toggle("past", +el.dataset.si<i); }); if(!narr.raf) narrLoop(); }
+function narrPart(i){ narr.cur=i; narr.curChar=0; narr.t0=Date.now(); if(vLang()===S.lang) document.querySelectorAll(".itext [data-si], .dk-interp [data-si]").forEach(function(el){ el.classList.toggle("now", +el.dataset.si===i); el.classList.toggle("past", +el.dataset.si<i); }); if(!narr.raf) narrLoop(); }
 function narrPct(){ if(narr.done) return 100; if(narr.cur<0) return 0; var len=narr.lens[narr.cur]||0, est=Math.min(len, Math.max(narr.curChar,(Date.now()-narr.t0)/1000*14)); return Math.min(99,(narr.cum[narr.cur]+est)/narr.total*100); }
-function narrPaint(){ var b=$("#iProg"); if(b) b.style.width=narrPct()+"%"; }
+function narrPaint(){ var p=narrPct()+"%"; ["#iProg","#dkProg"].forEach(function(id){ var b=$(id); if(b) b.style.width=p; }); }
 function narrLoop(){ narrPaint(); if(speaking && !narr.done){ narr.raf=requestAnimationFrame(narrLoop); } else narr.raf=0; }
-function narrEnd(){ narr.done=true; narrPaint(); if(vLang()===S.lang) document.querySelectorAll(".itext [data-si]").forEach(function(el){ el.classList.remove("now"); el.classList.add("past"); }); }
-function narrReset(){ narr.cur=-1; narr.done=false; narrPaint(); document.querySelectorAll(".itext [data-si]").forEach(function(el){ el.classList.remove("now","past"); }); }
+function narrEnd(){ narr.done=true; narrPaint(); if(vLang()===S.lang) document.querySelectorAll(".itext [data-si], .dk-interp [data-si]").forEach(function(el){ el.classList.remove("now"); el.classList.add("past"); }); }
+function narrReset(){ narr.cur=-1; narr.done=false; narrPaint(); document.querySelectorAll(".itext [data-si], .dk-interp [data-si]").forEach(function(el){ el.classList.remove("now","past"); }); }
 var hostLineHooked=false;
 function speak(text){
   stopSpeak();
@@ -1928,12 +1940,12 @@ function teamCard(tm){
   return h+'</div>';
 }
 function deckSlides(se){
-  var A=analyse(se), n=A.n, slides=[];
+  var A=analyse(se), n=A.n, slides=[], keys=[];
   // 1 — who is in the room
   var s1='<div class="dk-h"><div class="kicker">'+esc(se.name)+'</div><h2>'+esc(t("c1h"))+'</h2><div class="dk-sub">'+esc(t("c1sub")(n,A.teams.length))+'</div></div><div class="dk-2">';
   s1+='<div><div class="stack" style="height:26px">'+ROLES.map(function(r){return '<span style="'+cvars(r)+'width:'+(n?A.mix[r]/n*100:0)+'%"></span>';}).join("")+'</div><div class="bars dk-bars">'+ROLES.map(function(r){var pc=n?Math.round(A.mix[r]/n*100):0;return '<div class="barrow" style="'+cvars(r)+'"><span>'+esc(rn(r))+'</span><div class="bartrack"><div class="barfill" style="width:'+pc+'%"></div></div><span class="n">'+A.mix[r]+'</span></div>';}).join("")+'</div></div>';
   s1+='<div class="dk-teams">'+A.teams.map(function(tm){ return '<div class="teamrow"><div class="tn"><span>'+esc(tm.name)+'</span><span class="saved" style="'+(tm.missing.length?"color:#8a5600":"color:var(--diplomat-ink)")+'">'+(tm.missing.length?"🔎 "+esc(K("lookingFor")+tm.missing.map(rn).join(", ")):"✓")+'</span></div><div class="tm">'+tm.m.map(roleTag).join("")+'</div></div>'; }).join("")+'</div></div>';
-  slides.push(s1);
+  slides.push(s1); keys.push("room");
   // 2 — what each project needs
   var NE=needsOf(A);
   var sN='<div class="dk-h"><h2>'+esc(t("c5h"))+'</h2><div class="dk-sub">'+esc(t("c5sub"))+'</div></div><div class="dk-needs">';
@@ -1943,12 +1955,12 @@ function deckSlides(se){
   ROLES.forEach(function(r){ var a1=NE.p1.pct[r], a2=NE.p2.pct[r], d=a2-a1;
     sN+='<tr style="'+cvars(r)+'"><td><span class="dot"></span> <b>'+esc(rn(r))+'</b></td><td>'+NE.room[r]+'%</td><td>'+bar(a1,r)+'</td><td>'+bar(a2,r)+'</td><td class="'+(d>0?'up':d<0?'down':'')+'">'+(d>0?'▲ +':d<0?'▼ ':'= ')+d+' pp</td></tr>'; });
   sN+='</tbody></table><ul class="dk-ins compact">'+NE.lines.map(function(x){return '<li style="'+(x[0]?cvars(x[0]):"--c:var(--ink)")+'">'+esc(x[1])+'</li>';}).join("")+'</ul>';
-  slides.push(sN);
+  slides.push(sN); keys.push("needs");
   // 3 — teams (4 per slide)
   var named=A.teams.filter(function(tm){return tm.m.length;});
   for(var g=0; g<named.length; g+=4){
     var part=named.slice(g,g+4), pages=Math.ceil(named.length/4);
-    slides.push('<div class="dk-h"><h2>'+esc(t("c4h"))+(pages>1?' <span class="saved">('+(g/4+1)+'/'+pages+')</span>':'')+'</h2><div class="dk-sub">'+esc(t("c4sub"))+'</div></div><div class="dk-grid'+(part.length<=2?' two':part.length===3?' three':'')+'">'+part.map(teamCard).join("")+'</div>');
+    keys.push("teams"); slides.push('<div class="dk-h"><h2>'+esc(t("c4h"))+(pages>1?' <span class="saved">('+(g/4+1)+'/'+pages+')</span>':'')+'</h2><div class="dk-sub">'+esc(t("c4sub"))+'</div></div><div class="dk-grid'+(part.length<=2?' two':part.length===3?' three':'')+'">'+part.map(teamCard).join("")+'</div>');
   }
   // 3 — projects
   var s2='<div class="dk-h"><h2>'+esc(t("c2h"))+'</h2><div class="dk-sub">'+esc(t("c2sub"))+'</div></div><div class="dk-2">';
@@ -1960,21 +1972,27 @@ function deckSlides(se){
       s2+='<div class="duo" style="'+cvars(r)+'"><span>'+esc(rn(r))+'</span><div class="mini"><div class="bartrack"><div class="barfill" style="width:'+pc+'%"></div></div><b>'+pc+'%</b></div><div class="mini"><div class="bartrack"><div class="barfill ghost" style="width:'+kp+'%"></div></div><b>'+kp+'%</b></div></div>'; });
     s2+='<div class="kicker" style="margin-top:14px">'+esc(t("diffsTitle"))+'</div><ul class="matchlist">'+(P.diffs.length?P.diffs.map(function(x){return '<li style="'+cvars(x.key)+'"><span class="nn">#'+(x.i+1)+'</span><span>'+esc(taskTitle(p,x.i))+'<br><span class="saved">'+esc(t("classChose"))+': <b style="color:var(--'+x.top+'-ink)">'+esc(rn(x.top))+'</b> · 🔑 '+esc(t("modelW"))+': <b style="color:var(--cink)">'+esc(rn(x.key))+'</b></span></span></li>';}).join(""):'<li>'+(P.sum?'✓ '+esc(t("noDiffs")):esc(t("noData")))+'</li>')+'</ul></div>';
   });
-  s2+='</div>'; slides.push(s2);
+  s2+='</div>'; slides.push(s2); keys.push("projects");
   // 4 — conclusions
   var ins=NE.lines.concat(insightsOf(A,true)).slice(0,6);
   var s3='<div class="dk-h"><h2>'+esc(t("c3h"))+'</h2></div><div class="dk-2 wide"><ul class="dk-ins">'+ins.map(function(x){return '<li style="'+(x[0]?cvars(x[0]):"--c:var(--ink)")+'">'+esc(x[1])+'</li>';}).join("")+'</ul>';
   s3+='<div class="dk-disc"><div class="kicker">💬 '+esc(t("discuss"))+'</div><ol>'+t("dq").map(function(q){return '<li>'+esc(q)+'</li>';}).join("")+'</ol><div class="dk-close">🧭 '+esc(t("closing"))+'</div></div></div>';
-  slides.push(s3);
-  return {slides:slides, ins:ins, A:A};
+  slides.push(s3); keys.push("summary");
+  return {slides:slides, ins:ins, A:A, keys:keys};
 }
 var deckIdx=0, deckData=null;
-function openDeck(){ goFull(); deckIdx=0; $("#deck").classList.add("open"); renderDeck(); }
-function closeDeck(){ exitFull(); $("#deck").classList.remove("open"); }
+function deckSay(){ if(!deckData||!deckData.keys) return; var key=deckData.keys[deckIdx], tx=(deckData.interp||{})[key]||"";
+  if(vLang()!==S.lang){ try{ tx=withLang(vLang(),function(){ return interpTexts(activeSession())[key]; }); }catch(e){} }
+  if(tx) speak(tx); }
+function deckGo(i){ if(!deckData) return; if(i<0||i>deckData.slides.length-1) return; stopSpeak(); deckIdx=i; renderDeck(); if(S.deckAuto!==false) deckSay(); }
+function openDeck(){ goFull(); deckIdx=0; $("#deck").classList.add("open"); renderDeck(); if(S.deckAuto!==false) deckSay(); }
+function closeDeck(){ stopSpeak(); exitFull(); $("#deck").classList.remove("open"); }
 function renderDeck(){
   var se=activeSession(); deckData=deckSlides(se); var L=deckData.slides.length;
-  var h='<div class="dk-top"><span class="dk-brand">🧩 '+esc(t("deckTitle"))+' · '+esc(se.name)+'</span><span style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><span class="seg">'+LANGS.map(function(l){return '<button data-dlang="'+l+'" aria-pressed="'+(S.lang===l)+'">'+l.toUpperCase()+'</button>';}).join("")+'</span><button class="btn accent sm" id="dkPptx">⬇ '+esc(t("deckPptx"))+'</button><button class="btn ghost sm" id="dkFull">⛶</button><button class="btn ghost sm" id="dkCopy">⧉ '+esc(t("deckCopy"))+'</button><button class="btn ghost sm" id="dkPrint">⎙ '+esc(t("deckPrint"))+'</button><button class="btn ghost sm" id="dkClose">✕</button></span></div>';
+  var h='<div class="dk-top"><span class="dk-brand">🧩 '+esc(t("deckTitle"))+' · '+esc(se.name)+'</span><span style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><span class="seg">'+LANGS.map(function(l){return '<button data-dlang="'+l+'" aria-pressed="'+(S.lang===l)+'">'+l.toUpperCase()+'</button>';}).join("")+'</span><button class="btn ghost sm listen'+(speaking?" on":"")+'" id="dkListen"><span class="wave"><i></i><i></i><i></i><i></i></span><span class="lbl">'+esc(speaking?t("stop"):t("listen"))+'</span></button><label class="check dkchk"><input type="checkbox" id="dkAuto" '+(S.deckAuto!==false?"checked":"")+'> '+esc(t("deckAutoLbl"))+'</label><button class="btn ghost sm" id="dkInterpT" aria-pressed="'+(S.deckInterp!==false)+'">💡</button><button class="btn accent sm" id="dkPptx">⬇ '+esc(t("deckPptx"))+'</button><button class="btn ghost sm" id="dkFull">⛶</button><button class="btn ghost sm" id="dkCopy">⧉ '+esc(t("deckCopy"))+'</button><button class="btn ghost sm" id="dkPrint">⎙ '+esc(t("deckPrint"))+'</button><button class="btn ghost sm" id="dkClose">✕</button></span></div>';
   h+='<div class="dk-stage" id="dkStage"><div class="dk-canvas" id="dkCanvas"><div class="dk-slide">'+deckData.slides[deckIdx]+'</div></div></div>';
+  deckData.interp=interpTexts(se); var it=deckData.interp[deckData.keys[deckIdx]]||"";
+  if(S.deckInterp!==false) h+='<div class="dk-strip"><div class="dk-strip-in"><span class="dk-strip-l">💡 '+esc(t("interpLbl"))+'</span><span class="dk-interp">'+splitSent(it).map(function(x,i){return '<span data-si="'+i+'">'+esc(x)+'</span>';}).join(" ")+'</span></div><div class="iprog dkp"><div id="dkProg"></div></div></div>';
   h+='<div class="dk-bot"><button class="btn ghost" id="dkPrev" '+(deckIdx===0?'disabled style="opacity:.4"':'')+'>←</button><span class="dk-n">'+esc(t("deckOf")(deckIdx+1,L))+'</span><button class="btn ghost" id="dkNext" '+(deckIdx===L-1?'disabled style="opacity:.4"':'')+'>→</button></div>';
   $("#deck").innerHTML=h; fitDeck();
 }
@@ -1982,16 +2000,20 @@ function fitDeck(){ var st=$("#dkStage"), cv=$("#dkCanvas"); if(!st||!cv) return
 window.addEventListener("resize",function(){ if($("#deck").classList.contains("open")) fitDeck(); });
 document.addEventListener("fullscreenchange",function(){ setTimeout(fitDeck,60); });
 function deckText(){
-  var se=activeSession(), D=deckSlides(se), A=D.A, L=[];
+  var se=activeSession(), D=deckSlides(se), A=D.A, L=[], IT=interpTexts(se), IL="   💡 "+t("interpLbl")+": ";
   L.push(t("deckTitle").toUpperCase()+" — "+se.name); L.push("");
   L.push("1. "+t("c1h")+" ("+t("c1sub")(A.n,A.teams.length)+")");
   ROLES.forEach(function(r){ L.push("   "+rn(r)+": "+A.mix[r]); });
   A.teams.forEach(function(tm){ L.push("   "+tm.name+": "+tm.m.map(function(s){var r=FROMLETTER[s.r];return s.n+(r?" ("+rn(r)+")":"");}).join(", ")); });
+  L.push(IL+IT.room+" "+IT.needs);
   L.push(""); L.push("2. "+t("c4h"));
   A.teams.forEach(function(tm){ L.push("   "+tm.name+": 🤝 "+(tm.agreePct!=null?tm.agreePct+"%":"—")+" · 🔑 "+(tm.matchPct!=null?tm.matchPct+"%":"—")+(tm.missing.length?" · "+K("lookingFor")+tm.needTxt:"")+(tm.work.length?" · "+t("workLbl")+": "+tm.work.map(function(w){return w.name+" "+w.n;}).join(", "):"")); });
+  L.push(IL+IT.teams);
   L.push(""); L.push("3. "+t("c2h"));
   ["p1","p2"].forEach(function(p){ var P=A.proj[p]; L.push("   "+pr(p).short+": "+ROLES.map(function(r){return rn(r)+" "+(P.sum?Math.round(P.tot[r]/P.sum*100):0)+"%";}).join(", ")); P.agree.forEach(function(x){ L.push("     • "+taskTitle(p,x.i)+" → "+rn(x.top)+" ("+x.pct+"%)"); }); });
+  L.push(IL+IT.projects);
   L.push(""); L.push("4. "+t("c3h")); D.ins.forEach(function(x){ L.push("   • "+x[1]); });
+  L.push(IL+IT.summary);
   L.push(""); L.push(t("discuss")+":"); t("dq").forEach(function(q,i){ L.push("   "+(i+1)+". "+q); });
   L.push(""); L.push(t("closing"));
   return L.join("\n");
@@ -2014,10 +2036,12 @@ document.addEventListener("click",function(e){
   if(tg.closest("#endCollect")){ endCollection(); return; }
   if(tg.closest("#reopenCollect")){ reopenCollection(); return; }
   if(tg.closest("#showConcl")){ openDeck(); return; }
-  if((el=tg.closest("[data-dlang]"))){ S.lang=el.dataset.dlang; save(); render(); renderDeck(); return; }
+  if((el=tg.closest("[data-dlang]"))){ stopSpeak(); S.lang=el.dataset.dlang; save(); render(); renderDeck(); return; }
   if(tg.closest("#dkClose")){ closeDeck(); return; }
-  if(tg.closest("#dkPrev")){ if(deckIdx>0){ deckIdx--; renderDeck(); } return; }
-  if(tg.closest("#dkNext")){ if(deckData && deckIdx<deckData.slides.length-1){ deckIdx++; renderDeck(); } return; }
+  if(tg.closest("#dkPrev")){ deckGo(deckIdx-1); return; }
+  if(tg.closest("#dkNext")){ deckGo(deckIdx+1); return; }
+  if(tg.closest("#dkListen")){ if(speaking) stopSpeak(); else deckSay(); return; }
+  if(tg.closest("#dkInterpT")){ S.deckInterp=(S.deckInterp===false); save(); stopSpeak(); renderDeck(); return; }
   if(tg.closest("#dkCopy")){ copyText(deckText(), t("copied")); return; }
   if(tg.closest("#dkPrint")){ printDeck(); return; }
 });
@@ -2026,8 +2050,9 @@ document.addEventListener("keydown",function(e){
   if(!$("#deck").classList.contains("open")) return;
   if((e.key==="f"||e.key==="F") && !/INPUT|TEXTAREA/.test(e.target.tagName||"")){ if(document.fullscreenElement) exitFull(); else goFull(); setTimeout(fitDeck,120); }
   if(e.key==="Escape"){ e.preventDefault(); closeDeck(); }
-  if(e.key==="ArrowRight"||e.key===" "||e.key==="PageDown"){ if(deckData && deckIdx<deckData.slides.length-1){ deckIdx++; renderDeck(); } e.preventDefault(); }
-  if(e.key==="ArrowLeft"||e.key==="PageUp"){ if(deckIdx>0){ deckIdx--; renderDeck(); } e.preventDefault(); }
+  if(/INPUT|TEXTAREA|SELECT/.test(e.target.tagName||"") && e.key===" ") return;
+  if(e.key==="ArrowRight"||e.key===" "||e.key==="PageDown"){ deckGo(deckIdx+1); e.preventDefault(); }
+  if(e.key==="ArrowLeft"||e.key==="PageUp"){ deckGo(deckIdx-1); e.preventDefault(); }
 });
 
 
@@ -2222,7 +2247,7 @@ var RHEX={analyst:"5A48D8",diplomat:"0E9A6A",sentinel:"0A82C4",explorer:"D68A00"
 function exportPptx(){
   toast("⏳ "+t("pptxBuilding"));
   loadPptx().then(function(P){
-    var se=activeSession(), A=analyse(se), NE=needsOf(A), ins=NE.lines.concat(insightsOf(A,true)).slice(0,7);
+    var se=activeSession(), A=analyse(se), NE=needsOf(A), IT=interpTexts(se), ins=NE.lines.concat(insightsOf(A,true)).slice(0,7);
     var pres=new P(); pres.layout="LAYOUT_WIDE"; pres.title=t("deckTitle")+" – "+se.name;
     pres.theme={headFontFace:"Cambria",bodyFontFace:"Calibri"};
     var NAVY="18203D", INK="1B2133", MUT="5D6477", W=13.333;
@@ -2240,14 +2265,14 @@ function exportPptx(){
     ROLES.forEach(function(r,i){ s0.addShape(pres.ShapeType.ellipse,{x:0.8+i*0.45,y:5.2,w:0.3,h:0.3,fill:{color:RHEX[r]},line:{color:RHEX[r]}}); });
     s0.addText(labels.join(" · "),{x:2.7,y:5.15,w:9,h:0.4,fontSize:15,color:"D9DDEA",margin:0});
     // room
-    var s1=base(t("c1h"), t("c1sub")(A.n,A.teams.length));
+    var s1=base(t("c1h"), t("c1sub")(A.n,A.teams.length)); s1.addNotes(t("interpLbl")+": "+IT.room);
     var rs=ROLES.map(function(r,i){ return {name:rn(r),labels:labels,values:ROLES.map(function(x,j){return j===i?A.mix[r]:0;})}; });
     s1.addChart(pres.ChartType.bar,rs,{x:0.6,y:1.7,w:5.8,h:4.9,barDir:"bar",barGrouping:"stacked",chartColors:ROLES.map(function(r){return RHEX[r];}),showLegend:false,showValue:true,dataLabelFormatCode:"0;;;",dataLabelColor:"FFFFFF",dataLabelFontSize:14,catAxisLabelFontSize:15,catAxisLabelColor:INK,valAxisHidden:true,valGridLine:{style:"none"},catAxisOrientation:"maxMin",catAxisLabelFontFace:"Calibri"});
     var trows=[[{text:t("thTeam"),options:{bold:true,color:"FFFFFF",fill:{color:NAVY}}},{text:t("member"),options:{bold:true,color:"FFFFFF",fill:{color:NAVY}}},{text:K("lookingFor").replace(/:\s*$/,""),options:{bold:true,color:"FFFFFF",fill:{color:NAVY}}}]];
     A.teams.forEach(function(tm){ trows.push([{text:tm.name,options:{bold:true}},tm.m.map(function(s){var r=FROMLETTER[s.r];return s.n+(r?" ("+rn(r)+")":"");}).join(", "),tm.missing.length?tm.missing.map(rn).join(", "):"✓"]); });
     s1.addTable(trows.slice(0,9),{x:6.8,y:1.7,w:5.9,colW:[1.3,3.3,1.3],fontSize:13,color:INK,border:{type:"solid",pt:0.75,color:"E3E6EE"},valign:"middle",autoPage:false});
     // needs
-    var s2=base(t("c5h"), t("c5sub"));
+    var s2=base(t("c5h"), t("c5sub")); s2.addNotes(t("interpLbl")+": "+IT.needs);
     ["p1","p2"].forEach(function(p,k){ var Pn=NE[p], x=0.6+k*6.2;
       s2.addShape(pres.ShapeType.roundRect,{x:x,y:1.65,w:5.95,h:1.05,fill:{color:"F6F4EE"},line:{color:RHEX[Pn.top[0]],width:2},rectRadius:0.1});
       s2.addText([{text:pr(p).short+" · "+K(p),options:{bold:true,fontSize:16,color:INK,breakLine:true}},{text:t("needsBig")(rn(Pn.top[0]),rn(Pn.top[1]),Pn.topPct),options:{fontSize:20,fontFace:"Cambria",color:RHEX[Pn.top[0]]}}],{x:x+0.2,y:1.7,w:5.6,h:0.95,margin:0,valign:"middle"}); });
@@ -2257,20 +2282,20 @@ function exportPptx(){
     // teams
     var named=A.teams.filter(function(tm){return tm.m.length;});
     for(var g=0; g<named.length; g+=5){
-      var s3=base(t("c4h"), t("c4sub")), rows=[[t("thTeam"),t("member"),t("agreeShort"),t("modelW"),K("lookingFor").replace(/:\s*$/,""),t("workLbl")].map(function(h){return {text:h,options:{bold:true,color:"FFFFFF",fill:{color:NAVY}}};})];
+      var s3=base(t("c4h"), t("c4sub")); s3.addNotes(t("interpLbl")+": "+IT.teams); var rows=[[t("thTeam"),t("member"),t("agreeShort"),t("modelW"),K("lookingFor").replace(/:\s*$/,""),t("workLbl")].map(function(h){return {text:h,options:{bold:true,color:"FFFFFF",fill:{color:NAVY}}};})];
       named.slice(g,g+5).forEach(function(tm){ rows.push([{text:tm.name,options:{bold:true}},tm.m.map(function(s){var r=FROMLETTER[s.r];return s.n+(r?" ("+LETTER[r]+")":"");}).join(", "),(tm.agreePct!=null?tm.agreePct+"%":"—")+(tm.fitPct!=null?" · 🎯"+tm.fitPct+"%":""),tm.matchPct!=null?tm.matchPct+"%":"—",tm.missing.length?tm.needTxt:"✓",tm.work.length?tm.work.map(function(w){return w.name+" "+w.n;}).join(", "):"—"]); });
       s3.addTable(rows,{x:0.6,y:1.7,w:12.1,colW:[1.3,3.4,0.9,0.9,2.6,3.0],fontSize:13,color:INK,border:{type:"solid",pt:0.75,color:"E3E6EE"},valign:"middle",autoPage:false});
       s3.addText("A / D / S / E = "+labels.join(" / "),{x:0.6,y:6.55,w:12,h:0.3,fontSize:11,color:MUT,margin:0});
     }
     // projects vs model
-    var s4=base(t("c2h"), t("c2sub"));
+    var s4=base(t("c2h"), t("c2sub")); s4.addNotes(t("interpLbl")+": "+IT.projects);
     ["p1","p2"].forEach(function(p,k){ var Pp=A.proj[p], x=0.6+k*6.2;
       s4.addText(pr(p).short+" · "+K(p)+"   "+(Pp.sum?Pp.matchPct+"% "+t("matchKey"):""),{x:x,y:1.6,w:5.9,h:0.4,fontSize:16,bold:true,color:INK,margin:0});
       s4.addChart(pres.ChartType.bar,[{name:t("classChose"),labels:labels,values:ROLES.map(function(r){return Pp.sum?Math.round(Pp.tot[r]/Pp.sum*100):0;})},{name:t("modelW"),labels:labels,values:ROLES.map(function(r){return Pp.fitc[r]*5;})}],{x:x,y:2.0,w:5.9,h:2.9,barDir:"bar",barGrouping:"clustered",chartColors:["18203D","C9C4B5"],showLegend:true,legendPos:"t",legendFontSize:12,showValue:true,dataLabelFormatCode:'0"%"',dataLabelFontSize:10,catAxisLabelFontSize:13,catAxisOrientation:"maxMin",valAxisHidden:true,valGridLine:{style:"none"}});
       var dl=Pp.diffs.length?Pp.diffs.map(function(d){return {text:"#"+(d.i+1)+" "+taskTitle(p,d.i)+" — "+t("classChose")+": "+rn(d.top)+", "+t("modelW")+": "+rn(d.key),options:{bullet:true,breakLine:true}};}):[{text:Pp.sum?t("noDiffs"):t("noData")}];
       s4.addText([{text:t("diffsTitle"),options:{bold:true,breakLine:true}}].concat(dl),{x:x,y:5.0,w:5.9,h:1.9,fontSize:12,color:INK,valign:"top",margin:0,paraSpaceAfter:4}); });
     // conclusions
-    var s5=base(t("c3h"));
+    var s5=base(t("c3h")); s5.addNotes(t("interpLbl")+": "+IT.summary);
     s5.addText(ins.map(function(x){return {text:x[1],options:{bullet:true,breakLine:true}};}),{x:0.6,y:1.4,w:7.4,h:5.4,fontSize:15,color:INK,valign:"top",paraSpaceAfter:9,margin:0});
     s5.addShape(pres.ShapeType.roundRect,{x:8.3,y:1.4,w:4.4,h:5.4,fill:{color:"F0EEFC"},line:{color:"F0EEFC"},rectRadius:0.12});
     s5.addText([{text:t("discuss"),options:{bold:true,fontSize:18,color:"3F2FB8",breakLine:true}}].concat(t("dq").map(function(q,i){return {text:(i+1)+". "+q,options:{fontSize:14,breakLine:true}};})).concat([{text:" ",options:{breakLine:true}},{text:t("closing"),options:{italic:true,fontSize:13,color:"3F2FB8"}}]),{x:8.55,y:1.6,w:3.9,h:5.0,color:INK,valign:"top",paraSpaceAfter:8,margin:0});
@@ -2287,10 +2312,90 @@ function saveBlob(name, blob){
   if(hostDownloads){ hostDownloads.save({filename:name,data:blob}).then(function(){ toast("✓ "+t("pptxDone")); }).catch(function(){ toast(t("dlFail")); }); return; }
   try{ var url=URL.createObjectURL(blob), a=document.createElement("a"); a.href=url; a.download=name; document.body.appendChild(a); a.click(); document.body.removeChild(a); setTimeout(function(){URL.revokeObjectURL(url);},4000); toast("✓ "+t("pptxDone")); }catch(e){ toast(t("dlFail")); }
 }
+document.addEventListener("change",function(e){ if(e.target && e.target.id==="dkAuto"){ S.deckAuto=!!e.target.checked; save(); if(!S.deckAuto) stopSpeak(); } });
 document.addEventListener("click",function(e){
   if(e.target.closest("#dkPptx")){ exportPptx(); return; }
   if(e.target.closest("#dkFull")){ if(document.fullscreenElement) exitFull(); else goFull(); setTimeout(fitDeck,120); return; }
 });
+
+/* ================= Interpretation of conclusions (+ narration) ================= */
+var INTERP = {
+pl:{
+  room:function(d){ var s=d.balanced?"Grupy ról na sali są rozłożone równo — to dobra baza, bo każdy projekt potrzebuje wszystkich czterech.":"Najliczniejsza grupa na sali to "+d.dom+" ("+d.domPct+"%). Oznacza to, że „"+d.domTag+"” to Wasza naturalna mocna strona.";
+    if(!d.balanced && d.least) s+=" Najmniej jest grupy "+d.least+" ("+d.leastPct+"%) — tu najłatwiej o lukę: o „"+d.leastTag+"” trzeba będzie zadbać świadomie.";
+    s+= d.missTeams?" W "+d.missTeams+" z "+d.nTeams+" zespołów brakuje co najmniej jednej grupy ról — te zespoły będą musiały kogoś poszukać albo wejść w nowe role.":" Każdy zespół ma wszystkie cztery grupy ról — świetny punkt wyjścia."; return s; },
+  needs:function(d){ var s="W projekcie "+d.p1+" najwięcej zadań dostały grupy "+d.a1+" i "+d.b1+", a w projekcie "+d.p2+" — "+d.a2+" i "+d.b2+". Ten sam zespół w różnych projektach potrzebuje więc innych ludzi.";
+    if(d.shift) s+=" Najbardziej zmienia się zapotrzebowanie na grupę "+d.shift+": z "+d.from+"% do "+d.to+"% zadań.";
+    s+= d.gap?" Na sali brakuje grupy "+d.gap+": jest jej "+d.room+"%, a projekt "+d.gapProj+" potrzebuje "+d.need+"% — ktoś będzie musiał wejść w tę rolę.":" Skład sali dobrze odpowiada potrzebom obu projektów."; return s; },
+  teams:function(d){ var s="";
+    if(d.best && d.worst) s+="Najbardziej zgodny był "+d.best+" ("+d.bp+"% zadań przypisanych jednakowo), najmniej "+d.worst+" ("+d.wp+"%) — tam warto zapytać, skąd różnice zdań.";
+    else if(d.best) s+="Zgodność w zespole "+d.best+" wyniosła "+d.bp+"%.";
+    if(d.fit!=null) s+= d.fit>=60?" "+d.fit+"% zadań trafiło do osób z pasującą grupą ról — zespoły dzieliły pracę głównie według mocnych stron.":" Tylko "+d.fit+"% zadań trafiło do osób z pasującą grupą ról — zespoły często wychodziły poza swoje preferencje, świadomie albo z konieczności.";
+    if(d.heavy) s+=" "+d.heavy.team+": najwięcej zadań ma "+d.heavy.name+" ("+d.heavy.n+") — warto sprawdzić, czy obciążenie jest równe.";
+    return s.trim()||"Zobaczmy, jak poszczególne zespoły podzieliły pracę."; },
+  projects:function(d){ var s="Zgodność ze wzorcem: "+d.m1+"% w projekcie "+d.p1+" i "+d.m2+"% w projekcie "+d.p2+".";
+    if(d.easier) s+=" Łatwiej było trafnie obsadzić projekt "+d.easier+", a projekt "+d.harder+" budził więcej wątpliwości.";
+    s+= d.task?" Najczęściej inaczej niż we wzorcu przypisywaliście zadanie „"+d.task+"”: grupa wybrała "+d.top+", a wzorzec wskazuje "+d.key+" — to dobry temat do rozmowy.":" Wasze wybory są bardzo bliskie wzorcowi."; return s; },
+  summary:function(d){ return "Podsumowując: każdy projekt potrzebuje innej mieszanki ról, a na Waszej sali najwięcej jest grupy "+d.dom+"."+(d.anyMissing?" Tam, gdzie w zespole brakuje którejś grupy, ktoś musi wyjść poza swoje preferencje albo trzeba kogoś znaleźć.":"")+" Pamiętajcie: typ opisuje skłonności, a nie ograniczenia. Porozmawiajmy teraz o tym, co Was zaskoczyło."; }
+},
+en:{
+  room:function(d){ var s=d.balanced?"Role groups in the room are evenly balanced — a good base, because every project needs all four.":"The largest group in the room is "+d.dom+" ("+d.domPct+"%). That means “"+d.domTag+"” is your natural strength.";
+    if(!d.balanced && d.least) s+=" The smallest group is "+d.least+" ("+d.leastPct+"%) — this is where gaps appear most easily: “"+d.leastTag+"” needs conscious attention.";
+    s+= d.missTeams?" In "+d.missTeams+" of "+d.nTeams+" teams at least one role group is missing — those teams will need to find someone or stretch into new roles.":" Every team has all four role groups — a great starting point."; return s; },
+  needs:function(d){ var s="In "+d.p1+" most tasks went to "+d.a1+" and "+d.b1+", while in "+d.p2+" they went to "+d.a2+" and "+d.b2+". So the same team needs different people in different projects.";
+    if(d.shift) s+=" The need for "+d.shift+" changes most: from "+d.from+"% to "+d.to+"% of tasks.";
+    s+= d.gap?" The room is short of "+d.gap+": they are "+d.room+"% of you, but "+d.gapProj+" needs them for "+d.need+"% of tasks — someone will have to step into that role.":" The room’s mix fits the needs of both projects well."; return s; },
+  teams:function(d){ var s="";
+    if(d.best && d.worst) s+="The most aligned team was "+d.best+" ("+d.bp+"% of tasks assigned the same way), the least aligned "+d.worst+" ("+d.wp+"%) — worth asking where the differences come from.";
+    else if(d.best) s+="Agreement in "+d.best+" was "+d.bp+"%.";
+    if(d.fit!=null) s+= d.fit>=60?" "+d.fit+"% of tasks went to people with a matching role group — teams mostly split work by strengths.":" Only "+d.fit+"% of tasks went to people with a matching role group — teams often stepped beyond their preferences, by choice or by necessity.";
+    if(d.heavy) s+=" In "+d.heavy.team+" most tasks went to "+d.heavy.name+" ("+d.heavy.n+") — check whether the workload is fair.";
+    return s.trim()||"Let’s see how each team split the work."; },
+  projects:function(d){ var s="Match with the model answers: "+d.m1+"% in "+d.p1+" and "+d.m2+"% in "+d.p2+".";
+    if(d.easier) s+=" "+d.easier+" was easier to staff accurately, while "+d.harder+" raised more doubts.";
+    s+= d.task?" The task you most often assigned differently from the model was “"+d.task+"”: the class chose "+d.top+", the model says "+d.key+" — a good topic for discussion.":" Your choices are very close to the model."; return s; },
+  summary:function(d){ return "To sum up: each project needs a different mix of roles, and your room has the most "+d.dom+"s."+(d.anyMissing?" Where a team lacks a role group, someone has to step beyond their preferences or the team has to find someone.":"")+" Remember: a type describes tendencies, not limits. Let’s talk about what surprised you."; }
+},
+cs:{
+  room:function(d){ var s=d.balanced?"Skupiny rolí jsou v místnosti zastoupeny rovnoměrně — to je dobrý základ, protože každý projekt potřebuje všechny čtyři.":"Nejpočetnější skupinou v místnosti je "+d.dom+" ("+d.domPct+" %). To znamená, že „"+d.domTag+"“ je vaší přirozenou silnou stránkou.";
+    if(!d.balanced && d.least) s+=" Nejméně je skupiny "+d.least+" ("+d.leastPct+" %) — tady nejsnáz vznikne mezera: o „"+d.leastTag+"“ se bude třeba vědomě postarat.";
+    s+= d.missTeams?" V "+d.missTeams+" z "+d.nTeams+" týmů chybí alespoň jedna skupina rolí — tyto týmy budou muset někoho hledat nebo vstoupit do nových rolí.":" Každý tým má všechny čtyři skupiny rolí — skvělý výchozí bod."; return s; },
+  needs:function(d){ var s="V projektu "+d.p1+" dostaly nejvíc úkolů skupiny "+d.a1+" a "+d.b1+", v projektu "+d.p2+" skupiny "+d.a2+" a "+d.b2+". Stejný tým tedy v různých projektech potřebuje jiné lidi.";
+    if(d.shift) s+=" Nejvíc se mění potřeba skupiny "+d.shift+": z "+d.from+" % na "+d.to+" % úkolů.";
+    s+= d.gap?" V místnosti chybí skupina "+d.gap+": tvoří "+d.room+" % z vás, ale projekt "+d.gapProj+" ji potřebuje u "+d.need+" % úkolů — někdo bude muset do této role vstoupit.":" Složení místnosti dobře odpovídá potřebám obou projektů."; return s; },
+  teams:function(d){ var s="";
+    if(d.best && d.worst) s+="Nejvíc sladěný byl "+d.best+" ("+d.bp+" % úkolů přiřazených stejně), nejméně "+d.worst+" ("+d.wp+" %) — tam se vyplatí zeptat, odkud se rozdíly berou.";
+    else if(d.best) s+="Shoda v týmu "+d.best+" byla "+d.bp+" %.";
+    if(d.fit!=null) s+= d.fit>=60?" "+d.fit+" % úkolů dostali lidé s odpovídající skupinou rolí — týmy dělily práci hlavně podle silných stránek.":" Jen "+d.fit+" % úkolů dostali lidé s odpovídající skupinou rolí — týmy často šly mimo své preference, vědomě nebo z nutnosti.";
+    if(d.heavy) s+=" "+d.heavy.team+": nejvíc úkolů má "+d.heavy.name+" ("+d.heavy.n+") — stojí za to ověřit, zda je zátěž rovnoměrná.";
+    return s.trim()||"Podívejme se, jak jednotlivé týmy rozdělily práci."; },
+  projects:function(d){ var s="Shoda se vzorem: "+d.m1+" % v projektu "+d.p1+" a "+d.m2+" % v projektu "+d.p2+".";
+    if(d.easier) s+=" Snáz se dal správně obsadit projekt "+d.easier+", projekt "+d.harder+" vzbudil víc pochybností.";
+    s+= d.task?" Nejčastěji jinak než ve vzoru jste přiřazovali úkol „"+d.task+"“: třída zvolila "+d.top+", vzor uvádí "+d.key+" — dobré téma k diskusi.":" Vaše volby jsou velmi blízko vzoru."; return s; },
+  summary:function(d){ return "Shrnuto: každý projekt potřebuje jinou směs rolí a ve vaší místnosti je nejvíc skupiny "+d.dom+"."+(d.anyMissing?" Tam, kde v týmu některá skupina chybí, musí někdo jít mimo své preference, nebo je třeba někoho najít.":"")+" Pamatujte: typ popisuje sklony, ne hranice. Pojďme mluvit o tom, co vás překvapilo."; }
+}};
+function withLang(l, fn){ var o=S.lang; S.lang=l; try{ return fn(); } finally{ S.lang=o; } }
+function interpTexts(se){
+  var A=analyse(se), NE=needsOf(A), n=A.n, srt=ROLES.slice().sort(function(x,y){return A.mix[y]-A.mix[x];});
+  var real=A.teams.filter(function(tm){return tm.name!==t("noTeam");});
+  var room={balanced:n>0 && A.mix[srt[0]]===A.mix[srt[1]], dom:rn(srt[0]), domPct:n?Math.round(A.mix[srt[0]]/n*100):0, domTag:ROLE[srt[0]][S.lang].tag.toLowerCase(),
+    least:rn(srt[3]), leastPct:n?Math.round(A.mix[srt[3]]/n*100):0, leastTag:ROLE[srt[3]][S.lang].tag.toLowerCase(), missTeams:real.filter(function(tm){return tm.missing.length;}).length, nTeams:real.length};
+  var sh=null; ROLES.forEach(function(r){ var d=NE.p2.pct[r]-NE.p1.pct[r]; if(!sh || Math.abs(d)>Math.abs(sh.d)) sh={r:r,d:d}; });
+  var gp=null; if(n) ["p1","p2"].forEach(function(p){ ROLES.forEach(function(r){ var d=NE[p].pct[r]-NE.room[r]; if(!gp || d>gp.d) gp={r:r,p:p,d:d}; }); });
+  var needs={p1:pr("p1").short, p2:pr("p2").short, a1:rn(NE.p1.top[0]), b1:rn(NE.p1.top[1]), a2:rn(NE.p2.top[0]), b2:rn(NE.p2.top[1]),
+    shift:(sh&&sh.d)?rn(sh.r):null, from:sh?NE.p1.pct[sh.r]:0, to:sh?NE.p2.pct[sh.r]:0,
+    gap:(gp&&gp.d>=10)?rn(gp.r):null, room:gp?NE.room[gp.r]:0, need:gp?NE[gp.p].pct[gp.r]:0, gapProj:gp?pr(gp.p).short:""};
+  var sc=real.filter(function(tm){return tm.agreePct!=null;}).sort(function(x,y){return y.agreePct-x.agreePct;});
+  var heavy=null; real.forEach(function(tm){ if(tm.work.length>=2){ var w=tm.work; var avg=w.reduce(function(a,b){return a+b.n;},0)/w.length; if(w[0].n>=avg*1.4 && (!heavy || w[0].n/avg>heavy.r)) heavy={team:tm.name,name:w[0].name,n:w[0].n,r:w[0].n/avg}; } });
+  var teams={best:sc[0]?sc[0].name:null, bp:sc[0]?sc[0].agreePct:0, worst:sc.length>1?sc[sc.length-1].name:null, wp:sc.length>1?sc[sc.length-1].agreePct:0, fit:A.fitPct, heavy:heavy};
+  var P1=A.proj.p1, P2=A.proj.p2, worst=null; ["p1","p2"].forEach(function(p){ var d=A.proj[p].diffs[0]; if(d && (!worst || d.kPct<worst.d.kPct)) worst={p:p,d:d}; });
+  var projects={m1:P1.matchPct, m2:P2.matchPct, p1:pr("p1").short, p2:pr("p2").short,
+    easier:(P1.sum&&P2.sum&&Math.abs(P1.matchPct-P2.matchPct)>=5)?(P1.matchPct>P2.matchPct?pr("p1").short:pr("p2").short):null, harder:(P1.matchPct>P2.matchPct?pr("p2").short:pr("p1").short),
+    task:worst?taskTitle(worst.p,worst.d.i):null, top:worst?rn(worst.d.top):"", key:worst?rn(worst.d.key):""};
+  var summary={dom:rn(srt[0]), anyMissing:room.missTeams>0};
+  var I=INTERP[S.lang]||INTERP.en;
+  return {room:I.room(room), needs:I.needs(needs), teams:I.teams(teams), projects:I.projects(projects), summary:I.summary(summary)};
+}
 
 /* ================= Events ================= */
 function readFiles(files, cb){ var arr=[], left=files.length; if(!left) return; Array.prototype.forEach.call(files,function(f){ var fr=new FileReader(); fr.onload=function(){ arr.push(String(fr.result)); if(--left===0) cb(arr); }; fr.onerror=function(){ if(--left===0) cb(arr); }; fr.readAsText(f); }); }
