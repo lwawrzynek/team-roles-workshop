@@ -466,6 +466,12 @@ body.instructor #joinRow{display:none}
 .dk-line{font-size:14.5px;line-height:1.3}
 .dk-slide .dk-ins li{font-size:18px;padding:9px 14px}
 .dk-slide .dk-ins{gap:9px}
+.jroles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.jrole{text-align:left;border:2px solid var(--line);background:#fff;border-radius:12px;padding:8px 10px;display:flex;flex-direction:column;gap:2px}
+.jrole b{display:flex;align-items:center;gap:6px;font-size:.95rem}
+.jrole span{font-size:.75rem;color:var(--muted)}
+.jrole .jc{font-size:.68rem;letter-spacing:.04em}
+.jrole[aria-pressed="true"]{border-color:var(--c);background:var(--cbg);box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 18%,transparent)}
 
 </style>
 </head>
@@ -908,7 +914,7 @@ function blank(){return {lang:"en",instructor:false,forceStudent:false,presenter
 function merge(base, src){
   if(!src || typeof src!=="object") return base;
   ["lang","myCode","view","filter","voiceLang","did"].forEach(function(k){ if(typeof src[k]==="string") base[k]=src[k]; });
-  if(src.cls && typeof src.cls.i==="string") base.cls={u:typeof src.cls.u==="string"?src.cls.u:"",i:src.cls.i,n:String(src.cls.n||""),g:Array.isArray(src.cls.g)?src.cls.g.map(String):[]};
+  if(src.cls && typeof src.cls.i==="string") base.cls={r:!!src.cls.r,u:typeof src.cls.u==="string"?src.cls.u:"",i:src.cls.i,n:String(src.cls.n||""),g:Array.isArray(src.cls.g)?src.cls.g.map(String):[]};
   ["instructor","forceStudent","wasInstructor","presenter","showFit","introSeen","autoRead"].forEach(function(k){ if(typeof src[k]==="boolean") base[k]=src[k]; });
   if(ROLES.indexOf(src.myRole)>-1) base.myRole=src.myRole;
   if(src.assign){ ["p1","p2"].forEach(function(p){ var a=src.assign[p]||{}; for(var n=1;n<=20;n++){ var x=a[n]; if(x){ base.assign[p][n]={role:ROLES.indexOf(x.role)>-1?x.role:null,member:typeof x.member==="string"?x.member.slice(0,60):""}; } } }); }
@@ -926,7 +932,7 @@ if(!S.did){ S.did="d"+Date.now().toString(36)+Math.random().toString(36).slice(2
   if(!S.instructor) S.presenter=false;
   var m=/[?&]z=([A-Za-z0-9_\-]+)/.exec(location.search||"");
   if(m && !S.instructor){ try{ var cf=JSON.parse(b64urlDec(m[1]));
-    if(cf && typeof cf.i==="string"){ var cls={u:(typeof cf.u==="string" && liveUrlOk(cf.u))?cf.u:"",i:cf.i.slice(0,40),n:String(cf.n||"").slice(0,80),g:(Array.isArray(cf.g)?cf.g:[]).map(function(x){return String(x).slice(0,40);}).slice(0,30)};
+    if(cf && typeof cf.i==="string"){ var cls={r:!!cf.r,u:(typeof cf.u==="string" && liveUrlOk(cf.u))?cf.u:"",i:cf.i.slice(0,40),n:String(cf.n||"").slice(0,80),g:(Array.isArray(cf.g)?cf.g:[]).map(function(x){return String(x).slice(0,40);}).slice(0,30)};
       if(S.cls && S.cls.i!==cls.i){ S.assign={p1:{},p2:{}}; S.reflection={name:S.reflection.name,team:"",q1:"",q2:"",q3:""}; S.myRole=null; S.myCode=""; }
       S.cls=cls; if(cls.g.length && cls.g.indexOf(S.reflection.team)<0) S.reflection.team=""; if(cls.g.length===1) S.reflection.team=cls.g[0]; } }catch(e){} }
 })();
@@ -953,7 +959,7 @@ function loadC(){ var c={qrUrl:DEFAULT_URL, classes:[], activeId:null, archives:
 function b64url(s){ return b64e(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""); }
 function b64urlDec(s){ s=String(s).replace(/-/g,"+").replace(/_/g,"/"); while(s.length%4) s+="="; return b64d(s); }
 function baseUrl(){ return String(C.qrUrl||DEFAULT_URL).split("#")[0].split("?")[0]; }
-function classLink(cls){ cls=cls||C.session; var o={i:cls.id,n:cls.name,g:cls.groups||[]}; if(C.live && C.live.url) o.u=C.live.url; return baseUrl()+"?z="+b64url(JSON.stringify(o)); }
+function classLink(cls){ cls=cls||C.session; var o={i:cls.id,n:cls.name,g:cls.groups||[]}; if(cls.reqRole!==false) o.r=1; if(C.live && C.live.url) o.u=C.live.url; return baseUrl()+"?z="+b64url(JSON.stringify(o)); }
 var C = loadC();
 var viewingArchive = null; // archive id or null
 function saveC(){ try{ localStorage.setItem(CKEY, JSON.stringify(C)); }catch(e){ toast("Storage full — download and delete old archives."); } }
@@ -1425,7 +1431,7 @@ function classHTML(){
   if(!ro){
     h+='<div class="classbar"><span class="kicker">📚 '+esc(t("classesLbl"))+'</span><select id="clsSel">'+C.classes.map(function(x){return '<option value="'+esc(x.id)+'" '+(x.id===C.activeId?"selected":"")+'>'+esc(x.name)+' ('+Object.keys(x.students).length+')</option>';}).join("")+'</select>'+
       '<button class="btn sm" id="clsEdit">✎ '+esc(t("editClass"))+'</button><button class="btn sm" id="clsDel">🗑 '+esc(t("delete"))+'</button><button class="btn sm accent" id="clsNew">＋ '+esc(t("newClass"))+'</button>'+
-      '<span class="meta2">'+esc(t("groupsLbl"))+': '+((se.groups&&se.groups.length)?se.groups.map(teamLabel).map(esc).join(" · "):esc(t("noGroups")))+'</span></div>';
+      '<span class="meta2">'+(se.reqRole!==false?'🎭 '+esc(t("reqRoleShort"))+' · ':'')+esc(t("groupsLbl"))+': '+((se.groups&&se.groups.length)?se.groups.map(teamLabel).map(esc).join(" · "):esc(t("noGroups")))+'</span></div>';
     h+='<div class="clsgrid"><div class="card"><h3>📱 '+esc(t("shareTitle"))+'</h3><div class="kicker" style="margin-bottom:6px">'+esc(t("qrFor"))+' '+esc(se.name)+'</div><div class="qrbox" id="qrBox">'+qrSVG(classLink(se))+'</div>';
     h+='<label class="saved" for="qrUrl" style="display:block;margin-top:10px">'+esc(t("baseUrlLbl"))+'</label><input class="urlin" id="qrUrl" value="'+esc(C.qrUrl)+'" spellcheck="false">';
     h+='<div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm" id="bigQr">⛶ '+esc(t("bigQr"))+'</button><button class="btn sm" id="copyLink">⧉ '+esc(t("copyLink"))+'</button></div>';
@@ -1661,6 +1667,9 @@ en:{
   insBestAgree:function(n,pc){return "Most aligned team: "+n+" ("+pc+"% agreement).";},
   deckPptx:"PowerPoint", pptxBuilding:"Creating PowerPoint…", pptxFail:"Couldn’t create the PowerPoint (internet is needed).", pptxDone:"PowerPoint downloaded",
   agreeShort:"agreement",
+  reqRoleLbl:"Students must choose their role group (16Personalities) when joining", reqRoleHint:"Recommended — the conclusions then show the room’s role mix, gaps and whether tasks go to matching roles.", reqRoleShort:"role group required",
+  joinPickRole:"Your role group (from your 16Personalities result)", needRole:"Choose your role group to continue.",
+  roleFitLbl:"of tasks went to a person with a matching role group", insRoleFit:function(pc){return pc+"% of tasks named in the teams went to someone with a matching role group — the rest is stretching beyond preferences.";},
   topAgree:"Clearest agreement", noData:"Not enough data yet."
 },
 pl:{
@@ -1725,6 +1734,9 @@ pl:{
   insBestAgree:function(n,pc){return "Najbardziej zgodny zespół: "+n+" ("+pc+"% zgodności).";},
   deckPptx:"PowerPoint", pptxBuilding:"Tworzenie PowerPointa…", pptxFail:"Nie udało się utworzyć PowerPointa (potrzebny internet).", pptxDone:"Pobrano PowerPointa",
   agreeShort:"zgodności",
+  reqRoleLbl:"Studenci muszą wybrać swoją grupę ról (16Personalities) przy dołączaniu", reqRoleHint:"Zalecane — wnioski pokażą wtedy skład sali, luki i czy zadania trafiają do osób z pasującą rolą.", reqRoleShort:"grupa ról wymagana",
+  joinPickRole:"Twoja grupa ról (z wyniku 16Personalities)", needRole:"Wybierz swoją grupę ról, aby przejść dalej.",
+  roleFitLbl:"zadań trafiło do osoby z pasującą grupą ról", insRoleFit:function(pc){return pc+"% zadań przypisanych w zespołach konkretnym osobom trafiło do kogoś z pasującą grupą ról — reszta to wyjście poza swoje preferencje.";},
   topAgree:"Największa zgodność", noData:"Za mało danych."
 },
 cs:{
@@ -1789,6 +1801,9 @@ cs:{
   insBestAgree:function(n,pc){return "Nejvíc sladěný tým: "+n+" ("+pc+" % shody).";},
   deckPptx:"PowerPoint", pptxBuilding:"Vytváření PowerPointu…", pptxFail:"PowerPoint se nepodařilo vytvořit (je potřeba internet).", pptxDone:"PowerPoint stažen",
   agreeShort:"shody",
+  reqRoleLbl:"Studenti musí při připojení zvolit svou skupinu rolí (16Personalities)", reqRoleHint:"Doporučeno — závěry pak ukážou složení místnosti, mezery a zda úkoly dostávají lidé s odpovídající rolí.", reqRoleShort:"skupina rolí povinná",
+  joinPickRole:"Vaše skupina rolí (z výsledku 16Personalities)", needRole:"Pro pokračování zvolte svou skupinu rolí.",
+  roleFitLbl:"úkolů dostal člověk s odpovídající skupinou rolí", insRoleFit:function(pc){return pc+" % úkolů přidělených v týmech konkrétním lidem dostal někdo s odpovídající skupinou rolí — zbytek je posun mimo vlastní preference.";},
   topAgree:"Největší shoda", noData:"Zatím málo dat."
 }};
 LANGS.forEach(function(l){ Object.keys(T2[l]).forEach(function(k){ T[l][k]=T2[l][k]; }); });
@@ -1798,6 +1813,7 @@ function openJoin(){
   openModal('<div class="seg" role="group" aria-label="Language" style="background:#efede7;margin-bottom:12px">'+LANGS.map(function(l){return '<button data-jlang="'+l+'" aria-pressed="'+(S.lang===l)+'" style="color:var(--ink)">'+l.toUpperCase()+'</button>';}).join("")+'</div>'+
     '<h3 style="font-family:Fraunces,Georgia,serif;font-size:1.4rem">'+esc(t("joinTitle"))+'</h3>'+(S.cls?'<div class="clspill">📚 '+esc(t("classLbl"))+': <b>'+esc(S.cls.n)+'</b></div>':'')+'<p class="brief">'+esc(S.cls&&S.cls.g.length?t("joinTextCls"):t("joinText"))+'</p>'+
     '<div class="fields"><div><label for="joinName">'+esc(t("yourName"))+'</label><input id="joinName" maxlength="60" autocomplete="name" value="'+esc(S.reflection.name)+'"></div><div><label for="joinTeam">'+esc(S.cls&&S.cls.g.length?t("pickGroup"):t("teamNo"))+'</label>'+teamField("joinTeam",false)+'</div></div>'+
+    (S.cls&&S.cls.r?'<label class="saved" style="display:block;font-weight:700;margin:4px 0 6px">'+esc(t("joinPickRole"))+'</label><div class="jroles">'+ROLES.map(function(r){var d=ROLE[r][S.lang];return '<button class="jrole" data-jrole="'+r+'" style="'+cvars(r)+'" aria-pressed="'+(S.myRole===r)+'"><b><span class="dot"></span> '+esc(d.name)+'</b><span>'+esc(d.tag)+'</span><span class="jc">'+ROLE[r].codes.join(" · ")+'</span></button>';}).join("")+'</div><div class="note" id="jroleMsg" style="margin-top:4px"></div>':'')+
     '<div class="row"><button class="btn accent" id="joinOk" style="font-size:1rem;padding:10px 18px">'+esc(t("joinStart"))+' →</button></div>');
 }
 function teamField(id, bound){
@@ -1809,10 +1825,13 @@ function joinSubmit(){
   var nm=$("#joinName").value.trim(), tm=$("#joinTeam").value.trim();
   if(!nm){ $("#joinName").focus(); return; }
   if(!tm){ $("#joinTeam").focus(); return; }
+  if(S.cls && S.cls.r && !S.myRole){ var jm=$("#jroleMsg"); if(jm){ jm.textContent="⚠️ "+t("needRole"); jm.style.color="#9b1c12"; } return; }
   S.reflection.name=nm; S.reflection.team=tm; save(); closeModal(); render();
 }
 
 /* ================= Conclusions deck ================= */
+function memberByName(members, key){ key=String(key||"").toLowerCase().trim(); if(!key) return null;
+  return members.filter(function(s){ var n=String(s.n||"").toLowerCase().trim(); return n===key || n.split(/\s+/)[0]===key || key.split(/\s+/)[0]===n.split(/\s+/)[0]; })[0]||null; }
 function analyse(se){
   var list=studentsOf(se), n=list.length, R={n:n,list:list};
   var mix={analyst:0,diplomat:0,sentinel:0,explorer:0,none:0}; list.forEach(function(s){ mix[FROMLETTER[s.r]||"none"]++; }); R.mix=mix;
@@ -1821,7 +1840,7 @@ function analyse(se){
     tm.need={}; ["a1","a2"].forEach(function(key){ for(var i=0;i<20;i++){ var c={}, best=null; tm.m.forEach(function(s){ var r=FROMLETTER[s[key].charAt(i)]; if(r){ c[r]=(c[r]||0)+1; if(!best||c[r]>c[best]) best=r; } }); if(best && tm.missing.indexOf(best)>-1) tm.need[best]=(tm.need[best]||0)+1; } });
     var tmm=0, tma=0; tm.m.forEach(function(s){ ["p1","p2"].forEach(function(p){ var key=p==="p1"?"a1":"a2"; for(var i=0;i<20;i++){ var r=FROMLETTER[s[key].charAt(i)]; if(r){ tma++; if(r===fit(p,i)) tmm++; } } }); }); tm.matchPct=tma?Math.round(tmm/tma*100):null;
     tm.needTxt=tm.missing.map(function(r){ return rn(r)+(tm.need[r]?" ("+K("tasksN")(tm.need[r])+")":""); }).join(", ");
-    var ag=0, agN=0, names={}, disp={}, diff=null;
+    var ag=0, agN=0, names={}, disp={}, diff=null, fitN=0, fitY=0;
     ["p1","p2"].forEach(function(p){ var key=p==="p1"?"a1":"a2", mk=p==="p1"?"m1":"m2";
       for(var i=0;i<20;i++){
         var rc={}, nA=0; tm.m.forEach(function(s){ var r=FROMLETTER[s[key].charAt(i)]; if(r){ rc[r]=(rc[r]||0)+1; nA++; } });
@@ -1829,11 +1848,14 @@ function analyse(se){
         if(nA>=2){ agN++; if(distinct===1) ag++; if(distinct>1 && (!diff || distinct>diff.d || (distinct===diff.d && nA>diff.n))) diff={p:p,i:i,d:distinct,n:nA,rc:rc}; }
         var nc={}, best=null; tm.m.forEach(function(s){ var nm=String(s[mk][i]||"").trim(); if(!nm) return; var k=nm.toLowerCase(); if(!disp[k]) disp[k]=nm; nc[k]=(nc[k]||0)+1; if(!best||nc[k]>nc[best]) best=k; });
         if(best) names[best]=(names[best]||0)+1;
+        var cr=null; Object.keys(rc).forEach(function(r){ if(!cr || rc[r]>rc[cr]) cr=r; });
+        if(best && cr){ var mem=memberByName(tm.m,best); var mr=mem?FROMLETTER[mem.r]:null; if(mr){ fitN++; if(mr===cr) fitY++; } }
       } });
     tm.agreePct=agN?Math.round(ag/agN*100):null;
     tm.work=Object.keys(names).sort(function(a,b){return names[b]-names[a];}).slice(0,6).map(function(k){return {name:disp[k],n:names[k]};});
-    tm.diff=diff;
+    tm.diff=diff; tm.fitN=fitN; tm.fitPct=fitN?Math.round(fitY/fitN*100):null;
     return tm; });
+  var fN=0, fY=0; R.teams.forEach(function(tm){ if(tm.fitN){ fN+=tm.fitN; fY+=Math.round(tm.fitPct*tm.fitN/100); } }); R.fitPct=fN?Math.round(fY/fN*100):null; R.fitN=fN;
   R.proj={}; var against=0, totalAs=0;
   ["p1","p2"].forEach(function(p){
     var key=p==="p1"?"a1":"a2", tot={analyst:0,diplomat:0,sentinel:0,explorer:0}, sum=0, tasks=[];
@@ -1868,6 +1890,7 @@ function insightsOf(A, skipLean){
   if(worst) ins.push([worst.d.key, t("insMissed")(taskTitle(worst.p,worst.d.i), rn(worst.d.top), rn(worst.d.key))]);
   var scored=A.teams.filter(function(tm){return tm.agreePct!=null && tm.name!==t("noTeam");});
   if(scored.length>1){ var bt=scored.slice().sort(function(x,y){return y.agreePct-x.agreePct;})[0]; ins.push([null, t("insBestAgree")(bt.name,bt.agreePct)]); }
+  if(A.fitPct!=null) ins.unshift([null, t("insRoleFit")(A.fitPct)]);
   if(n) ins.push([null, t("insRefl")(A.reflDone,n)]);
   return ins;
 }
@@ -1892,6 +1915,7 @@ function teamCard(tm){
   var h='<div class="dk-team"><div class="dk-tn">'+esc(tm.name)+' <span class="saved">('+tm.m.length+')</span></div><div class="tm">'+tm.m.map(roleTag).join("")+'</div>';
   h+='<div class="dk-met"><span>🤝 <b>'+(tm.agreePct!=null?tm.agreePct+'%':'—')+'</b> '+esc(t("agreeShort"))+'</span><span>🔑 <b>'+(tm.matchPct!=null?tm.matchPct+'%':'—')+'</b> '+esc(t("modelW"))+'</span></div>';
   h+='<div class="dk-line '+(tm.missing.length?'warn2':'ok2')+'">'+(tm.missing.length?'🔎 '+esc(K("lookingFor")+tm.needTxt):'✓ '+esc(t("clsTeamAll")))+'</div>';
+  if(tm.fitPct!=null) h+='<div class="dk-line">🎯 <b>'+tm.fitPct+'%</b> '+esc(t("roleFitLbl"))+'</div>';
   h+='<div class="dk-line"><b>'+esc(t("workLbl"))+':</b> '+(tm.work.length?tm.work.slice(0,4).map(function(w){return esc(w.name)+' <span class="saved">'+w.n+'</span>';}).join(' · '):'<span class="saved">'+esc(t("noNames"))+'</span>')+'</div>';
   if(tm.diff) h+='<div class="dk-line"><b>'+esc(t("mostDiffLbl"))+':</b> '+PROJECTS[tm.diff.p].emoji+' #'+(tm.diff.i+1)+' '+esc(taskTitle(tm.diff.p,tm.diff.i))+' <span class="saved">('+ROLES.filter(function(r){return tm.diff.rc[r];}).map(function(r){return LETTER[r]+"×"+tm.diff.rc[r];}).join(" ")+')</span></div>';
   return h+'</div>';
@@ -1977,6 +2001,7 @@ document.addEventListener("click",function(e){
   var el, tg=e.target;
   if((el=tg.closest("[data-jlang]"))){ var nm=$("#joinName").value, tm=$("#joinTeam").value; S.lang=el.dataset.jlang; save(); render(); openJoin(); $("#joinName").value=nm; $("#joinTeam").value=tm; return; }
   if(tg.closest("#joinOk")){ joinSubmit(); return; }
+  if((el=tg.closest("[data-jrole]"))){ S.myRole=el.dataset.jrole; S.myCode=""; save(); document.querySelectorAll("[data-jrole]").forEach(function(b){ b.setAttribute("aria-pressed", String(b.dataset.jrole===S.myRole)); }); var jm=$("#jroleMsg"); if(jm) jm.textContent=""; return; }
   if(tg.closest("#bStudentView")){ S.instructor=false; S.forceStudent=true; S.wasInstructor=true; S.presenter=false; if(S.view==="class") S.view="p1"; save(); setHash("student"); render(); return; }
   if(tg.closest("#bBackInstr")){ S.instructor=true; S.forceStudent=false; save(); closeModal(); setHash("instructor"); render(); return; }
   if(tg.closest("#endCollect")){ endCollection(); return; }
@@ -2009,14 +2034,16 @@ function openClassModal(edit){
     '<div style="margin:10px 0"><label class="saved" for="cName">'+esc(t("classNameLbl"))+'</label><input class="urlin" id="cName" maxlength="80" value="'+esc(nm)+'"></div>'+
     '<label class="saved" for="cGroups">'+esc(t("groupsLbl"))+'</label><div class="hints" style="margin:4px 0 6px">'+[1,2,3,4,5,6,8].map(function(n){return '<button class="hint" data-gq="'+n+'">'+n+'</button>';}).join("")+'</div>'+
     '<textarea id="cGroups" class="grpta" rows="6">'+esc(gs.join("\n"))+'</textarea><div class="note" style="margin-top:4px">'+esc(t("groupsHint"))+'</div>'+
+    '<label class="check" style="margin:12px 0 4px;color:var(--ink)"><input type="checkbox" id="cReqRole" '+((!se||se.reqRole!==false)?'checked':'')+'> 🎭 '+esc(t("reqRoleLbl"))+'</label><div class="note" style="margin-top:0">'+esc(t("reqRoleHint"))+'</div>'+
     (edit?'<div class="warn">'+esc(t("editWarn"))+'</div>':'')+
     '<div class="row"><button class="btn" data-close>'+esc(t("cancel"))+'</button><button class="btn accent" id="cSave" data-edit="'+(edit?1:0)+'">'+esc(edit?t("saveBtn"):t("createBtn"))+'</button></div>');
 }
 function saveClassModal(edit){
   var nm=$("#cName").value.trim(); if(!nm){ $("#cName").focus(); return; }
   var gs=$("#cGroups").value.split(/\n|;/).map(function(x){return x.trim();}).filter(function(x,i,arr){return x && arr.indexOf(x)===i;}).slice(0,30);
-  if(edit){ C.session.name=nm; C.session.groups=gs; }
-  else { C.classes=C.classes.filter(function(x){ return Object.keys(x.students).length || !/^Workshop \d{4}-/.test(x.name); }); var c=newSession(nm,gs); C.classes.push(c); C.activeId=c.id; }
+  var rq=$("#cReqRole")?$("#cReqRole").checked:true;
+  if(edit){ C.session.name=nm; C.session.groups=gs; C.session.reqRole=rq; }
+  else { C.classes=C.classes.filter(function(x){ return Object.keys(x.students).length || !/^Workshop \d{4}-/.test(x.name); }); var c=newSession(nm,gs); c.reqRole=rq; C.classes.push(c); C.activeId=c.id; }
   viewingArchive=null; saveC(); closeModal(); render(); window.scrollTo(0,0);
 }
 var grpProj="p1";
@@ -2070,7 +2097,7 @@ var GAS_SCRIPT = "// Team Roles Workshop \u2013 live results (Google Apps Script
 var liveState={t:0,busy:false,last:"",status:"",err:""};
 function liveOn(){ return !S.instructor && S.cls && S.cls.u && S.cls.i; }
 function subSig(){ var R=S.reflection; return JSON.stringify([S.myRole,S.myCode,R.name,R.team,R.q1,R.q2,R.q3,S.assign]); }
-function liveSchedule(){ if(!liveOn() || !S.reflection.name.trim() || (S.cls.g.length && !S.reflection.team)) return; clearTimeout(liveState.t); liveState.t=setTimeout(function(){ liveSync(false); },5000); liveStatus("pending"); }
+function liveSchedule(){ if(!liveOn() || !S.reflection.name.trim() || (S.cls.g.length && !S.reflection.team) || (S.cls.r && !S.myRole)) return; clearTimeout(liveState.t); liveState.t=setTimeout(function(){ liveSync(false); },5000); liveStatus("pending"); }
 function liveStatus(st, extra){ liveState.status=st; var el=$("#liveChip"); if(!el) return;
   el.style.display=liveOn()?"":"none";
   el.className="livechip "+st;
@@ -2109,13 +2136,13 @@ function liveCardHTML(){
   return h+'</div>';
 }
 function liveInfoText(){ return esc(livePoll.err?t("liveErrInfo")+" ("+livePoll.err+")":(livePoll.at?t("liveInfo")(livePoll.at,livePoll.n):t("liveWaiting"))); }
-function liveCfgString(){ return "HKCFG:"+b64url(JSON.stringify({u:C.live.url,k:C.live.key,c:C.classes.map(function(x){return {i:x.id,n:x.name,g:x.groups||[],s:x.startedAt};})})); }
+function liveCfgString(){ return "HKCFG:"+b64url(JSON.stringify({u:C.live.url,k:C.live.key,c:C.classes.map(function(x){return {i:x.id,n:x.name,g:x.groups||[],s:x.startedAt,r:x.reqRole!==false};})})); }
 function liveApplyCfg(txt){
   var m=/HKCFG:([A-Za-z0-9_\-]+)/.exec(txt||""); if(!m) return null;
   try{ var o=JSON.parse(b64urlDec(m[1])); if(!o || !o.u || !o.k) return null;
     (o.c||[]).forEach(function(c){ if(!c || !c.i) return; var ex=C.classes.filter(function(x){return x.id===c.i;})[0];
       if(ex){ ex.name=String(c.n||ex.name); ex.groups=Array.isArray(c.g)?c.g.map(String):ex.groups; }
-      else C.classes.push({id:String(c.i).slice(0,40),name:String(c.n||"Class").slice(0,80),groups:Array.isArray(c.g)?c.g.map(String):[],startedAt:String(c.s||new Date().toISOString()),students:{}}); });
+      else C.classes.push({id:String(c.i).slice(0,40),name:String(c.n||"Class").slice(0,80),groups:Array.isArray(c.g)?c.g.map(String):[],startedAt:String(c.s||new Date().toISOString()),reqRole:c.r!==false,students:{}}); });
     C.classes=C.classes.filter(function(x){ return Object.keys(x.students).length || !/^Workshop \d{4}-/.test(x.name) || (o.c||[]).some(function(c){return c.i===x.id;}); });
     if(!C.classes.some(function(x){return x.id===C.activeId;})) C.activeId=C.classes[C.classes.length-1].id;
     return {url:String(o.u),key:String(o.k),n:(o.c||[]).length}; }catch(e){ return null; }
@@ -2224,7 +2251,7 @@ function exportPptx(){
     var named=A.teams.filter(function(tm){return tm.m.length;});
     for(var g=0; g<named.length; g+=5){
       var s3=base(t("c4h"), t("c4sub")), rows=[[t("thTeam"),t("member"),t("agreeShort"),t("modelW"),K("lookingFor").replace(/:\s*$/,""),t("workLbl")].map(function(h){return {text:h,options:{bold:true,color:"FFFFFF",fill:{color:NAVY}}};})];
-      named.slice(g,g+5).forEach(function(tm){ rows.push([{text:tm.name,options:{bold:true}},tm.m.map(function(s){var r=FROMLETTER[s.r];return s.n+(r?" ("+LETTER[r]+")":"");}).join(", "),tm.agreePct!=null?tm.agreePct+"%":"—",tm.matchPct!=null?tm.matchPct+"%":"—",tm.missing.length?tm.needTxt:"✓",tm.work.length?tm.work.map(function(w){return w.name+" "+w.n;}).join(", "):"—"]); });
+      named.slice(g,g+5).forEach(function(tm){ rows.push([{text:tm.name,options:{bold:true}},tm.m.map(function(s){var r=FROMLETTER[s.r];return s.n+(r?" ("+LETTER[r]+")":"");}).join(", "),(tm.agreePct!=null?tm.agreePct+"%":"—")+(tm.fitPct!=null?" · 🎯"+tm.fitPct+"%":""),tm.matchPct!=null?tm.matchPct+"%":"—",tm.missing.length?tm.needTxt:"✓",tm.work.length?tm.work.map(function(w){return w.name+" "+w.n;}).join(", "):"—"]); });
       s3.addTable(rows,{x:0.6,y:1.7,w:12.1,colW:[1.3,3.4,0.9,0.9,2.6,3.0],fontSize:13,color:INK,border:{type:"solid",pt:0.75,color:"E3E6EE"},valign:"middle",autoPage:false});
       s3.addText("A / D / S / E = "+labels.join(" / "),{x:0.6,y:6.55,w:12,h:0.3,fontSize:11,color:MUT,margin:0});
     }
@@ -2373,7 +2400,7 @@ window.addEventListener("hashchange",function(){
 });
 render();
 liveStartPoll(true); liveStatus(liveState.status||"idle");
-if(!S.instructor && (!S.reflection.name.trim() || (S.cls && S.cls.g.length && !S.reflection.team))) setTimeout(openJoin,50);
+if(!S.instructor && (!S.reflection.name.trim() || (S.cls && S.cls.g.length && !S.reflection.team) || (S.cls && S.cls.r && !S.myRole))) setTimeout(openJoin,50);
 })();
 
 </script>
