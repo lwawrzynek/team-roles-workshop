@@ -399,6 +399,74 @@ body.instructor #joinRow{display:none}
 .gdetails{margin-top:12px}
 .gdetails summary{cursor:pointer;font-weight:700;color:var(--muted);font-size:.88rem}
 
+/* ---- Conclusions deck v2: fixed 1280x720 canvas scaled to screen ---- */
+.dk-top{padding:8px 14px}
+.dk-bot{padding:6px 14px}
+.dk-stage{flex:1;position:relative;overflow:hidden;padding:0;display:block}
+.dk-canvas{position:absolute;left:0;top:0;width:1280px;height:720px;transform-origin:0 0}
+.dk-canvas .dk-slide{width:1280px;height:720px;max-height:none;aspect-ratio:auto;border-radius:18px;padding:40px 56px;gap:20px;overflow:hidden;font-size:20px}
+.dk-slide .kicker{font-size:14px}
+.dk-slide .dk-h h2{font-size:46px;margin:2px 0 4px}
+.dk-slide .dk-sub{font-size:19px}
+.dk-slide .saved{font-size:.8em}
+.dk-slide .tag{font-size:15px;padding:3px 10px}
+.dk-slide .dk-2{gap:40px}
+.dk-slide .dk-2.wide{grid-template-columns:1.25fr 1fr}
+.dk-slide .dk-bars .barrow{grid-template-columns:150px 1fr 50px;font-size:20px}
+.dk-slide .dk-bars .bartrack{height:24px}
+.dk-slide .bars{gap:14px}
+.dk-slide .teamrow{padding:10px 14px}
+.dk-slide .teamrow .tn{font-size:19px}
+.dk-slide .dk-col h3{font-size:24px;margin-bottom:6px}
+.dk-slide .dk-score{font-size:17px}
+.dk-slide .dk-score b{font-size:52px}
+.dk-slide .duo{grid-template-columns:140px 1fr 1fr;font-size:17px;margin-bottom:9px}
+.dk-slide .duo .hd{font-size:13px}
+.dk-slide .mini .bartrack{height:16px}
+.dk-slide .mini b{width:46px;font-size:16px}
+.dk-slide .matchlist li{font-size:16px}
+.dk-slide .matchlist .nn{font-size:13px}
+.dk-slide .dk-ins li{font-size:19px;padding:10px 14px}
+.dk-slide .dk-ins.compact{gap:8px;margin-top:4px}
+.dk-slide .dk-ins.compact li{font-size:18px;padding:8px 14px}
+.dk-slide .dk-disc ol{font-size:19px}
+.dk-slide .dk-close{font-size:18px}
+.dk-grid{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:18px;flex:1;min-height:0}
+.dk-grid.two{grid-template-rows:1fr}
+.dk-team{background:#f7f6f2;border-radius:14px;padding:14px 18px;display:flex;flex-direction:column;gap:8px;overflow:hidden}
+.dk-tn{font-family:Fraunces,Georgia,serif;font-size:24px;font-weight:700}
+.dk-team .tm{display:flex;flex-wrap:wrap;gap:6px}
+.dk-met{display:flex;gap:18px;font-size:17px}
+.dk-met b{font-size:24px}
+.dk-line{font-size:16px;line-height:1.35}
+.dk-line.warn2{color:#8a5600;font-weight:600}
+.dk-line.ok2{color:var(--diplomat-ink);font-weight:600}
+.dk-needs{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.dk-need{border-radius:14px;padding:14px 20px;background:var(--cbg);border:2px solid var(--c)}
+.dk-need-h{font-size:22px;font-weight:800}
+.dk-need-big{font-family:Fraunces,Georgia,serif;font-size:28px;color:var(--cink);margin-top:4px;line-height:1.2}
+.dk-tbl{width:100%;border-collapse:collapse;font-size:18px}
+.dk-tbl th{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:left;padding:4px 8px;border-bottom:2px solid var(--line)}
+.dk-tbl td{padding:6px 8px;border-bottom:1px solid var(--line)}
+.dk-tbl td .dot{width:12px;height:12px}
+.dk-tbl td.up{color:#0b5c3e;font-weight:700}
+.dk-tbl td.down{color:#9b1c12;font-weight:700}
+.dk-mbar{display:flex;align-items:center;gap:8px}
+.dk-mbar .bartrack{flex:1;height:14px;max-width:220px}
+.dk-mbar b{width:44px;text-align:right;font-size:16px}
+.pslide{zoom:.74}
+.pslide .dk-slide{width:1280px;height:720px;aspect-ratio:auto;overflow:hidden;font-size:20px}
+@media print{ @page{size:landscape;margin:8mm} .pslide{zoom:.78} }
+.pslide .dk-slide{padding:40px 56px;gap:20px;display:flex;flex-direction:column}
+.dk-team{padding:12px 16px;gap:6px}
+.dk-tn{font-size:21px}
+.dk-team .tag{font-size:13px;padding:2px 8px}
+.dk-met{font-size:15px;white-space:nowrap}
+.dk-met b{font-size:20px}
+.dk-line{font-size:14.5px;line-height:1.3}
+.dk-slide .dk-ins li{font-size:18px;padding:9px 14px}
+.dk-slide .dk-ins{gap:9px}
+
 </style>
 </head>
 <body>
@@ -1584,6 +1652,15 @@ en:{
   liveDelText:function(n){return "All answers of “"+n+"” will be permanently deleted from the server. Download the class first if you want a copy.";}, liveDelLocal:"Also clear the answers shown on this computer",
   liveDeleted:function(n){return "Server data deleted: “"+n+"”";}, liveDelFail:"Couldn’t delete on the server.",
   clsDelTitle:"Delete this class?", clsDelText:function(n,c){return "“"+n+"”"+(c?" and its "+c+" submission(s)":"")+" will be removed from this browser. This cannot be undone.";}, clsDelSrv:"Also delete its answers from the server", clsDeleted:function(n){return "Class deleted: “"+n+"”";},
+  c4h:"Teams: who does what", c4sub:"Agreement inside each team, match with the model answers, task split and who is missing", agreeLbl:"agreement in the team", workLbl:"Task split (names at tasks)", noNames:"no names entered at tasks", mostDiffLbl:"Most different",
+  c5h:"What does each project need?", c5sub:"Share of tasks the class gave to each role group — compared with who is in the room", colRole:"Role group", colRoom:"In the room", colShift:"Change",
+  needsBig:function(a,b,pc){return "mostly "+a+" & "+b+" — "+pc+"% of tasks";},
+  needsLine:function(p,k,a,pa,b,pb){return p+" ("+k+") needs mostly "+a+" ("+pa+"%) and "+b+" ("+pb+"%).";},
+  shiftLine:function(r,a,b){return "Biggest shift between projects: "+r+" — "+a+"% of tasks in the analytical project vs "+b+"% in the creative one.";},
+  roomGap:function(r,room,p,need){return "Gap in the room: "+room+"% of you are "+r+"s, but "+p+" needs them for "+need+"% of tasks — someone will need to stretch.";},
+  insBestAgree:function(n,pc){return "Most aligned team: "+n+" ("+pc+"% agreement).";},
+  deckPptx:"PowerPoint", pptxBuilding:"Creating PowerPoint…", pptxFail:"Couldn’t create the PowerPoint (internet is needed).", pptxDone:"PowerPoint downloaded",
+  agreeShort:"agreement",
   topAgree:"Clearest agreement", noData:"Not enough data yet."
 },
 pl:{
@@ -1639,6 +1716,15 @@ pl:{
   liveDelText:function(n){return "Wszystkie odpowiedzi zajęć „"+n+"” zostaną trwale usunięte z serwera. Jeśli chcesz mieć kopię, najpierw pobierz zajęcia.";}, liveDelLocal:"Wyczyść też odpowiedzi widoczne na tym komputerze",
   liveDeleted:function(n){return "Usunięto dane z serwera: „"+n+"”";}, liveDelFail:"Nie udało się usunąć danych z serwera.",
   clsDelTitle:"Usunąć te zajęcia?", clsDelText:function(n,c){return "Zajęcia „"+n+"”"+(c?" i ich zgłoszenia ("+c+")":"")+" zostaną usunięte z tej przeglądarki. Tego nie można cofnąć.";}, clsDelSrv:"Usuń też ich odpowiedzi z serwera", clsDeleted:function(n){return "Usunięto zajęcia: „"+n+"”";},
+  c4h:"Zespoły: kto co robi", c4sub:"Zgodność w zespole, zgodność ze wzorcem, podział zadań i kogo brakuje", agreeLbl:"zgodności w zespole", workLbl:"Podział zadań (imiona przy zadaniach)", noNames:"brak imion przy zadaniach", mostDiffLbl:"Najwięcej różnic",
+  c5h:"Czego potrzebuje każdy projekt?", c5sub:"Udział zadań, które grupa przypisała każdej grupie ról — w porównaniu z tym, kto jest na sali", colRole:"Grupa ról", colRoom:"Na sali", colShift:"Zmiana",
+  needsBig:function(a,b,pc){return "głównie "+a+" i "+b+" — "+pc+"% zadań";},
+  needsLine:function(p,k,a,pa,b,pb){return p+" (projekt "+k+") potrzebuje najbardziej: "+a+" ("+pa+"%) i "+b+" ("+pb+"%).";},
+  shiftLine:function(r,a,b){return "Największa zmiana między projektami: "+r+" — "+a+"% zadań w projekcie analitycznym i "+b+"% w twórczym.";},
+  roomGap:function(r,room,p,need){return "Luka na sali: grupa „"+r+"” to "+room+"% z Was, a projekt "+p+" potrzebuje jej w "+need+"% zadań — ktoś będzie musiał wejść w tę rolę.";},
+  insBestAgree:function(n,pc){return "Najbardziej zgodny zespół: "+n+" ("+pc+"% zgodności).";},
+  deckPptx:"PowerPoint", pptxBuilding:"Tworzenie PowerPointa…", pptxFail:"Nie udało się utworzyć PowerPointa (potrzebny internet).", pptxDone:"Pobrano PowerPointa",
+  agreeShort:"zgodności",
   topAgree:"Największa zgodność", noData:"Za mało danych."
 },
 cs:{
@@ -1694,6 +1780,15 @@ cs:{
   liveDelText:function(n){return "Všechny odpovědi výuky „"+n+"“ budou ze serveru trvale smazány. Chcete-li kopii, nejprve výuku stáhněte.";}, liveDelLocal:"Vymazat i odpovědi zobrazené na tomto počítači",
   liveDeleted:function(n){return "Data smazána ze serveru: „"+n+"“";}, liveDelFail:"Smazání na serveru se nezdařilo.",
   clsDelTitle:"Smazat tuto výuku?", clsDelText:function(n,c){return "Výuka „"+n+"“"+(c?" a její odevzdání ("+c+")":"")+" bude odstraněna z tohoto prohlížeče. Nelze vrátit zpět.";}, clsDelSrv:"Smazat i její odpovědi ze serveru", clsDeleted:function(n){return "Výuka smazána: „"+n+"“";},
+  c4h:"Týmy: kdo co dělá", c4sub:"Shoda uvnitř týmu, shoda se vzorem, rozdělení úkolů a kdo chybí", agreeLbl:"shoda v týmu", workLbl:"Rozdělení úkolů (jména u úkolů)", noNames:"u úkolů nejsou jména", mostDiffLbl:"Největší rozdíly",
+  c5h:"Co potřebuje každý projekt?", c5sub:"Podíl úkolů, které třída přiřadila každé skupině rolí — ve srovnání s tím, kdo je v místnosti", colRole:"Skupina rolí", colRoom:"V místnosti", colShift:"Změna",
+  needsBig:function(a,b,pc){return "hlavně "+a+" a "+b+" — "+pc+" % úkolů";},
+  needsLine:function(p,k,a,pa,b,pb){return p+" ("+k+" projekt) potřebuje nejvíc: "+a+" ("+pa+" %) a "+b+" ("+pb+" %).";},
+  shiftLine:function(r,a,b){return "Největší změna mezi projekty: "+r+" — "+a+" % úkolů v analytickém a "+b+" % v tvůrčím projektu.";},
+  roomGap:function(r,room,p,need){return "Mezera v místnosti: skupina „"+r+"“ tvoří "+room+" % z vás, ale projekt "+p+" ji potřebuje u "+need+" % úkolů — někdo se bude muset posunout.";},
+  insBestAgree:function(n,pc){return "Nejvíc sladěný tým: "+n+" ("+pc+" % shody).";},
+  deckPptx:"PowerPoint", pptxBuilding:"Vytváření PowerPointu…", pptxFail:"PowerPoint se nepodařilo vytvořit (je potřeba internet).", pptxDone:"PowerPoint stažen",
+  agreeShort:"shody",
   topAgree:"Největší shoda", noData:"Zatím málo dat."
 }};
 LANGS.forEach(function(l){ Object.keys(T2[l]).forEach(function(k){ T[l][k]=T2[l][k]; }); });
@@ -1726,6 +1821,18 @@ function analyse(se){
     tm.need={}; ["a1","a2"].forEach(function(key){ for(var i=0;i<20;i++){ var c={}, best=null; tm.m.forEach(function(s){ var r=FROMLETTER[s[key].charAt(i)]; if(r){ c[r]=(c[r]||0)+1; if(!best||c[r]>c[best]) best=r; } }); if(best && tm.missing.indexOf(best)>-1) tm.need[best]=(tm.need[best]||0)+1; } });
     var tmm=0, tma=0; tm.m.forEach(function(s){ ["p1","p2"].forEach(function(p){ var key=p==="p1"?"a1":"a2"; for(var i=0;i<20;i++){ var r=FROMLETTER[s[key].charAt(i)]; if(r){ tma++; if(r===fit(p,i)) tmm++; } } }); }); tm.matchPct=tma?Math.round(tmm/tma*100):null;
     tm.needTxt=tm.missing.map(function(r){ return rn(r)+(tm.need[r]?" ("+K("tasksN")(tm.need[r])+")":""); }).join(", ");
+    var ag=0, agN=0, names={}, disp={}, diff=null;
+    ["p1","p2"].forEach(function(p){ var key=p==="p1"?"a1":"a2", mk=p==="p1"?"m1":"m2";
+      for(var i=0;i<20;i++){
+        var rc={}, nA=0; tm.m.forEach(function(s){ var r=FROMLETTER[s[key].charAt(i)]; if(r){ rc[r]=(rc[r]||0)+1; nA++; } });
+        var distinct=Object.keys(rc).length;
+        if(nA>=2){ agN++; if(distinct===1) ag++; if(distinct>1 && (!diff || distinct>diff.d || (distinct===diff.d && nA>diff.n))) diff={p:p,i:i,d:distinct,n:nA,rc:rc}; }
+        var nc={}, best=null; tm.m.forEach(function(s){ var nm=String(s[mk][i]||"").trim(); if(!nm) return; var k=nm.toLowerCase(); if(!disp[k]) disp[k]=nm; nc[k]=(nc[k]||0)+1; if(!best||nc[k]>nc[best]) best=k; });
+        if(best) names[best]=(names[best]||0)+1;
+      } });
+    tm.agreePct=agN?Math.round(ag/agN*100):null;
+    tm.work=Object.keys(names).sort(function(a,b){return names[b]-names[a];}).slice(0,6).map(function(k){return {name:disp[k],n:names[k]};});
+    tm.diff=diff;
     return tm; });
   R.proj={}; var against=0, totalAs=0;
   ["p1","p2"].forEach(function(p){
@@ -1748,39 +1855,84 @@ function analyse(se){
   R.reflDone=list.filter(function(s){ return s.q.every(function(x){return x && x.trim();}); }).length;
   return R;
 }
-function deckSlides(se){
-  var A=analyse(se), n=A.n, slides=[];
-  // slide 1
-  var s1='<div class="dk-h"><div class="kicker">'+esc(se.name)+'</div><h2>'+esc(t("c1h"))+'</h2><div class="dk-sub">'+esc(t("c1sub")(n,A.teams.length))+'</div></div><div class="dk-2">';
-  s1+='<div><div class="stack" style="height:22px">'+ROLES.map(function(r){return '<span style="'+cvars(r)+'width:'+(n?A.mix[r]/n*100:0)+'%"></span>';}).join("")+'</div><div class="bars dk-bars">'+ROLES.map(function(r){var pc=n?Math.round(A.mix[r]/n*100):0;return '<div class="barrow" style="'+cvars(r)+'"><span>'+esc(rn(r))+'</span><div class="bartrack"><div class="barfill" style="width:'+pc+'%"></div></div><span class="n">'+A.mix[r]+'</span></div>';}).join("")+'</div></div>';
-  s1+='<div class="dk-teams">'+A.teams.map(function(tm){ return '<div class="teamrow"><div class="tn"><span>'+esc(tm.name)+(tm.matchPct!=null?' <span class="tag" style="--cbg:#efede7;--cink:var(--ink)">🔑 '+tm.matchPct+'%</span>':'')+'</span><span class="saved" style="'+(tm.missing.length?"color:#8a5600":"color:var(--diplomat-ink)")+'">'+(tm.missing.length?"🔎 "+esc(K("lookingFor")+tm.needTxt):"✓ "+esc(t("clsTeamAll")))+'</span></div><div class="tm">'+tm.m.map(function(s){var r=FROMLETTER[s.r];return '<span class="tag" style="'+(r?cvars(r):"--cbg:var(--none-bg);--cink:var(--muted)")+'">'+esc(s.n)+(r?' · '+esc(rn(r)):'')+'</span>';}).join("")+'</div></div>'; }).join("")+'</div></div>';
-  slides.push(s1);
-  // slide 2
-  var s2='<div class="dk-h"><h2>'+esc(t("c2h"))+'</h2><div class="dk-sub">'+esc(t("c2sub"))+'</div></div><div class="dk-2">';
-  ["p1","p2"].forEach(function(p){ var P=A.proj[p];
-    s2+='<div class="dk-col"><h3>'+PROJECTS[p].emoji+' '+esc(pr(p).short)+' <span class="saved">· '+esc(K(p))+'</span></h3>';
-    s2+='<div class="dk-score"><b>'+(P.sum?P.matchPct+'%':'—')+'</b> '+esc(t("matchKey"))+'</div>';
-    s2+='<div class="duo" style="grid-template-columns:110px 1fr 1fr"><span></span><span class="hd">'+esc(t("classChose"))+'</span><span class="hd">🔑 '+esc(t("modelW"))+'</span></div>';
-    ROLES.forEach(function(r){ var pc=P.sum?Math.round(P.tot[r]/P.sum*100):0, kp=P.fitc[r]*5;
-      s2+='<div class="duo" style="'+cvars(r)+';grid-template-columns:110px 1fr 1fr"><span>'+esc(rn(r))+'</span><div class="mini"><div class="bartrack"><div class="barfill" style="width:'+pc+'%"></div></div><b style="width:38px">'+pc+'%</b></div><div class="mini"><div class="bartrack"><div class="barfill ghost" style="width:'+kp+'%"></div></div><b style="width:38px">'+kp+'%</b></div></div>'; });
-    s2+='<div class="kicker" style="margin-top:12px">'+esc(t("diffsTitle"))+'</div><ul class="matchlist">'+(P.diffs.length?P.diffs.map(function(x){return '<li style="'+cvars(x.key)+'"><span class="nn">#'+(x.i+1)+'</span><span>'+esc(taskTitle(p,x.i))+'<br><span class="saved">'+esc(t("classChose"))+': <b style="color:var(--'+x.top+'-ink)">'+esc(rn(x.top))+'</b> · 🔑 '+esc(t("modelW"))+': <b style="color:var(--cink)">'+esc(rn(x.key))+'</b></span></span></li>';}).join(""):'<li>'+(P.sum?'✓ '+esc(t("noDiffs")):esc(t("noData")))+'</li>')+'</ul></div>';
-  });
-  s2+='</div>'; slides.push(s2);
-  // slide 3
-  var ins=[];
+function insightsOf(A, skipLean){
+  var n=A.n, ins=[];
   if(n){ var srt=ROLES.slice().sort(function(x,y){return A.mix[y]-A.mix[x];}), dom=srt[0];
     if(A.mix[srt[0]]===A.mix[srt[1]]) ins.push([null,t("insBalanced")]); else ins.push([dom,t("insDominant")(rn(dom),Math.round(A.mix[dom]/n*100))]); if(A.mix.none) ins.push([null,t("insNoRole")(A.mix.none)]); }
   var miss=A.teams.filter(function(tm){return tm.missing.length && tm.name!==t("noTeam");});
   ins.push([null, miss.length?t("insMissing")(miss.map(function(tm){return tm.name+" → "+tm.needTxt;}).join("; ")):t("insAllTeams")]);
-  ["p1","p2"].forEach(function(p){ var P=A.proj[p]; if(P.sum) ins.push([P.order[0], t("insLean")(PROJECTS[p].emoji+" "+pr(p).short, rn(P.order[0]), rn(P.order[1]), P.leanPct)]); });
+  if(!skipLean) ["p1","p2"].forEach(function(p){ var P=A.proj[p]; if(P.sum) ins.push([P.order[0], t("insLean")(PROJECTS[p].emoji+" "+pr(p).short, rn(P.order[0]), rn(P.order[1]), P.leanPct)]); });
   var P1=A.proj.p1, P2=A.proj.p2, allSum=P1.sum+P2.sum;
   if(allSum){ ins.push([null, t("insMatch")(Math.round((P1.matchN+P2.matchN)/allSum*100))+((P1.sum&&P2.sum)?" "+t("insProjMatch")(pr("p1").short,P1.matchPct,pr("p2").short,P2.matchPct):"")]); }
   var worst=null; ["p1","p2"].forEach(function(p){ var d=A.proj[p].diffs[0]; if(d && (!worst || d.kPct<worst.d.kPct)) worst={p:p,d:d}; });
   if(worst) ins.push([worst.d.key, t("insMissed")(taskTitle(worst.p,worst.d.i), rn(worst.d.top), rn(worst.d.key))]);
-  var scored=A.teams.filter(function(tm){return tm.matchPct!=null && tm.name!==t("noTeam");});
-  if(scored.length>1){ var bt=scored.slice().sort(function(x,y){return y.matchPct-x.matchPct;})[0]; ins.push([null, t("insBestTeam")(bt.name,bt.matchPct)]); }
+  var scored=A.teams.filter(function(tm){return tm.agreePct!=null && tm.name!==t("noTeam");});
+  if(scored.length>1){ var bt=scored.slice().sort(function(x,y){return y.agreePct-x.agreePct;})[0]; ins.push([null, t("insBestAgree")(bt.name,bt.agreePct)]); }
   if(n) ins.push([null, t("insRefl")(A.reflDone,n)]);
-  var s3='<div class="dk-h"><h2>'+esc(t("c3h"))+'</h2></div><div class="dk-2"><ul class="dk-ins">'+ins.map(function(x){return '<li style="'+(x[0]?cvars(x[0]):"--c:var(--ink)")+'">'+esc(x[1])+'</li>';}).join("")+'</ul>';
+  return ins;
+}
+function bar(pc,r){ return '<div class="dk-mbar"><div class="bartrack"><div class="barfill" style="'+cvars(r)+'width:'+pc+'%"></div></div><b>'+pc+'%</b></div>'; }
+function needsOf(A){
+  var n=A.n, R={room:{},lines:[]};
+  ROLES.forEach(function(r){ R.room[r]=n?Math.round(A.mix[r]/n*100):0; });
+  ["p1","p2"].forEach(function(p){ var P=A.proj[p], pct={}, useModel=!P.sum;
+    ROLES.forEach(function(r){ pct[r]=useModel?P.fitc[r]*5:Math.round(P.tot[r]/P.sum*100); });
+    var top=ROLES.slice().sort(function(x,y){return pct[y]-pct[x];});
+    R[p]={pct:pct,top:top,topPct:pct[top[0]]+pct[top[1]],model:useModel};
+    R.lines.push([top[0], t("needsLine")(pr(p).short, K(p).toLowerCase(), rn(top[0]), pct[top[0]], rn(top[1]), pct[top[1]])]);
+  });
+  var big=null; ROLES.forEach(function(r){ var d=R.p2.pct[r]-R.p1.pct[r]; if(!big || Math.abs(d)>Math.abs(big.d)) big={r:r,d:d}; });
+  if(big && big.d!==0) R.lines.push([big.r, t("shiftLine")(rn(big.r), R.p1.pct[big.r], R.p2.pct[big.r])]);
+  if(n){ var gap=null; ["p1","p2"].forEach(function(p){ ROLES.forEach(function(r){ var d=R[p].pct[r]-R.room[r]; if(!gap || d>gap.d) gap={r:r,p:p,d:d}; }); });
+    if(gap && gap.d>=10) R.lines.push([gap.r, t("roomGap")(rn(gap.r), R.room[gap.r], pr(gap.p).short, R[gap.p].pct[gap.r])]); }
+  return R;
+}
+function roleTag(s){ var r=FROMLETTER[s.r]; return '<span class="tag" style="'+(r?cvars(r):"--cbg:var(--none-bg);--cink:var(--muted)")+'">'+esc(s.n)+(r?' · '+esc(rn(r)):'')+'</span>'; }
+function teamCard(tm){
+  var h='<div class="dk-team"><div class="dk-tn">'+esc(tm.name)+' <span class="saved">('+tm.m.length+')</span></div><div class="tm">'+tm.m.map(roleTag).join("")+'</div>';
+  h+='<div class="dk-met"><span>🤝 <b>'+(tm.agreePct!=null?tm.agreePct+'%':'—')+'</b> '+esc(t("agreeShort"))+'</span><span>🔑 <b>'+(tm.matchPct!=null?tm.matchPct+'%':'—')+'</b> '+esc(t("modelW"))+'</span></div>';
+  h+='<div class="dk-line '+(tm.missing.length?'warn2':'ok2')+'">'+(tm.missing.length?'🔎 '+esc(K("lookingFor")+tm.needTxt):'✓ '+esc(t("clsTeamAll")))+'</div>';
+  h+='<div class="dk-line"><b>'+esc(t("workLbl"))+':</b> '+(tm.work.length?tm.work.slice(0,4).map(function(w){return esc(w.name)+' <span class="saved">'+w.n+'</span>';}).join(' · '):'<span class="saved">'+esc(t("noNames"))+'</span>')+'</div>';
+  if(tm.diff) h+='<div class="dk-line"><b>'+esc(t("mostDiffLbl"))+':</b> '+PROJECTS[tm.diff.p].emoji+' #'+(tm.diff.i+1)+' '+esc(taskTitle(tm.diff.p,tm.diff.i))+' <span class="saved">('+ROLES.filter(function(r){return tm.diff.rc[r];}).map(function(r){return LETTER[r]+"×"+tm.diff.rc[r];}).join(" ")+')</span></div>';
+  return h+'</div>';
+}
+function deckSlides(se){
+  var A=analyse(se), n=A.n, slides=[];
+  // 1 — who is in the room
+  var s1='<div class="dk-h"><div class="kicker">'+esc(se.name)+'</div><h2>'+esc(t("c1h"))+'</h2><div class="dk-sub">'+esc(t("c1sub")(n,A.teams.length))+'</div></div><div class="dk-2">';
+  s1+='<div><div class="stack" style="height:26px">'+ROLES.map(function(r){return '<span style="'+cvars(r)+'width:'+(n?A.mix[r]/n*100:0)+'%"></span>';}).join("")+'</div><div class="bars dk-bars">'+ROLES.map(function(r){var pc=n?Math.round(A.mix[r]/n*100):0;return '<div class="barrow" style="'+cvars(r)+'"><span>'+esc(rn(r))+'</span><div class="bartrack"><div class="barfill" style="width:'+pc+'%"></div></div><span class="n">'+A.mix[r]+'</span></div>';}).join("")+'</div></div>';
+  s1+='<div class="dk-teams">'+A.teams.map(function(tm){ return '<div class="teamrow"><div class="tn"><span>'+esc(tm.name)+'</span><span class="saved" style="'+(tm.missing.length?"color:#8a5600":"color:var(--diplomat-ink)")+'">'+(tm.missing.length?"🔎 "+esc(K("lookingFor")+tm.missing.map(rn).join(", ")):"✓")+'</span></div><div class="tm">'+tm.m.map(roleTag).join("")+'</div></div>'; }).join("")+'</div></div>';
+  slides.push(s1);
+  // 2 — what each project needs
+  var NE=needsOf(A);
+  var sN='<div class="dk-h"><h2>'+esc(t("c5h"))+'</h2><div class="dk-sub">'+esc(t("c5sub"))+'</div></div><div class="dk-needs">';
+  ["p1","p2"].forEach(function(p){ var P=NE[p];
+    sN+='<div class="dk-need" style="'+cvars(P.top[0])+'"><div class="dk-need-h">'+(p==="p1"?"📊":"🎨")+' '+esc(pr(p).short)+' <span class="saved">· '+esc(K(p))+'</span></div><div class="dk-need-big">'+esc(t("needsBig")(rn(P.top[0]),rn(P.top[1]),P.topPct))+'</div></div>'; });
+  sN+='</div><table class="dk-tbl"><thead><tr><th>'+esc(t("colRole"))+'</th><th>'+esc(t("colRoom"))+'</th><th>📊 '+esc(pr("p1").short)+'</th><th>🎨 '+esc(pr("p2").short)+'</th><th>'+esc(t("colShift"))+'</th></tr></thead><tbody>';
+  ROLES.forEach(function(r){ var a1=NE.p1.pct[r], a2=NE.p2.pct[r], d=a2-a1;
+    sN+='<tr style="'+cvars(r)+'"><td><span class="dot"></span> <b>'+esc(rn(r))+'</b></td><td>'+NE.room[r]+'%</td><td>'+bar(a1,r)+'</td><td>'+bar(a2,r)+'</td><td class="'+(d>0?'up':d<0?'down':'')+'">'+(d>0?'▲ +':d<0?'▼ ':'= ')+d+' pp</td></tr>'; });
+  sN+='</tbody></table><ul class="dk-ins compact">'+NE.lines.map(function(x){return '<li style="'+(x[0]?cvars(x[0]):"--c:var(--ink)")+'">'+esc(x[1])+'</li>';}).join("")+'</ul>';
+  slides.push(sN);
+  // 3 — teams (4 per slide)
+  var named=A.teams.filter(function(tm){return tm.m.length;});
+  for(var g=0; g<named.length; g+=4){
+    var part=named.slice(g,g+4), pages=Math.ceil(named.length/4);
+    slides.push('<div class="dk-h"><h2>'+esc(t("c4h"))+(pages>1?' <span class="saved">('+(g/4+1)+'/'+pages+')</span>':'')+'</h2><div class="dk-sub">'+esc(t("c4sub"))+'</div></div><div class="dk-grid'+(part.length<=2?' two':'')+'">'+part.map(teamCard).join("")+'</div>');
+  }
+  // 3 — projects
+  var s2='<div class="dk-h"><h2>'+esc(t("c2h"))+'</h2><div class="dk-sub">'+esc(t("c2sub"))+'</div></div><div class="dk-2">';
+  ["p1","p2"].forEach(function(p){ var P=A.proj[p];
+    s2+='<div class="dk-col"><h3>'+PROJECTS[p].emoji+' '+esc(pr(p).short)+' <span class="saved">· '+esc(K(p))+'</span></h3>';
+    s2+='<div class="dk-score"><b>'+(P.sum?P.matchPct+'%':'—')+'</b> '+esc(t("matchKey"))+'</div>';
+    s2+='<div class="duo"><span></span><span class="hd">'+esc(t("classChose"))+'</span><span class="hd">🔑 '+esc(t("modelW"))+'</span></div>';
+    ROLES.forEach(function(r){ var pc=P.sum?Math.round(P.tot[r]/P.sum*100):0, kp=P.fitc[r]*5;
+      s2+='<div class="duo" style="'+cvars(r)+'"><span>'+esc(rn(r))+'</span><div class="mini"><div class="bartrack"><div class="barfill" style="width:'+pc+'%"></div></div><b>'+pc+'%</b></div><div class="mini"><div class="bartrack"><div class="barfill ghost" style="width:'+kp+'%"></div></div><b>'+kp+'%</b></div></div>'; });
+    s2+='<div class="kicker" style="margin-top:14px">'+esc(t("diffsTitle"))+'</div><ul class="matchlist">'+(P.diffs.length?P.diffs.map(function(x){return '<li style="'+cvars(x.key)+'"><span class="nn">#'+(x.i+1)+'</span><span>'+esc(taskTitle(p,x.i))+'<br><span class="saved">'+esc(t("classChose"))+': <b style="color:var(--'+x.top+'-ink)">'+esc(rn(x.top))+'</b> · 🔑 '+esc(t("modelW"))+': <b style="color:var(--cink)">'+esc(rn(x.key))+'</b></span></span></li>';}).join(""):'<li>'+(P.sum?'✓ '+esc(t("noDiffs")):esc(t("noData")))+'</li>')+'</ul></div>';
+  });
+  s2+='</div>'; slides.push(s2);
+  // 4 — conclusions
+  var ins=NE.lines.concat(insightsOf(A,true)).slice(0,6);
+  var s3='<div class="dk-h"><h2>'+esc(t("c3h"))+'</h2></div><div class="dk-2 wide"><ul class="dk-ins">'+ins.map(function(x){return '<li style="'+(x[0]?cvars(x[0]):"--c:var(--ink)")+'">'+esc(x[1])+'</li>';}).join("")+'</ul>';
   s3+='<div class="dk-disc"><div class="kicker">💬 '+esc(t("discuss"))+'</div><ol>'+t("dq").map(function(q){return '<li>'+esc(q)+'</li>';}).join("")+'</ol><div class="dk-close">🧭 '+esc(t("closing"))+'</div></div></div>';
   slides.push(s3);
   return {slides:slides, ins:ins, A:A};
@@ -1790,20 +1942,25 @@ function openDeck(){ goFull(); deckIdx=0; $("#deck").classList.add("open"); rend
 function closeDeck(){ exitFull(); $("#deck").classList.remove("open"); }
 function renderDeck(){
   var se=activeSession(); deckData=deckSlides(se); var L=deckData.slides.length;
-  var h='<div class="dk-top"><span class="dk-brand">🧩 '+esc(t("deckTitle"))+' · '+esc(se.name)+'</span><span style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><span class="seg">'+LANGS.map(function(l){return '<button data-dlang="'+l+'" aria-pressed="'+(S.lang===l)+'">'+l.toUpperCase()+'</button>';}).join("")+'</span><button class="btn ghost sm" id="dkCopy">⧉ '+esc(t("deckCopy"))+'</button><button class="btn ghost sm" id="dkPrint">⎙ '+esc(t("deckPrint"))+'</button><button class="btn ghost sm" id="dkClose">✕</button></span></div>';
-  h+='<div class="dk-stage"><div class="dk-slide">'+deckData.slides[deckIdx]+'</div></div>';
+  var h='<div class="dk-top"><span class="dk-brand">🧩 '+esc(t("deckTitle"))+' · '+esc(se.name)+'</span><span style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><span class="seg">'+LANGS.map(function(l){return '<button data-dlang="'+l+'" aria-pressed="'+(S.lang===l)+'">'+l.toUpperCase()+'</button>';}).join("")+'</span><button class="btn accent sm" id="dkPptx">⬇ '+esc(t("deckPptx"))+'</button><button class="btn ghost sm" id="dkFull">⛶</button><button class="btn ghost sm" id="dkCopy">⧉ '+esc(t("deckCopy"))+'</button><button class="btn ghost sm" id="dkPrint">⎙ '+esc(t("deckPrint"))+'</button><button class="btn ghost sm" id="dkClose">✕</button></span></div>';
+  h+='<div class="dk-stage" id="dkStage"><div class="dk-canvas" id="dkCanvas"><div class="dk-slide">'+deckData.slides[deckIdx]+'</div></div></div>';
   h+='<div class="dk-bot"><button class="btn ghost" id="dkPrev" '+(deckIdx===0?'disabled style="opacity:.4"':'')+'>←</button><span class="dk-n">'+esc(t("deckOf")(deckIdx+1,L))+'</span><button class="btn ghost" id="dkNext" '+(deckIdx===L-1?'disabled style="opacity:.4"':'')+'>→</button></div>';
-  $("#deck").innerHTML=h;
+  $("#deck").innerHTML=h; fitDeck();
 }
+function fitDeck(){ var st=$("#dkStage"), cv=$("#dkCanvas"); if(!st||!cv) return; var w=st.clientWidth, hh=st.clientHeight, sc=Math.min((w-16)/1280,(hh-16)/720); if(!(sc>0)) sc=.5; cv.style.transform="translate("+Math.round((w-1280*sc)/2)+"px,"+Math.round((hh-720*sc)/2)+"px) scale("+sc+")"; }
+window.addEventListener("resize",function(){ if($("#deck").classList.contains("open")) fitDeck(); });
+document.addEventListener("fullscreenchange",function(){ setTimeout(fitDeck,60); });
 function deckText(){
   var se=activeSession(), D=deckSlides(se), A=D.A, L=[];
   L.push(t("deckTitle").toUpperCase()+" — "+se.name); L.push("");
   L.push("1. "+t("c1h")+" ("+t("c1sub")(A.n,A.teams.length)+")");
   ROLES.forEach(function(r){ L.push("   "+rn(r)+": "+A.mix[r]); });
   A.teams.forEach(function(tm){ L.push("   "+tm.name+": "+tm.m.map(function(s){var r=FROMLETTER[s.r];return s.n+(r?" ("+rn(r)+")":"");}).join(", ")); });
-  L.push(""); L.push("2. "+t("c2h"));
+  L.push(""); L.push("2. "+t("c4h"));
+  A.teams.forEach(function(tm){ L.push("   "+tm.name+": 🤝 "+(tm.agreePct!=null?tm.agreePct+"%":"—")+" · 🔑 "+(tm.matchPct!=null?tm.matchPct+"%":"—")+(tm.missing.length?" · "+K("lookingFor")+tm.needTxt:"")+(tm.work.length?" · "+t("workLbl")+": "+tm.work.map(function(w){return w.name+" "+w.n;}).join(", "):"")); });
+  L.push(""); L.push("3. "+t("c2h"));
   ["p1","p2"].forEach(function(p){ var P=A.proj[p]; L.push("   "+pr(p).short+": "+ROLES.map(function(r){return rn(r)+" "+(P.sum?Math.round(P.tot[r]/P.sum*100):0)+"%";}).join(", ")); P.agree.forEach(function(x){ L.push("     • "+taskTitle(p,x.i)+" → "+rn(x.top)+" ("+x.pct+"%)"); }); });
-  L.push(""); L.push("3. "+t("c3h")); D.ins.forEach(function(x){ L.push("   • "+x[1]); });
+  L.push(""); L.push("4. "+t("c3h")); D.ins.forEach(function(x){ L.push("   • "+x[1]); });
   L.push(""); L.push(t("discuss")+":"); t("dq").forEach(function(q,i){ L.push("   "+(i+1)+". "+q); });
   L.push(""); L.push(t("closing"));
   return L.join("\n");
@@ -1835,6 +1992,7 @@ document.addEventListener("click",function(e){
 document.addEventListener("keydown",function(e){
   if(e.key==="Enter" && $("#modal").classList.contains("open") && (e.target.id==="joinName"||e.target.id==="joinTeam")){ e.preventDefault(); joinSubmit(); }
   if(!$("#deck").classList.contains("open")) return;
+  if((e.key==="f"||e.key==="F") && !/INPUT|TEXTAREA/.test(e.target.tagName||"")){ if(document.fullscreenElement) exitFull(); else goFull(); setTimeout(fitDeck,120); }
   if(e.key==="Escape"){ e.preventDefault(); closeDeck(); }
   if(e.key==="ArrowRight"||e.key===" "||e.key==="PageDown"){ if(deckData && deckIdx<deckData.slides.length-1){ deckIdx++; renderDeck(); } e.preventDefault(); }
   if(e.key==="ArrowLeft"||e.key==="PageUp"){ if(deckIdx>0){ deckIdx--; renderDeck(); } e.preventDefault(); }
@@ -2018,6 +2176,86 @@ document.addEventListener("click",function(e){
     liveDelete(se.id, se.name, function(ok){ if(ok && alsoLocal){ se.students={}; delete se.closedAt; saveC(); } liveStartPoll(false); render(); }); return; }
   if(tg.closest("#liveOffOk")){ C.live=null; saveC(); clearInterval(livePoll.timer); closeModal(); render(); return; }
   if(tg.closest(".tab") || tg.closest("#endCollect") || tg.closest("#showConcl")){ setTimeout(function(){ if(C.live) livePollOnce(); },50); }
+});
+
+
+/* ================= PowerPoint export (PptxGenJS, loaded on demand) ================= */
+var PPTX_SRC="https://cdn.jsdelivr.net/npm/pptxgenjs@4.0.1/dist/pptxgen.bundle.js", pptxLoading=null;
+function loadPptx(){ if(window.PptxGenJS) return Promise.resolve(window.PptxGenJS); if(pptxLoading) return pptxLoading;
+  pptxLoading=new Promise(function(res,rej){ var sc=document.createElement("script"); sc.src=PPTX_SRC; sc.onload=function(){ window.PptxGenJS?res(window.PptxGenJS):rej(); }; sc.onerror=function(){ pptxLoading=null; rej(); }; document.head.appendChild(sc); });
+  return pptxLoading; }
+var RHEX={analyst:"5A48D8",diplomat:"0E9A6A",sentinel:"0A82C4",explorer:"D68A00"};
+function exportPptx(){
+  toast("⏳ "+t("pptxBuilding"));
+  loadPptx().then(function(P){
+    var se=activeSession(), A=analyse(se), NE=needsOf(A), ins=NE.lines.concat(insightsOf(A,true)).slice(0,7);
+    var pres=new P(); pres.layout="LAYOUT_WIDE"; pres.title=t("deckTitle")+" – "+se.name;
+    pres.theme={headFontFace:"Cambria",bodyFontFace:"Calibri"};
+    var NAVY="18203D", INK="1B2133", MUT="5D6477", W=13.333;
+    function base(title, sub){ var sl=pres.addSlide(); sl.background={color:"FFFFFF"};
+      sl.addText(title,{x:0.6,y:0.35,w:W-1.2,h:0.8,fontFace:"Cambria",fontSize:34,bold:true,color:INK,margin:0});
+      if(sub) sl.addText(sub,{x:0.6,y:1.1,w:W-1.2,h:0.4,fontSize:15,color:MUT,margin:0});
+      sl.addText(se.name+" · "+t("deckTitle"),{x:0.6,y:7.0,w:8,h:0.3,fontSize:10,color:"8A90A0",margin:0});
+      return sl; }
+    var labels=ROLES.map(rn);
+    // title
+    var s0=pres.addSlide(); s0.background={color:NAVY};
+    s0.addText(t("deckTitle"),{x:0.8,y:2.0,w:11,h:1,fontFace:"Cambria",fontSize:48,bold:true,color:"FFFFFF",margin:0});
+    s0.addText(se.name,{x:0.8,y:3.1,w:11,h:0.6,fontSize:26,color:"F2B705",bold:true,margin:0});
+    s0.addText(t("c1sub")(A.n,A.teams.length)+" · "+fmtDate(new Date().toISOString()),{x:0.8,y:3.8,w:11,h:0.5,fontSize:18,color:"D9DDEA",margin:0});
+    ROLES.forEach(function(r,i){ s0.addShape(pres.ShapeType.ellipse,{x:0.8+i*0.45,y:5.2,w:0.3,h:0.3,fill:{color:RHEX[r]},line:{color:RHEX[r]}}); });
+    s0.addText(labels.join(" · "),{x:2.7,y:5.15,w:9,h:0.4,fontSize:15,color:"D9DDEA",margin:0});
+    // room
+    var s1=base(t("c1h"), t("c1sub")(A.n,A.teams.length));
+    var rs=ROLES.map(function(r,i){ return {name:rn(r),labels:labels,values:ROLES.map(function(x,j){return j===i?A.mix[r]:0;})}; });
+    s1.addChart(pres.ChartType.bar,rs,{x:0.6,y:1.7,w:5.8,h:4.9,barDir:"bar",barGrouping:"stacked",chartColors:ROLES.map(function(r){return RHEX[r];}),showLegend:false,showValue:true,dataLabelFormatCode:"0;;;",dataLabelColor:"FFFFFF",dataLabelFontSize:14,catAxisLabelFontSize:15,catAxisLabelColor:INK,valAxisHidden:true,valGridLine:{style:"none"},catAxisOrientation:"maxMin",catAxisLabelFontFace:"Calibri"});
+    var trows=[[{text:t("thTeam"),options:{bold:true,color:"FFFFFF",fill:{color:NAVY}}},{text:t("member"),options:{bold:true,color:"FFFFFF",fill:{color:NAVY}}},{text:K("lookingFor").replace(/:\s*$/,""),options:{bold:true,color:"FFFFFF",fill:{color:NAVY}}}]];
+    A.teams.forEach(function(tm){ trows.push([{text:tm.name,options:{bold:true}},tm.m.map(function(s){var r=FROMLETTER[s.r];return s.n+(r?" ("+rn(r)+")":"");}).join(", "),tm.missing.length?tm.missing.map(rn).join(", "):"✓"]); });
+    s1.addTable(trows.slice(0,9),{x:6.8,y:1.7,w:5.9,colW:[1.3,3.3,1.3],fontSize:13,color:INK,border:{type:"solid",pt:0.75,color:"E3E6EE"},valign:"middle",autoPage:false});
+    // needs
+    var s2=base(t("c5h"), t("c5sub"));
+    ["p1","p2"].forEach(function(p,k){ var Pn=NE[p], x=0.6+k*6.2;
+      s2.addShape(pres.ShapeType.roundRect,{x:x,y:1.65,w:5.95,h:1.05,fill:{color:"F6F4EE"},line:{color:RHEX[Pn.top[0]],width:2},rectRadius:0.1});
+      s2.addText([{text:pr(p).short+" · "+K(p),options:{bold:true,fontSize:16,color:INK,breakLine:true}},{text:t("needsBig")(rn(Pn.top[0]),rn(Pn.top[1]),Pn.topPct),options:{fontSize:20,fontFace:"Cambria",color:RHEX[Pn.top[0]]}}],{x:x+0.2,y:1.7,w:5.6,h:0.95,margin:0,valign:"middle"}); });
+    var series=[{name:t("colRoom"),labels:labels,values:ROLES.map(function(r){return NE.room[r];})},{name:pr("p1").short,labels:labels,values:ROLES.map(function(r){return NE.p1.pct[r];})},{name:pr("p2").short,labels:labels,values:ROLES.map(function(r){return NE.p2.pct[r];})}];
+    s2.addChart(pres.ChartType.bar,series,{x:0.6,y:2.9,w:7.2,h:3.9,barDir:"col",barGrouping:"clustered",chartColors:["B8BCC8","5A48D8","D68A00"],showLegend:true,legendPos:"t",legendFontSize:13,showValue:true,dataLabelFormatCode:'0"%"',dataLabelFontSize:11,dataLabelPosition:"outEnd",catAxisLabelFontSize:14,valAxisHidden:true,valGridLine:{style:"none"}});
+    s2.addText(NE.lines.map(function(x){return {text:x[1],options:{bullet:true,breakLine:true}};}),{x:8.1,y:2.9,w:4.6,h:3.9,fontSize:15,color:INK,valign:"top",paraSpaceAfter:8,margin:0});
+    // teams
+    var named=A.teams.filter(function(tm){return tm.m.length;});
+    for(var g=0; g<named.length; g+=5){
+      var s3=base(t("c4h"), t("c4sub")), rows=[[t("thTeam"),t("member"),t("agreeShort"),t("modelW"),K("lookingFor").replace(/:\s*$/,""),t("workLbl")].map(function(h){return {text:h,options:{bold:true,color:"FFFFFF",fill:{color:NAVY}}};})];
+      named.slice(g,g+5).forEach(function(tm){ rows.push([{text:tm.name,options:{bold:true}},tm.m.map(function(s){var r=FROMLETTER[s.r];return s.n+(r?" ("+LETTER[r]+")":"");}).join(", "),tm.agreePct!=null?tm.agreePct+"%":"—",tm.matchPct!=null?tm.matchPct+"%":"—",tm.missing.length?tm.needTxt:"✓",tm.work.length?tm.work.map(function(w){return w.name+" "+w.n;}).join(", "):"—"]); });
+      s3.addTable(rows,{x:0.6,y:1.7,w:12.1,colW:[1.3,3.4,0.9,0.9,2.6,3.0],fontSize:13,color:INK,border:{type:"solid",pt:0.75,color:"E3E6EE"},valign:"middle",autoPage:false});
+      s3.addText("A / D / S / E = "+labels.join(" / "),{x:0.6,y:6.55,w:12,h:0.3,fontSize:11,color:MUT,margin:0});
+    }
+    // projects vs model
+    var s4=base(t("c2h"), t("c2sub"));
+    ["p1","p2"].forEach(function(p,k){ var Pp=A.proj[p], x=0.6+k*6.2;
+      s4.addText(pr(p).short+" · "+K(p)+"   "+(Pp.sum?Pp.matchPct+"% "+t("matchKey"):""),{x:x,y:1.6,w:5.9,h:0.4,fontSize:16,bold:true,color:INK,margin:0});
+      s4.addChart(pres.ChartType.bar,[{name:t("classChose"),labels:labels,values:ROLES.map(function(r){return Pp.sum?Math.round(Pp.tot[r]/Pp.sum*100):0;})},{name:t("modelW"),labels:labels,values:ROLES.map(function(r){return Pp.fitc[r]*5;})}],{x:x,y:2.0,w:5.9,h:2.9,barDir:"bar",barGrouping:"clustered",chartColors:["18203D","C9C4B5"],showLegend:true,legendPos:"t",legendFontSize:12,showValue:true,dataLabelFormatCode:'0"%"',dataLabelFontSize:10,catAxisLabelFontSize:13,catAxisOrientation:"maxMin",valAxisHidden:true,valGridLine:{style:"none"}});
+      var dl=Pp.diffs.length?Pp.diffs.map(function(d){return {text:"#"+(d.i+1)+" "+taskTitle(p,d.i)+" — "+t("classChose")+": "+rn(d.top)+", "+t("modelW")+": "+rn(d.key),options:{bullet:true,breakLine:true}};}):[{text:Pp.sum?t("noDiffs"):t("noData")}];
+      s4.addText([{text:t("diffsTitle"),options:{bold:true,breakLine:true}}].concat(dl),{x:x,y:5.0,w:5.9,h:1.9,fontSize:12,color:INK,valign:"top",margin:0,paraSpaceAfter:4}); });
+    // conclusions
+    var s5=base(t("c3h"));
+    s5.addText(ins.map(function(x){return {text:x[1],options:{bullet:true,breakLine:true}};}),{x:0.6,y:1.4,w:7.4,h:5.4,fontSize:15,color:INK,valign:"top",paraSpaceAfter:9,margin:0});
+    s5.addShape(pres.ShapeType.roundRect,{x:8.3,y:1.4,w:4.4,h:5.4,fill:{color:"F0EEFC"},line:{color:"F0EEFC"},rectRadius:0.12});
+    s5.addText([{text:t("discuss"),options:{bold:true,fontSize:18,color:"3F2FB8",breakLine:true}}].concat(t("dq").map(function(q,i){return {text:(i+1)+". "+q,options:{fontSize:14,breakLine:true}};})).concat([{text:" ",options:{breakLine:true}},{text:t("closing"),options:{italic:true,fontSize:13,color:"3F2FB8"}}]),{x:8.55,y:1.6,w:3.9,h:5.0,color:INK,valign:"top",paraSpaceAfter:8,margin:0});
+    var fname=("wnioski-"+safeName(se.name)+".pptx");
+    return pres.write({outputType:"blob"}).then(function(blob){
+      if(!window.JSZip) return blob;
+      return window.JSZip.loadAsync(blob).then(function(z){ var out=new window.JSZip(), jobs=[];
+        z.forEach(function(path,f){ if(!f.dir) jobs.push(f.async("uint8array").then(function(d){ out.file(path,d,{createFolders:false}); })); });
+        return Promise.all(jobs).then(function(){ return out.generateAsync({type:"blob",compression:"DEFLATE",mimeType:"application/vnd.openxmlformats-officedocument.presentationml.presentation"}); }); }).catch(function(){ return blob; });
+    }).then(function(b){ saveBlob(fname, b); });
+  }).catch(function(e){ toast("⚠️ "+t("pptxFail")); if(window.console) console.error(e); });
+}
+function saveBlob(name, blob){
+  if(hostDownloads){ hostDownloads.save({filename:name,data:blob}).then(function(){ toast("✓ "+t("pptxDone")); }).catch(function(){ toast(t("dlFail")); }); return; }
+  try{ var url=URL.createObjectURL(blob), a=document.createElement("a"); a.href=url; a.download=name; document.body.appendChild(a); a.click(); document.body.removeChild(a); setTimeout(function(){URL.revokeObjectURL(url);},4000); toast("✓ "+t("pptxDone")); }catch(e){ toast(t("dlFail")); }
+}
+document.addEventListener("click",function(e){
+  if(e.target.closest("#dkPptx")){ exportPptx(); return; }
+  if(e.target.closest("#dkFull")){ if(document.fullscreenElement) exitFull(); else goFull(); setTimeout(fitDeck,120); return; }
 });
 
 /* ================= Events ================= */
