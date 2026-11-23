@@ -1633,7 +1633,7 @@ en:{
   c1h:"Who is in the room", c1sub:function(n,tm){return n+" students · "+tm+" teams";},
   c2h:"How we staffed the two projects", c2sub:"Share of all task assignments made by the class, by role group",
   c3h:"What we learned", discuss:"Let’s discuss",
-  dq:["Do you see areas where you had to go beyond your main talents?","Which assignment surprised you most — and why?","Could your team deliver both projects? Which one would be easier?","What will you ask your team to rely on you for in the next project?"],
+  dq:["Do you see areas where you had to go beyond your main talents?","Could your team deliver both projects? Which one would be easier?","What will you ask your team to rely on you for in the next project?"],
   insDominant:function(r,p){return "Largest group in the room: "+r+" ("+p+"%).";},
   insNoRole:function(n){return n+" student(s) didn’t choose a role group.";},
   insMissing:function(l){return "Who teams should look for: "+l+". Or someone in the team stretches into that role.";},
@@ -1700,7 +1700,7 @@ pl:{
   c1h:"Kto jest na sali", c1sub:function(n,tm){return "studentów: "+n+" · zespołów: "+tm;},
   c2h:"Jak obsadziliśmy oba projekty", c2sub:"Udział wszystkich przydziałów zadań w grupie według grup ról",
   c3h:"Czego się dowiedzieliśmy", discuss:"Porozmawiajmy",
-  dq:["Czy widzicie obszary, gdzie musieliście wyjść poza swoje główne talenty?","Które przypisanie Was najbardziej zaskoczyło — i dlaczego?","Czy Wasz zespół może wykonać oba projekty? Który będzie łatwiej wykonać?","Z czym Twój zespół może na Tobie polegać w następnym projekcie?"],
+  dq:["Czy widzicie obszary, gdzie musieliście wyjść poza swoje główne talenty?","Czy Wasz zespół może wykonać oba projekty? Który będzie łatwiej wykonać?","Z czym Twój zespół może na Tobie polegać w następnym projekcie?"],
   insDominant:function(r,p){return "Największa grupa na sali: "+r+" ("+p+"%).";},
   insNoRole:function(n){return "Bez wybranej grupy ról: "+n+".";},
   insMissing:function(l){return "Kogo zespoły powinny poszukać: "+l+". Albo ktoś z zespołu wejdzie w tę rolę.";},
@@ -1767,7 +1767,7 @@ cs:{
   c1h:"Kdo je v místnosti", c1sub:function(n,tm){return "studentů: "+n+" · týmů: "+tm;},
   c2h:"Jak jsme obsadili oba projekty", c2sub:"Podíl všech přiřazení úkolů ve třídě podle skupin rolí",
   c3h:"Co jsme se naučili", discuss:"Pojďme diskutovat",
-  dq:["Vidíte oblasti, kde jste museli jít nad rámec svých hlavních talentů?","Které přiřazení vás nejvíc překvapilo — a proč?","Zvládne váš tým oba projekty? Který bude snazší?","S čím se na vás může váš tým v příštím projektu spolehnout?"],
+  dq:["Vidíte oblasti, kde jste museli jít nad rámec svých hlavních talentů?","Zvládne váš tým oba projekty? Který bude snazší?","S čím se na vás může váš tým v příštím projektu spolehnout?"],
   insDominant:function(r,p){return "Největší skupina v místnosti: "+r+" ("+p+" %).";},
   insNoRole:function(n){return "Bez zvolené skupiny rolí: "+n+".";},
   insMissing:function(l){return "Koho by týmy měly hledat: "+l+". Nebo se do té role posune někdo z týmu.";},
@@ -2336,7 +2336,7 @@ pl:{
   projects:function(d){ var s="Zgodność ze wzorcem: "+d.m1+"% w projekcie "+d.p1+" i "+d.m2+"% w projekcie "+d.p2+".";
     if(d.easier) s+=" Łatwiej było trafnie obsadzić projekt "+d.easier+", a projekt "+d.harder+" budził więcej wątpliwości.";
     s+= d.task?" Najczęściej inaczej niż we wzorcu przypisywaliście zadanie „"+d.task+"”: grupa wybrała "+d.top+", a wzorzec wskazuje "+d.key+" — to dobry temat do rozmowy.":" Wasze wybory są bardzo bliskie wzorcowi."; return s; },
-  summary:function(d){ return "Podsumowując: każdy projekt potrzebuje innej mieszanki ról, a na Waszej sali najwięcej jest grupy "+d.dom+"."+(d.anyMissing?" Tam, gdzie w zespole brakuje którejś grupy, ktoś musi wyjść poza swoje preferencje albo trzeba kogoś znaleźć.":"")+" Pamiętajcie: typ opisuje skłonności, a nie ograniczenia. Porozmawiajmy teraz o tym, co Was zaskoczyło."; }
+  summary:function(d){ return "Podsumowując: każdy projekt potrzebuje innej mieszanki ról, a na Waszej sali najwięcej jest grupy "+d.dom+"."+(d.anyMissing?" Tam, gdzie w zespole brakuje którejś grupy, ktoś musi wyjść poza swoje preferencje albo trzeba kogoś znaleźć.":"")+" Pamiętajcie: typ opisuje skłonności, a nie ograniczenia. Porozmawiajmy teraz o Waszych obserwacjach."; }
 },
 en:{
   room:function(d){ var s=d.balanced?"Role groups in the room are evenly balanced — a good base, because every project needs all four.":"The largest group in the room is "+d.dom+" ("+d.domPct+"%). That means “"+d.domTag+"” is your natural strength.";
@@ -2354,7 +2354,7 @@ en:{
   projects:function(d){ var s="Match with the model answers: "+d.m1+"% in "+d.p1+" and "+d.m2+"% in "+d.p2+".";
     if(d.easier) s+=" "+d.easier+" was easier to staff accurately, while "+d.harder+" raised more doubts.";
     s+= d.task?" The task you most often assigned differently from the model was “"+d.task+"”: the class chose "+d.top+", the model says "+d.key+" — a good topic for discussion.":" Your choices are very close to the model."; return s; },
-  summary:function(d){ return "To sum up: each project needs a different mix of roles, and your room has the most "+d.dom+"s."+(d.anyMissing?" Where a team lacks a role group, someone has to step beyond their preferences or the team has to find someone.":"")+" Remember: a type describes tendencies, not limits. Let’s talk about what surprised you."; }
+  summary:function(d){ return "To sum up: each project needs a different mix of roles, and your room has the most "+d.dom+"s."+(d.anyMissing?" Where a team lacks a role group, someone has to step beyond their preferences or the team has to find someone.":"")+" Remember: a type describes tendencies, not limits. Let’s talk about your observations."; }
 },
 cs:{
   room:function(d){ var s=d.balanced?"Skupiny rolí jsou v místnosti zastoupeny rovnoměrně — to je dobrý základ, protože každý projekt potřebuje všechny čtyři.":"Nejpočetnější skupinou v místnosti je "+d.dom+" ("+d.domPct+" %). To znamená, že „"+d.domTag+"“ je vaší přirozenou silnou stránkou.";
@@ -2372,7 +2372,7 @@ cs:{
   projects:function(d){ var s="Shoda se vzorem: "+d.m1+" % v projektu "+d.p1+" a "+d.m2+" % v projektu "+d.p2+".";
     if(d.easier) s+=" Snáz se dal správně obsadit projekt "+d.easier+", projekt "+d.harder+" vzbudil víc pochybností.";
     s+= d.task?" Nejčastěji jinak než ve vzoru jste přiřazovali úkol „"+d.task+"“: třída zvolila "+d.top+", vzor uvádí "+d.key+" — dobré téma k diskusi.":" Vaše volby jsou velmi blízko vzoru."; return s; },
-  summary:function(d){ return "Shrnuto: každý projekt potřebuje jinou směs rolí a ve vaší místnosti je nejvíc skupiny "+d.dom+"."+(d.anyMissing?" Tam, kde v týmu některá skupina chybí, musí někdo jít mimo své preference, nebo je třeba někoho najít.":"")+" Pamatujte: typ popisuje sklony, ne hranice. Pojďme mluvit o tom, co vás překvapilo."; }
+  summary:function(d){ return "Shrnuto: každý projekt potřebuje jinou směs rolí a ve vaší místnosti je nejvíc skupiny "+d.dom+"."+(d.anyMissing?" Tam, kde v týmu některá skupina chybí, musí někdo jít mimo své preference, nebo je třeba někoho najít.":"")+" Pamatujte: typ popisuje sklony, ne hranice. Pojďme mluvit o vašich postřezích."; }
 }};
 function withLang(l, fn){ var o=S.lang; S.lang=l; try{ return fn(); } finally{ S.lang=o; } }
 function interpTexts(se){
