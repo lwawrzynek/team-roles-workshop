@@ -472,6 +472,13 @@ body.instructor #joinRow{display:none}
 .jrole span{font-size:.75rem;color:var(--muted)}
 .jrole .jc{font-size:.68rem;letter-spacing:.04em}
 .jrole[aria-pressed="true"]{border-color:var(--c);background:var(--cbg);box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 18%,transparent)}
+.dk-grid.three{grid-template-columns:repeat(3,1fr);grid-template-rows:1fr}
+.dk-grid.three .dk-team{padding:16px 18px;gap:10px}
+.dk-grid.three .dk-tn{font-size:24px}
+.dk-grid.three .dk-team .tag{font-size:14px}
+.dk-grid.three .dk-met{font-size:16px;white-space:normal;flex-wrap:wrap;gap:10px}
+.dk-grid.three .dk-met b{font-size:24px}
+.dk-grid.three .dk-line{font-size:16.5px;line-height:1.35}
 
 </style>
 </head>
@@ -1917,7 +1924,7 @@ function teamCard(tm){
   h+='<div class="dk-line '+(tm.missing.length?'warn2':'ok2')+'">'+(tm.missing.length?'🔎 '+esc(K("lookingFor")+tm.needTxt):'✓ '+esc(t("clsTeamAll")))+'</div>';
   if(tm.fitPct!=null) h+='<div class="dk-line">🎯 <b>'+tm.fitPct+'%</b> '+esc(t("roleFitLbl"))+'</div>';
   h+='<div class="dk-line"><b>'+esc(t("workLbl"))+':</b> '+(tm.work.length?tm.work.slice(0,4).map(function(w){return esc(w.name)+' <span class="saved">'+w.n+'</span>';}).join(' · '):'<span class="saved">'+esc(t("noNames"))+'</span>')+'</div>';
-  if(tm.diff) h+='<div class="dk-line"><b>'+esc(t("mostDiffLbl"))+':</b> '+PROJECTS[tm.diff.p].emoji+' #'+(tm.diff.i+1)+' '+esc(taskTitle(tm.diff.p,tm.diff.i))+' <span class="saved">('+ROLES.filter(function(r){return tm.diff.rc[r];}).map(function(r){return LETTER[r]+"×"+tm.diff.rc[r];}).join(" ")+')</span></div>';
+  if(tm.diff){ var dt=taskTitle(tm.diff.p,tm.diff.i); if(dt.length>52) dt=dt.slice(0,50).replace(/\s+\S*$/,"")+"…"; h+='<div class="dk-line"><b>'+esc(t("mostDiffLbl"))+':</b> '+PROJECTS[tm.diff.p].emoji+' #'+(tm.diff.i+1)+' '+esc(dt)+'</div>'; }
   return h+'</div>';
 }
 function deckSlides(se){
@@ -1941,7 +1948,7 @@ function deckSlides(se){
   var named=A.teams.filter(function(tm){return tm.m.length;});
   for(var g=0; g<named.length; g+=4){
     var part=named.slice(g,g+4), pages=Math.ceil(named.length/4);
-    slides.push('<div class="dk-h"><h2>'+esc(t("c4h"))+(pages>1?' <span class="saved">('+(g/4+1)+'/'+pages+')</span>':'')+'</h2><div class="dk-sub">'+esc(t("c4sub"))+'</div></div><div class="dk-grid'+(part.length<=2?' two':'')+'">'+part.map(teamCard).join("")+'</div>');
+    slides.push('<div class="dk-h"><h2>'+esc(t("c4h"))+(pages>1?' <span class="saved">('+(g/4+1)+'/'+pages+')</span>':'')+'</h2><div class="dk-sub">'+esc(t("c4sub"))+'</div></div><div class="dk-grid'+(part.length<=2?' two':part.length===3?' three':'')+'">'+part.map(teamCard).join("")+'</div>');
   }
   // 3 — projects
   var s2='<div class="dk-h"><h2>'+esc(t("c2h"))+'</h2><div class="dk-sub">'+esc(t("c2sub"))+'</div></div><div class="dk-2">';
